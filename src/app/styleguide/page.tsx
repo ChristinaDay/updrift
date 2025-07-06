@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -29,6 +29,50 @@ import ThemeToggle from '@/components/ThemeToggle'
 export default function StyleGuidePage() {
   const [showThemePreview, setShowThemePreview] = useState(true)
   const [showLivePreview, setShowLivePreview] = useState(true)
+  const [currentTheme, setCurrentTheme] = useState<string>('dawn')
+
+  // Track current theme from localStorage and HTML class changes
+  useEffect(() => {
+    const getCurrentTheme = () => {
+      const savedTheme = localStorage.getItem('upfetch-theme') || 'dawn'
+      const htmlClasses = document.documentElement.className
+      const themeMatch = htmlClasses.match(/theme-(\w+)/)
+      const activeTheme = themeMatch ? themeMatch[1] : savedTheme
+      
+      console.log('🔍 Style Guide Theme Detection:', {
+        savedTheme,
+        htmlClasses,
+        activeTheme,
+        timestamp: new Date().toISOString()
+      })
+      
+      return activeTheme
+    }
+
+    // Initial theme detection
+    setCurrentTheme(getCurrentTheme())
+
+    // Listen for theme changes by observing HTML class changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          const newTheme = getCurrentTheme()
+          if (newTheme !== currentTheme) {
+            console.log('🎨 Theme changed in style guide:', newTheme)
+            setCurrentTheme(newTheme)
+          }
+        }
+      })
+    })
+
+    // Observe changes to the html element's class attribute
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    })
+
+    return () => observer.disconnect()
+  }, [currentTheme])
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,13 +146,18 @@ export default function StyleGuidePage() {
                <CardContent className="p-0">
                  <div className="flex items-center justify-between p-4 bg-muted/20">
                    <h3 className="text-lg font-semibold text-foreground">Home Page Preview</h3>
-                   <Badge variant="secondary" className="text-xs">Live</Badge>
+                   <div className="flex items-center space-x-2">
+                     <Badge variant="outline" className="text-xs">
+                       Theme: {currentTheme}
+                     </Badge>
+                     <Badge variant="secondary" className="text-xs">Live</Badge>
+                   </div>
                  </div>
                  
                  {/* Scaled Home Page Preview */}
-                 <div className="relative bg-background h-[32rem] overflow-y-auto overflow-x-hidden">
+                 <div className={`relative bg-background h-[32rem] overflow-y-auto overflow-x-hidden theme-${currentTheme}`}>
                    <div className="transform scale-75 origin-top-left w-[133.33%]">
-                     <div className="bg-background">
+                     <div className="bg-background" data-theme={currentTheme}>
                        {/* Header */}
                        <header className="bg-background/80 backdrop-blur-md border-b border-border">
                          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
