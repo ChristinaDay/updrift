@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import ThemeSelector from '@/components/ThemeSelector'
 
 export default function Home() {
   const router = useRouter()
@@ -125,6 +126,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <ThemeSelector />
               {status === 'loading' ? (
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
               ) : session ? (

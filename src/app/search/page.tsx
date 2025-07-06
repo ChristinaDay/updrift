@@ -37,6 +37,7 @@ import {
   UserIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline'
+import ThemeSelector from '@/components/ThemeSelector'
 
 type SortOption = 'relevance' | 'date' | 'salary' | 'company'
 type ViewMode = 'grid' | 'list'
@@ -520,6 +521,7 @@ function SearchPage() {
 
             {/* Search refinement */}
             <div className="mt-4 lg:mt-0 flex space-x-4">
+              <ThemeSelector />
               <div className="relative">
                 <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
                 <input
