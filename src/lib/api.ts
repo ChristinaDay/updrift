@@ -67,11 +67,45 @@ export async function searchJobs(params: JobSearchParams): Promise<JobSearchResp
 }
 
 /**
+ * Calculate distance between two points using Haversine formula
+ */
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 3959; // Earth's radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c; // Distance in miles
+}
+
+/**
+ * Get coordinates for a location using a geocoding service
+ */
+async function getLocationCoordinates(location: string): Promise<{lat: number, lng: number} | null> {
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`);
+    const data = await response.json();
+    if (data && data.length > 0) {
+      return {
+        lat: parseFloat(data[0].lat),
+        lng: parseFloat(data[0].lon)
+      };
+    }
+  } catch (error) {
+    console.error('Error getting location coordinates:', error);
+  }
+  return null;
+}
+
+/**
  * Search jobs using Adzuna API
  */
 async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSearchResponse> {
   try {
-    const { query, location, remote_jobs_only, page = 1, num_pages = 1 } = params;
+    const { query, location, radius = 25, remote_jobs_only, page = 1, num_pages = 1 } = params;
     
     // Build Adzuna API URL - US jobs
     const country = 'us'; // Can be made configurable later
@@ -81,7 +115,7 @@ async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSearchRespo
     const queryParams: any = {
       app_id: ADZUNA_APP_ID,
       app_key: ADZUNA_APP_KEY,
-      results_per_page: 10,
+      results_per_page: 20, // Reduced from 50 to 20 - API might have limits
       'content-type': 'application/json'
     };
     
@@ -90,9 +124,24 @@ async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSearchRespo
       queryParams.what = query.trim();
     }
     
-    // Add location if provided (Adzuna has EXCELLENT location filtering!)
+    // Add location with radius-based search approach
     if (location?.trim()) {
-      queryParams.where = location.trim();
+      let searchLocation = location.trim();
+      
+      // Clean location string to just get the city name
+      const cleanLocation = searchLocation
+        .replace(/,\s*California$/i, '')
+        .replace(/,\s*CA$/i, '')
+        .replace(/,\s*United States$/i, '')
+        .replace(/,\s*US$/i, '')
+        .replace(/,\s*[A-Z]{2}$/i, '') // Remove any state abbreviation
+        .replace(/\s+Bay\s+Area$/i, '') // Remove "Bay Area"
+        .replace(/^Greater\s+/i, '') // Remove "Greater"
+        .trim();
+      
+      queryParams.where = cleanLocation;
+      
+        console.log(`🎯 Location search: "${searchLocation}" → "${cleanLocation}" (will apply ${radius} mile radius filter client-side)`);
     }
     
     // Add remote jobs filter
@@ -105,27 +154,64 @@ async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSearchRespo
     const response = await adzunaClient.get(searchUrl, { params: queryParams });
     
     if (response.data?.results) {
-      const jobs = response.data.results.map(convertAdzunaJob);
+      const originalJobs = response.data.results.map(convertAdzunaJob);
+      let filteredJobs = originalJobs;
+      let radiusFiltered = false;
       
-      console.log('✅ Adzuna API success:', jobs.length, 'jobs found');
+      // Apply radius filtering if location is provided
+      if (location?.trim()) {
+        const searchCoords = await getLocationCoordinates(location.trim());
+        if (searchCoords) {
+          const RADIUS_MILES = radius; // Dynamic radius from user selection
+          
+          filteredJobs = originalJobs.filter((job: Job) => {
+            // Check if job has coordinates (from adzunaJob.latitude and adzunaJob.longitude)
+            const jobData = response.data.results.find((r: any) => r.id?.toString() === job.job_id);
+            if (jobData && jobData.latitude && jobData.longitude) {
+              const distance = calculateDistance(
+                searchCoords.lat, 
+                searchCoords.lng, 
+                jobData.latitude, 
+                jobData.longitude
+              );
+              return distance <= RADIUS_MILES;
+            }
+            // Include jobs without coordinates (better to include than exclude)
+            return true;
+          });
+          
+          radiusFiltered = filteredJobs.length < originalJobs.length;
+          console.log(`🎯 Radius filter applied: ${originalJobs.length} → ${filteredJobs.length} jobs (within ${RADIUS_MILES} miles)`);
+        }
+      }
+      
+      console.log('✅ Adzuna API success:', filteredJobs.length, 'jobs found');
       
       return {
         status: 'success',
         request_id: 'adzuna-' + Date.now(),
         parameters: params,
-        data: jobs,
-        original_data: jobs, // No client-side filtering needed - Adzuna does it right!
-        num_pages: Math.ceil(response.data.count / 10),
-        client_filtered: false, // Adzuna handles location filtering properly
-        original_count: jobs.length,
-        filtered_count: jobs.length
+        data: filteredJobs,
+        original_data: originalJobs,
+        num_pages: Math.ceil(response.data.count / 20),
+        client_filtered: radiusFiltered,
+        original_count: originalJobs.length,
+        filtered_count: filteredJobs.length
       };
     } else {
       throw new Error('No results from Adzuna API');
     }
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Adzuna API error:', error);
+    
+    // Log more detailed error information
+    if (error.response) {
+      console.error('🔍 Response status:', error.response.status);
+      console.error('🔍 Response data:', error.response.data);
+      console.error('🔍 Request URL:', error.config?.url);
+      console.error('🔍 Request params:', error.config?.params);
+    }
     
     // Fallback to mock data
     return searchMockJobs(params);
@@ -138,14 +224,18 @@ async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSearchRespo
 async function searchMockJobs(params: JobSearchParams): Promise<JobSearchResponse> {
   const { query, location } = params;
   
+  // Get the primary city for location-specific mock data
+  const primaryCity = location?.split(',')[0]?.trim() || 'San Francisco';
+  const primaryState = location?.includes(',') ? location.split(',')[1]?.trim() : 'CA';
+  
   const mockJobs: Job[] = [
     {
       job_id: 'mock-1',
       job_title: 'Senior Software Engineer',
       job_description: 'We are seeking a Senior Software Engineer to join our team...',
       job_apply_link: 'https://example.com/apply/1',
-      job_city: 'San Francisco',
-      job_state: 'CA',
+      job_city: primaryCity,
+      job_state: primaryState,
       job_country: 'US',
       job_employment_type: 'FULLTIME',
       job_is_remote: false,
@@ -164,8 +254,8 @@ async function searchMockJobs(params: JobSearchParams): Promise<JobSearchRespons
       job_title: 'DevOps Engineer',
       job_description: 'Join our DevOps team and help build scalable infrastructure...',
       job_apply_link: 'https://example.com/apply/2',
-      job_city: 'Seattle',
-      job_state: 'WA',
+      job_city: primaryCity,
+      job_state: primaryState,
       job_country: 'US',
       job_employment_type: 'FULLTIME',
       job_is_remote: false,
@@ -184,8 +274,8 @@ async function searchMockJobs(params: JobSearchParams): Promise<JobSearchRespons
       job_title: 'Product Manager',
       job_description: 'Lead product strategy and development for our AI platform...',
       job_apply_link: 'https://example.com/apply/3',
-      job_city: 'Denver',
-      job_state: 'CO',
+      job_city: primaryCity,
+      job_state: primaryState,
       job_country: 'US',
       job_employment_type: 'FULLTIME',
       job_is_remote: false,

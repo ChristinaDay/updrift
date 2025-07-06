@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     // Extract search parameters
     const query = searchParams.get('query') || '';
     const location = searchParams.get('location') || '';
+    const radius = parseInt(searchParams.get('radius') || '25'); // Default 25 mile radius
     const remote_jobs_only = searchParams.get('remote_jobs_only') === 'true';
     const employment_types = searchParams.get('employment_types')?.split(',') || [];
     const salary_min = searchParams.get('salary_min');
@@ -16,12 +17,13 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const num_pages = parseInt(searchParams.get('num_pages') || '1');
 
-    console.log('🔍 Job search request:', { query, location, remote_jobs_only, page });
+    console.log('🔍 Job search request:', { query, location, radius, remote_jobs_only, page });
 
     // Use the new Adzuna API implementation
     const searchResults = await searchJobs({
       query,
       location,
+      radius,
       remote_jobs_only,
       employment_types,
       salary_min: salary_min ? parseInt(salary_min) : undefined,

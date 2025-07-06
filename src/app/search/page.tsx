@@ -74,6 +74,7 @@ function SearchPage() {
   const [location, setLocation] = useState('')
   const [inputQuery, setInputQuery] = useState('')
   const [inputLocation, setInputLocation] = useState('')
+  const [radius, setRadius] = useState(25) // Default 25 mile radius
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([])
@@ -90,16 +91,28 @@ function SearchPage() {
   useEffect(() => {
     const query = searchParams.get('q') || ''
     const loc = searchParams.get('location') || ''
+    const rad = searchParams.get('radius')
     setSearchQuery(query)
     setLocation(loc)
     setInputQuery(query)
     setInputLocation(loc)
+    if (rad) {
+      setRadius(parseInt(rad))
+    }
   }, [searchParams])
 
   // Manual search trigger function
   const triggerSearch = () => {
     setSearchQuery(inputQuery)
     setLocation(inputLocation)
+    
+    // Update URL with current search parameters
+    const params = new URLSearchParams()
+    if (inputQuery) params.append('q', inputQuery)
+    if (inputLocation) params.append('location', inputLocation)
+    if (inputLocation && radius) params.append('radius', radius.toString())
+    
+    router.push(`/search?${params.toString()}`)
   }
 
   // Handle Enter key press to trigger search
@@ -253,6 +266,12 @@ function SearchPage() {
 
   // Load jobs from API
   useEffect(() => {
+    // Only search if we have actual search parameters (not just empty strings from initial state)
+    if (!searchQuery && !location) {
+      setLoading(false)
+      return
+    }
+
     const loadJobs = async () => {
       setLoading(true)
       try {
@@ -260,6 +279,7 @@ function SearchPage() {
         const params = new URLSearchParams()
         if (searchQuery) params.append('query', searchQuery)
         if (location) params.append('location', location)
+        if (location && radius) params.append('radius', radius.toString())
         
         console.log('🔍 Fetching jobs with params:', params.toString())
         
@@ -455,8 +475,13 @@ function SearchPage() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {searchQuery ? `Jobs for "${searchQuery}"` : (location ? `Jobs in ${capitalizeLocation(location)}` : 'Explore Job Opportunities')}
-                {location && searchQuery && ` in ${capitalizeLocation(location)}`}
+                {location && searchQuery && ` within ${radius} miles of ${capitalizeLocation(location)}`}
               </h1>
+              {location && !searchQuery && (
+                <p className="text-sm text-gray-500 mt-1">
+                  within {radius} miles of {capitalizeLocation(location)}
+                </p>
+              )}
               <div className="flex items-center space-x-2 mt-1">
                 <p className="text-gray-600">
                   {filteredJobs.length} opportunities found
@@ -543,6 +568,25 @@ function SearchPage() {
                   </div>
                 )}
               </div>
+              {/* Radius Selector */}
+              {inputLocation && (
+                <div className="relative">
+                  <select
+                    value={radius}
+                    onChange={(e) => setRadius(parseInt(e.target.value))}
+                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white text-gray-700"
+                  >
+                    <option value={5}>Within 5 miles</option>
+                    <option value={10}>Within 10 miles</option>
+                    <option value={15}>Within 15 miles</option>
+                    <option value={25}>Within 25 miles</option>
+                    <option value={35}>Within 35 miles</option>
+                    <option value={50}>Within 50 miles</option>
+                    <option value={75}>Within 75 miles</option>
+                    <option value={100}>Within 100 miles</option>
+                  </select>
+                </div>
+              )}
               <button
                 onClick={triggerSearch}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"

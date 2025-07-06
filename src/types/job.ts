@@ -53,6 +53,7 @@ export interface Job {
 export interface JobSearchParams {
   query?: string;
   location?: string;
+  radius?: number; // Search radius in miles
   remote_jobs_only?: boolean;
   employment_types?: string[];
   job_requirements?: string[];

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import Link from 'next/link'
@@ -11,13 +11,71 @@ export default function Home() {
   const { data: session, status } = useSession()
   const [searchQuery, setSearchQuery] = useState('')
   const [location, setLocation] = useState('')
+  const [radius, setRadius] = useState(25) // Default 25 mile radius
+  const [locationSuggestions, setLocationSuggestions] = useState<string[]>([])
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false)
 
   const handleSearch = () => {
     const params = new URLSearchParams()
     if (searchQuery) params.append('q', searchQuery)
     if (location) params.append('location', location)
+    if (location && radius) params.append('radius', radius.toString())
     
     router.push(`/search?${params.toString()}`)
+  }
+
+  // Fetch location suggestions when user types
+  useEffect(() => {
+    const fetchLocationSuggestions = async () => {
+      if (location.length < 2) {
+        setLocationSuggestions([])
+        setShowLocationSuggestions(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=5&addressdetails=1&countrycodes=us,ca,gb,au`)
+        const data = await response.json()
+        
+        const suggestions = data.map((item: any) => {
+          const address = item.address
+          const city = address.city || address.town || address.village || address.hamlet
+          const state = address.state || address.region
+          const country = address.country
+          
+          if (city && state) {
+            return `${city}, ${state}`
+          } else if (city) {
+            return `${city}, ${country}`
+          } else {
+            return item.display_name.split(',').slice(0, 2).join(',')
+          }
+        }).filter((suggestion: string, index: number, array: string[]) => 
+          array.indexOf(suggestion) === index // Remove duplicates
+        )
+        
+        setLocationSuggestions(suggestions)
+        setShowLocationSuggestions(suggestions.length > 0)
+      } catch (error) {
+        console.error('Error fetching location suggestions:', error)
+        setLocationSuggestions([])
+        setShowLocationSuggestions(false)
+      }
+    }
+
+    const delayedFetch = setTimeout(fetchLocationSuggestions, 300)
+    return () => clearTimeout(delayedFetch)
+  }, [location])
+
+  const handleLocationSelect = (suggestion: string) => {
+    setLocation(suggestion)
+    setShowLocationSuggestions(false)
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
   }
 
   const features = [
@@ -123,33 +181,80 @@ export default function Home() {
           {/* Search Bar */}
           <div className="mt-10 max-w-4xl mx-auto">
             <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="relative">
-                  <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    placeholder="Job title, keywords, or company"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+              <div className="grid grid-cols-1 gap-4">
+                {/* Main search row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="relative">
+                    <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
+                    <input
+                      type="text"
+                      placeholder="Job title, keywords, or company"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white placeholder-gray-500"
+                    />
+                  </div>
+                  <div className="relative">
+                    <MapPinIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
+                    <input
+                      type="text"
+                      placeholder="Location or remote"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
+                      onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white placeholder-gray-500"
+                    />
+                    {showLocationSuggestions && locationSuggestions.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {locationSuggestions.map((suggestion, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleLocationSelect(suggestion)}
+                            className="w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 text-sm text-gray-700 border-b border-gray-100 last:border-b-0"
+                          >
+                            <div className="flex items-center">
+                              <MapPinIcon className="h-4 w-4 text-gray-400 mr-2" />
+                              {suggestion}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleSearch}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105"
+                  >
+                    Search Jobs
+                  </button>
                 </div>
-                <div className="relative">
-                  <MapPinIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    placeholder="Location or remote"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <button
-                  onClick={handleSearch}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105"
-                >
-                  Search Jobs
-                </button>
+                
+                {/* Radius selector row - only show when location is entered */}
+                {location && (
+                  <div className="flex items-center justify-center">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <span>within</span>
+                      <select
+                        value={radius}
+                        onChange={(e) => setRadius(parseInt(e.target.value))}
+                        className="px-3 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white text-gray-700"
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={15}>15</option>
+                        <option value={25}>25</option>
+                        <option value={35}>35</option>
+                        <option value={50}>50</option>
+                        <option value={75}>75</option>
+                        <option value={100}>100</option>
+                      </select>
+                      <span>miles of {location}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
