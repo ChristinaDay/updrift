@@ -15,6 +15,7 @@ import {
   AcademicCapIcon,
   ClockIcon
 } from '@heroicons/react/24/outline'
+import ThemeToggle from '@/components/ThemeToggle'
 
 interface UserPreferences {
   location: string
@@ -181,35 +182,36 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
-              <Link href="/" className="text-2xl font-bold text-blue-600">
+              <Link href="/" className="text-2xl font-bold text-primary">
                 UpFetch
               </Link>
               <nav className="hidden md:flex space-x-8">
-                <Link href="/search" className="text-gray-600 hover:text-blue-600">
+                <Link href="/search" className="text-muted-foreground hover:text-primary">
                   Search Jobs
                 </Link>
-                <Link href="/dashboard" className="text-gray-600 hover:text-blue-600">
+                <Link href="/dashboard" className="text-muted-foreground hover:text-primary">
                   Dashboard
                 </Link>
-                <Link href="/saved-jobs" className="text-gray-600 hover:text-blue-600">
+                <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary">
                   Saved Jobs
                 </Link>
-                <Link href="/profile" className="text-blue-600 font-medium">
+                <Link href="/profile" className="text-primary font-medium">
                   Profile
                 </Link>
               </nav>
             </div>
             
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <div className="flex items-center space-x-2">
-                <UserIcon className="h-5 w-5 text-gray-400" />
-                <span className="text-sm text-gray-600">
+                <UserIcon className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
                   {session.user.name || session.user.email}
                 </span>
               </div>
@@ -221,8 +223,8 @@ export default function ProfilePage() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Profile & Preferences</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">Profile & Preferences</h1>
+          <p className="text-muted-foreground mt-2">
             Customize your job search experience and set your preferences
           </p>
         </div>
@@ -235,75 +237,75 @@ export default function ProfilePage() {
 
         <div className="space-y-8">
           {/* Location & Remote Preferences */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <MapPinIcon className="h-5 w-5 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Location Preferences</h3>
+              <MapPinIcon className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-semibold text-card-foreground">Location Preferences</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Preferred Location
-                </label>
-                <input
-                  type="text"
-                  value={preferences.location}
-                  onChange={(e) => setPreferences(prev => ({ ...prev, location: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., San Francisco, CA or Remote"
-                />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Preferred Location
+                  </label>
+                  <input
+                    type="text"
+                    value={preferences.location}
+                    onChange={(e) => setPreferences(prev => ({ ...prev, location: e.target.value }))}
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+                    placeholder="e.g., San Francisco, CA or Remote"
+                  />
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="remote"
+                    checked={preferences.preferredRemote}
+                    onChange={(e) => setPreferences(prev => ({ ...prev, preferredRemote: e.target.checked }))}
+                    className="h-4 w-4 text-primary focus:ring-ring border-border rounded"
+                  />
+                  <label htmlFor="remote" className="text-sm text-card-foreground">
+                    Open to remote work
+                  </label>
+                </div>
               </div>
-              
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="remote"
-                  checked={preferences.preferredRemote}
-                  onChange={(e) => setPreferences(prev => ({ ...prev, preferredRemote: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remote" className="text-sm text-gray-700">
-                  Open to remote work
-                </label>
-              </div>
-            </div>
           </div>
 
           {/* Salary Preferences */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <CurrencyDollarIcon className="h-5 w-5 text-green-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Salary Preferences</h3>
+              <CurrencyDollarIcon className="h-5 w-5 text-accent" />
+              <h3 className="text-lg font-semibold text-card-foreground">Salary Preferences</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Minimum Salary (Annual)
-                </label>
-                <input
-                  type="number"
-                  value={preferences.preferredSalaryMin || ''}
-                  onChange={(e) => setPreferences(prev => ({ ...prev, preferredSalaryMin: parseInt(e.target.value) || 0 }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., 80000"
-                />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Minimum Salary (Annual)
+                  </label>
+                  <input
+                    type="number"
+                    value={preferences.preferredSalaryMin || ''}
+                    onChange={(e) => setPreferences(prev => ({ ...prev, preferredSalaryMin: parseInt(e.target.value) || 0 }))}
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+                    placeholder="e.g., 80000"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-card-foreground mb-2">
+                    Maximum Salary (Annual)
+                  </label>
+                  <input
+                    type="number"
+                    value={preferences.preferredSalaryMax || ''}
+                    onChange={(e) => setPreferences(prev => ({ ...prev, preferredSalaryMax: parseInt(e.target.value) || 0 }))}
+                    className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+                    placeholder="e.g., 150000"
+                  />
+                </div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Maximum Salary (Annual)
-                </label>
-                <input
-                  type="number"
-                  value={preferences.preferredSalaryMax || ''}
-                  onChange={(e) => setPreferences(prev => ({ ...prev, preferredSalaryMax: parseInt(e.target.value) || 0 }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., 150000"
-                />
-              </div>
-            </div>
           </div>
 
           {/* Experience Level */}
@@ -470,7 +472,7 @@ export default function ProfilePage() {
             <button
               onClick={savePreferences}
               disabled={isSaving}
-              className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isSaving ? 'Saving...' : 'Save Preferences'}
             </button>

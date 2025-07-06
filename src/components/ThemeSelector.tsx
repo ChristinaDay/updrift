@@ -4,70 +4,176 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu'
-import { PaintBrushIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 
-type Theme = {
-  id: string
-  name: string
-  color: string
-  primaryHsl: string
-  description: string
-  emoji: string
-  bestFor: string
-}
-
-const themes: Theme[] = [
+const themes = [
   {
-    id: 'blue',
-    name: 'Professional Blue',
-    color: '#3b82f6',
-    primaryHsl: '217 91% 60%',
-    description: 'Trust, professionalism, corporate',
-    emoji: '🔵',
-    bestFor: 'Corporate & Finance'
+    id: 'dawn',
+    name: 'Dawn',
+    color: '#f97575',
+    emoji: '🌅',
+    description: 'Sunrise pastels',
+    category: 'Light'
   },
   {
-    id: 'green',
-    name: 'Fresh Green',
+    id: 'cyber',
+    name: 'Cyberpunk',
+    color: '#ff00ff',
+    emoji: '🌃',
+    description: 'Neon electric',
+    category: 'Dark'
+  },
+  {
+    id: 'ocean',
+    name: 'Ocean Depth',
+    color: '#00ccff',
+    emoji: '🌊',
+    description: 'Deep blue aqua',
+    category: 'Dark'
+  },
+  {
+    id: 'forest',
+    name: 'Forest',
     color: '#22c55e',
-    primaryHsl: '142 76% 36%',
-    description: 'Growth, innovation, eco-friendly',
-    emoji: '🟢',
-    bestFor: 'Startups & Tech'
+    emoji: '🍃',
+    description: 'Natural greens',
+    category: 'Light'
   },
   {
-    id: 'purple',
-    name: 'Creative Purple',
-    color: '#8b5cf6',
-    primaryHsl: '262 83% 58%',
-    description: 'Creative, artistic, premium',
-    emoji: '🟣',
-    bestFor: 'Design & Creative'
+    id: 'mono',
+    name: 'Midnight Mono',
+    color: '#d4d4d4',
+    emoji: '🌙',
+    description: 'Sophisticated grayscale',
+    category: 'Dark'
   },
   {
-    id: 'orange',
-    name: 'Energetic Orange',
-    color: '#f97316',
-    primaryHsl: '24 74% 58%',
-    description: 'Dynamic, warm, action-oriented',
-    emoji: '🟠',
-    bestFor: 'Sales & Marketing'
+    id: 'ember',
+    name: 'Ember',
+    color: '#dc2626',
+    emoji: '🔥',
+    description: 'Warm fire colors',
+    category: 'Light'
+  },
+  {
+    id: 'electric',
+    name: 'Electric',
+    color: '#ffff00',
+    emoji: '⚡',
+    description: 'High contrast neon',
+    category: 'Dark'
+  },
+  {
+    id: 'sakura',
+    name: 'Sakura',
+    color: '#f472b6',
+    emoji: '🌸',
+    description: 'Japanese soft pinks',
+    category: 'Light'
+  },
+  {
+    id: 'tropical',
+    name: 'Tropical Paradise',
+    color: '#00d4aa',
+    emoji: '🏝️',
+    description: 'Turquoise escape vibes',
+    category: 'Luxury'
+  },
+  {
+    id: 'riviera',
+    name: 'French Riviera',
+    color: '#0369a1',
+    emoji: '🛥️',
+    description: 'Elegant Mediterranean',
+    category: 'Luxury'
+  },
+  {
+    id: 'tuscany',
+    name: 'Tuscany Sunset',
+    color: '#ea580c',
+    emoji: '🍷',
+    description: 'Warm Italian evenings',
+    category: 'Luxury'
+  },
+  {
+    id: 'alps',
+    name: 'Swiss Alps',
+    color: '#0891b2',
+    emoji: '🏔️',
+    description: 'Crisp mountain air',
+    category: 'Luxury'
+  },
+  {
+    id: 'napa',
+    name: 'Napa Valley',
+    color: '#92400e',
+    emoji: '🍾',
+    description: 'Rich wine country',
+    category: 'Luxury'
+  },
+  {
+    id: 'penthouse',
+    name: 'Manhattan Penthouse',
+    color: '#374151',
+    emoji: '🏙️',
+    description: 'Sophisticated urban luxury',
+    category: 'Luxury'
+  },
+  {
+    id: 'maldives',
+    name: 'Maldives Escape',
+    color: '#06b6d4',
+    emoji: '🏖️',
+    description: 'Crystal clear waters',
+    category: 'Luxury'
+  },
+  {
+    id: 'tokyonights',
+    name: 'Tokyo Nights',
+    color: '#ec4899',
+    emoji: '🌃',
+    description: 'Neon-lit adventures',
+    category: 'Luxury'
+  },
+  {
+    id: 'champagne',
+    name: 'Champagne Dreams',
+    color: '#fbbf24',
+    emoji: '🥂',
+    description: 'Golden celebration',
+    category: 'Luxury'
+  },
+  {
+    id: 'firstclass',
+    name: 'First Class Lounge',
+    color: '#1e293b',
+    emoji: '✈️',
+    description: 'Premium travel vibes',
+    category: 'Luxury'
+  },
+  {
+    id: 'yacht',
+    name: 'Yacht Club',
+    color: '#0f172a',
+    emoji: '⛵',
+    description: 'Nautical elegance',
+    category: 'Luxury'
+  },
+  {
+    id: 'spa',
+    name: 'Luxury Spa',
+    color: '#84cc16',
+    emoji: '🧘',
+    description: 'Zen relaxation',
+    category: 'Luxury'
   }
 ]
 
 export default function ThemeSelector({ showPreview = false }: { showPreview?: boolean }) {
-  const [currentTheme, setCurrentTheme] = useState<string>('blue')
-  const [isOpen, setIsOpen] = useState(false)
+  const [currentTheme, setCurrentTheme] = useState<string>('dawn')
 
   // Load saved theme on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('upfetch-theme') || 'blue'
+    const savedTheme = localStorage.getItem('upfetch-theme') || 'dawn'
     setCurrentTheme(savedTheme)
     applyTheme(savedTheme)
   }, [])
@@ -76,63 +182,164 @@ export default function ThemeSelector({ showPreview = false }: { showPreview?: b
     const theme = themes.find(t => t.id === themeId)
     if (!theme) return
 
-    // Update CSS variables
-    const root = document.documentElement
-    root.style.setProperty('--primary', theme.primaryHsl)
-    root.style.setProperty('--ring', theme.primaryHsl)
+    console.log('🎨 Applying theme:', themeId, theme.name)
+
+    // Remove all existing theme classes
+    const html = document.documentElement
+    const existingClasses = html.className.split(' ')
+    const filteredClasses = existingClasses.filter(cls => !cls.startsWith('theme-'))
+    
+    // Add new theme class
+    html.className = filteredClasses.join(' ') + ` theme-${themeId}`
     
     // Save to localStorage
     localStorage.setItem('upfetch-theme', themeId)
     setCurrentTheme(themeId)
+    
+    console.log('✅ Theme applied successfully!', {
+      themeId,
+      themeName: theme.name,
+      className: html.className,
+      appliedClass: `theme-${themeId}`
+    })
   }
 
   const currentThemeData = themes.find(t => t.id === currentTheme)
 
   if (showPreview) {
+    const lightThemes = themes.filter(t => t.category === 'Light')
+    const darkThemes = themes.filter(t => t.category === 'Dark')
+    const luxuryThemes = themes.filter(t => t.category === 'Luxury')
+    
     return (
-      <Card className="w-full max-w-4xl">
+      <Card className="w-full max-w-6xl">
         <CardContent className="p-6">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold mb-2">🎨 Choose Your Theme</h2>
-            <p className="text-muted-foreground">Click any theme to see it in action instantly!</p>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-2">🎨 Sophisticated Theme Collection</h2>
+            <p className="text-muted-foreground">
+              Experience the power of shadcn/ui theming with these carefully crafted color systems.
+              <br />
+              Each theme transforms the entire interface with professional color palettes.
+            </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {themes.map((theme) => (
-              <Card 
-                key={theme.id} 
-                className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
-                  currentTheme === theme.id ? 'ring-2 ring-primary' : ''
-                }`}
-                onClick={() => applyTheme(theme.id)}
-              >
-                <CardContent className="p-4 text-center">
-                  <div 
-                    className="w-12 h-12 rounded-full mx-auto mb-3 border-2 border-white shadow-lg"
-                    style={{ backgroundColor: theme.color }}
-                  />
-                  <h3 className="font-semibold text-sm mb-1">
-                    {theme.emoji} {theme.name}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    {theme.description}
-                  </p>
-                  <Badge variant="outline" className="text-xs">
-                    {theme.bestFor}
-                  </Badge>
-                  {currentTheme === theme.id && (
-                    <Badge className="mt-2 w-full">
-                      ✨ Active
-                    </Badge>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+          {/* Light Themes */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              ☀️ Light Themes
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {lightThemes.map((theme) => (
+                <Card 
+                  key={theme.id} 
+                  className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 ${
+                    currentTheme === theme.id ? 'ring-2 ring-primary shadow-lg' : ''
+                  }`}
+                  onClick={() => applyTheme(theme.id)}
+                >
+                  <CardContent className="p-4 text-center">
+                    <div 
+                      className="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-white shadow-lg"
+                      style={{ backgroundColor: theme.color }}
+                    />
+                    <h3 className="font-semibold text-sm mb-1">
+                      {theme.emoji} {theme.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {theme.description}
+                    </p>
+                    {currentTheme === theme.id && (
+                      <Badge className="mt-2 w-full">
+                        ✨ Active
+                      </Badge>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+          
+          {/* Dark Themes */}
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              🌙 Dark Themes
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {darkThemes.map((theme) => (
+                <Card 
+                  key={theme.id} 
+                  className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 ${
+                    currentTheme === theme.id ? 'ring-2 ring-primary shadow-lg' : ''
+                  }`}
+                  onClick={() => applyTheme(theme.id)}
+                >
+                  <CardContent className="p-4 text-center">
+                    <div 
+                      className="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-white shadow-lg"
+                      style={{ backgroundColor: theme.color }}
+                    />
+                    <h3 className="font-semibold text-sm mb-1">
+                      {theme.emoji} {theme.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {theme.description}
+                    </p>
+                    {currentTheme === theme.id && (
+                      <Badge className="mt-2 w-full">
+                        ✨ Active
+                      </Badge>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+          
+          {/* Luxury Themes */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              ✨ Luxury & Aspirational Themes
+              <Badge variant="secondary" className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                Premium
+              </Badge>
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              🎉 <strong>Celebrate your career success</strong> with these luxury-inspired themes that feel like rewards for landing that dream job!
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {luxuryThemes.map((theme) => (
+                <Card 
+                  key={theme.id} 
+                  className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 ${
+                    currentTheme === theme.id ? 'ring-2 ring-primary shadow-lg' : ''
+                  }`}
+                  onClick={() => applyTheme(theme.id)}
+                >
+                  <CardContent className="p-4 text-center">
+                    <div 
+                      className="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-white shadow-lg"
+                      style={{ backgroundColor: theme.color }}
+                    />
+                    <h3 className="font-semibold text-sm mb-1">
+                      {theme.emoji} {theme.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {theme.description}
+                    </p>
+                    {currentTheme === theme.id && (
+                      <Badge className="mt-2 w-full">
+                        ✨ Active
+                      </Badge>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
           
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
-              Theme changes apply instantly and are saved to your browser
+              🎨 Each theme uses shadcn/ui's complete CSS variable system for seamless component integration
             </p>
           </div>
         </CardContent>
@@ -140,51 +347,22 @@ export default function ThemeSelector({ showPreview = false }: { showPreview?: b
     )
   }
 
+  // Simple button version instead of complex dropdown
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2">
-          <div 
-            className="w-4 h-4 rounded-full border"
-            style={{ backgroundColor: currentThemeData?.color }}
-          />
-          <PaintBrushIcon className="h-4 w-4" />
-          <span className="hidden sm:inline">Theme</span>
-          <ChevronDownIcon className="h-3 w-3" />
+    <div className="flex items-center gap-2 flex-wrap">
+      <span className="text-xs text-muted-foreground hidden sm:inline">Theme:</span>
+      {themes.map((theme) => (
+        <Button
+          key={theme.id}
+          variant={currentTheme === theme.id ? "default" : "outline"}
+          size="sm"
+          onClick={() => applyTheme(theme.id)}
+          className="w-8 h-8 p-0"
+          title={`${theme.name} - ${theme.description} (${theme.category})`}
+        >
+          {theme.emoji}
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
-        <div className="p-2">
-          <p className="text-sm font-medium mb-2">Choose Theme</p>
-          {themes.map((theme) => (
-            <DropdownMenuItem
-              key={theme.id}
-              onClick={() => applyTheme(theme.id)}
-              className={`flex items-center gap-3 p-2 rounded-md cursor-pointer ${
-                currentTheme === theme.id ? 'bg-accent' : ''
-              }`}
-            >
-              <div 
-                className="w-4 h-4 rounded-full border flex-shrink-0"
-                style={{ backgroundColor: theme.color }}
-              />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium">
-                  {theme.emoji} {theme.name}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {theme.bestFor}
-                </div>
-              </div>
-              {currentTheme === theme.id && (
-                <Badge variant="secondary" className="text-xs">
-                  Active
-                </Badge>
-              )}
-            </DropdownMenuItem>
-          ))}
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      ))}
+    </div>
   )
-} 
+}

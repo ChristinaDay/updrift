@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { BookmarkIcon, MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { capitalizeLocation } from '@/utils/jobUtils'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
@@ -90,6 +91,7 @@ export default function Dashboard() {
             </div>
             
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <div className="flex items-center space-x-2">
                 <UserIcon className="h-5 w-5 text-gray-400" />
                 <span className="text-sm text-gray-600">

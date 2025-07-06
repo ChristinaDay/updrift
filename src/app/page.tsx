@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import ThemeSelector from '@/components/ThemeSelector'
+import ThemeToggle from '@/components/ThemeToggle'
+
 
 export default function Home() {
   const router = useRouter()
@@ -126,7 +127,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <ThemeSelector />
+              <ThemeToggle />
               {status === 'loading' ? (
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
               ) : session ? (
@@ -161,6 +162,35 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
+        {/* Theme Indicator */}
+        <div className="bg-primary/10 border-l-4 border-primary mb-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-4 h-4 bg-primary rounded-full"></div>
+                <span className="text-primary font-medium">Theme System Active</span>
+                <span className="text-sm text-muted-foreground">Try the theme buttons above!</span>
+                {/* Accent color showcase */}
+                <div className="hidden sm:flex items-center space-x-2 ml-4">
+                  <div className="w-3 h-3 bg-accent rounded-full"></div>
+                  <Badge className="bg-accent text-accent-foreground">
+                    Accent
+                  </Badge>
+                  <div className="w-3 h-3 bg-secondary rounded-full"></div>
+                  <Badge variant="secondary">
+                    Secondary
+                  </Badge>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+                <div className="w-3 h-3 bg-accent rounded-full animate-pulse delay-75"></div>
+                <div className="w-3 h-3 bg-secondary rounded-full animate-pulse delay-150"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl tracking-tight font-extrabold text-foreground sm:text-5xl md:text-6xl">
@@ -175,7 +205,7 @@ export default function Home() {
 
           {/* Search Bar */}
           <div className="mt-10 max-w-4xl mx-auto">
-            <Card className="shadow-xl">
+            <Card className="shadow-lg">
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 gap-4">
                   {/* Main search row */}
@@ -207,28 +237,39 @@ export default function Home() {
                         <Card className="absolute z-10 w-full mt-1 shadow-lg max-h-60 overflow-y-auto">
                           <CardContent className="p-0">
                             {locationSuggestions.map((suggestion, index) => (
-                              <button
+                              <Button
                                 key={index}
                                 onClick={() => handleLocationSelect(suggestion)}
-                                className="w-full px-4 py-2 text-left hover:bg-accent hover:text-accent-foreground text-sm border-b border-border last:border-b-0"
+                                variant="ghost"
+                                className="w-full justify-start text-sm border-b border-border last:border-b-0 rounded-none"
                               >
                                 <div className="flex items-center">
                                   <MapPinIcon className="h-4 w-4 text-muted-foreground mr-2" />
                                   {suggestion}
                                 </div>
-                              </button>
+                              </Button>
                             ))}
                           </CardContent>
                         </Card>
                       )}
                     </div>
-                    <Button
-                      onClick={handleSearch}
-                      className="w-full"
-                      size="lg"
-                    >
-                      Search Jobs
-                    </Button>
+                    <div className="flex items-center space-x-4">
+                      <Button
+                        onClick={handleSearch}
+                        size="lg"
+                      >
+                        <MagnifyingGlassIcon className="h-5 w-5" />
+                        <span>Search Jobs</span>
+                      </Button>
+                      
+                      <Button variant="secondary">
+                        🔍 Filters
+                      </Button>
+                      
+                      <Button variant="outline">
+                        ⭐ Save Search
+                      </Button>
+                    </div>
                   </div>
                   
                   {/* Radius selector row - only show when location is entered */}
@@ -267,11 +308,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl font-bold text-foreground">{stat.value}</div>
-                <div className="text-sm font-medium text-muted-foreground mt-1">{stat.label}</div>
-                <div className="text-xs text-muted-foreground/80 mt-1">{stat.description}</div>
-              </div>
+              <Card key={index} className="text-center">
+                <CardContent className="p-6">
+                  <div className="text-3xl font-bold text-foreground">{stat.value}</div>
+                  <div className="text-sm font-medium text-muted-foreground mt-1">{stat.label}</div>
+                  <div className="text-xs text-muted-foreground/80 mt-1">{stat.description}</div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
@@ -291,10 +334,12 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
+              <Card key={index} className="hover:shadow-lg transition-shadow duration-300 group">
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-center w-16 h-16 bg-muted rounded-lg mb-4">
-                    {feature.icon}
+                  <div className="flex items-center justify-center w-16 h-16 bg-primary/10 group-hover:bg-primary/20 transition-colors rounded-lg mb-4">
+                    <div className="text-primary">
+                      {feature.icon}
+                    </div>
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
                   <p className="text-muted-foreground">{feature.description}</p>
@@ -306,8 +351,8 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="py-20 bg-primary text-primary-foreground relative grid-texture-bg overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h2 className="text-3xl font-extrabold sm:text-4xl">
             Ready to Find Your Dream Job?
           </h2>

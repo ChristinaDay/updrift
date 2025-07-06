@@ -42,7 +42,7 @@ body {
 
 /* Custom utilities */
 .gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -55,8 +55,6 @@ body {
 }
 
 /* Let browser handle password masking natively */
-
-
 
 @layer base {
   :root {
@@ -114,43 +112,518 @@ body {
   }
 }
 
-/* 🎨 THEME VARIANTS - Easy to switch! */
+/* 🎨 SOPHISTICATED THEME SYSTEM - SHOWCASING SHADCN/UI POWER */
 
-/* Green Theme - Uncomment to use */
-/*
-:root {
-  --primary: 142 76% 36%;
-  --ring: 142 76% 36%;
+/* ═══════════════════════════════════════════════════════════════════════
+   🌅 DAWN LIGHT - Soft sunrise pastels with coral and lavender
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-dawn {
+  --background: 25 100% 97%;          /* Soft peachy white */
+  --foreground: 270 15% 15%;          /* Deep charcoal */
+  --card: 30 100% 99%;                /* Pure warm white */
+  --card-foreground: 270 15% 15%;
+  --popover: 30 100% 99%;
+  --popover-foreground: 270 15% 15%;
+  --primary: 15 86% 65%;              /* Coral sunrise */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 290 30% 92%;           /* Soft lavender */
+  --secondary-foreground: 270 40% 25%;
+  --muted: 25 40% 95%;                /* Muted peach */
+  --muted-foreground: 270 10% 45%;
+  --accent: 320 45% 85%;              /* Rose accent */
+  --accent-foreground: 270 30% 20%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 25 25% 88%;
+  --input: 25 30% 94%;
+  --ring: 15 86% 65%;
 }
-.dark {
-  --primary: 142 76% 36%;
-  --ring: 142 76% 36%;
-}
-*/
 
-/* Purple Theme - Uncomment to use */
-/*
-:root {
-  --primary: 262 83% 58%;
-  --ring: 262 83% 58%;
+/* ═══════════════════════════════════════════════════════════════════════
+   🌃 CYBERPUNK DARK - Neon electric with deep blacks
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-cyber {
+  --background: 285 15% 8%;           /* Deep purple-black */
+  --foreground: 180 100% 85%;         /* Electric cyan */
+  --card: 285 20% 12%;                /* Dark card */
+  --card-foreground: 180 100% 85%;
+  --popover: 285 25% 10%;
+  --popover-foreground: 180 100% 85%;
+  --primary: 315 100% 65%;            /* Hot magenta */
+  --primary-foreground: 285 15% 8%;
+  --secondary: 180 50% 15%;           /* Dark cyan */
+  --secondary-foreground: 180 100% 85%;
+  --muted: 285 20% 15%;               /* Muted dark */
+  --muted-foreground: 180 50% 60%;
+  --accent: 60 100% 75%;              /* Electric yellow */
+  --accent-foreground: 285 15% 8%;
+  --destructive: 0 100% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 285 30% 20%;
+  --input: 285 25% 12%;
+  --ring: 315 100% 65%;
 }
-.dark {
-  --primary: 262 83% 58%;
-  --ring: 262 83% 58%;
-}
-*/
 
-/* Orange Theme - Uncomment to use */
-/*
-:root {
-  --primary: 24 74% 58%;
-  --ring: 24 74% 58%;
+/* ═══════════════════════════════════════════════════════════════════════
+   🌊 OCEAN DEPTH - Deep blues with aqua highlights
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-ocean {
+  --background: 210 45% 12%;          /* Deep ocean blue */
+  --foreground: 190 60% 88%;          /* Light aqua */
+  --card: 210 50% 15%;                /* Deeper blue card */
+  --card-foreground: 190 60% 88%;
+  --popover: 210 55% 10%;
+  --popover-foreground: 190 60% 88%;
+  --primary: 195 100% 60%;            /* Bright aqua */
+  --primary-foreground: 210 45% 12%;
+  --secondary: 220 30% 25%;           /* Muted blue */
+  --secondary-foreground: 190 60% 88%;
+  --muted: 210 40% 18%;               /* Muted ocean */
+  --muted-foreground: 190 30% 65%;
+  --accent: 170 100% 70%;             /* Turquoise */
+  --accent-foreground: 210 45% 12%;
+  --destructive: 15 90% 55%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 210 40% 22%;
+  --input: 210 45% 16%;
+  --ring: 195 100% 60%;
 }
-.dark {
-  --primary: 24 74% 58%;
-  --ring: 24 74% 58%;
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🍃 FOREST LIGHT - Natural greens with earth tones
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-forest {
+  --background: 95 20% 96%;           /* Soft sage white */
+  --foreground: 120 25% 15%;          /* Deep forest */
+  --card: 90 30% 98%;                 /* Clean white */
+  --card-foreground: 120 25% 15%;
+  --popover: 90 30% 98%;
+  --popover-foreground: 120 25% 15%;
+  --primary: 120 45% 40%;             /* Forest green */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 35 40% 88%;            /* Warm earth */
+  --secondary-foreground: 120 30% 20%;
+  --muted: 95 25% 92%;                /* Muted sage */
+  --muted-foreground: 120 15% 45%;
+  --accent: 25 75% 65%;               /* Autumn orange */
+  --accent-foreground: 120 25% 15%;
+  --destructive: 0 70% 55%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 95 20% 85%;
+  --input: 95 25% 90%;
+  --ring: 120 45% 40%;
 }
-*/
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🌙 MIDNIGHT MONO - Sophisticated grayscale dark
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-mono {
+  --background: 0 0% 9%;              /* Rich black */
+  --foreground: 0 0% 92%;             /* Clean white */
+  --card: 0 0% 12%;                   /* Dark gray card */
+  --card-foreground: 0 0% 92%;
+  --popover: 0 0% 8%;
+  --popover-foreground: 0 0% 92%;
+  --primary: 0 0% 85%;                /* Light gray primary */
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 20%;              /* Medium gray */
+  --secondary-foreground: 0 0% 92%;
+  --muted: 0 0% 15%;                  /* Muted gray */
+  --muted-foreground: 0 0% 60%;
+  --accent: 0 0% 75%;                 /* Accent gray */
+  --accent-foreground: 0 0% 9%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 22%;
+  --input: 0 0% 15%;
+  --ring: 0 0% 85%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🔥 EMBER LIGHT - Warm fire colors with deep reds
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-ember {
+  --background: 20 50% 96%;           /* Warm cream */
+  --foreground: 15 30% 15%;           /* Dark brown */
+  --card: 25 60% 98%;                 /* Warm white */
+  --card-foreground: 15 30% 15%;
+  --popover: 25 60% 98%;
+  --popover-foreground: 15 30% 15%;
+  --primary: 8 85% 55%;               /* Deep ember red */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 40 45% 88%;            /* Warm sand */
+  --secondary-foreground: 15 40% 20%;
+  --muted: 20 35% 92%;                /* Muted cream */
+  --muted-foreground: 15 20% 45%;
+  --accent: 30 90% 65%;               /* Bright orange */
+  --accent-foreground: 15 30% 15%;
+  --destructive: 0 80% 55%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 20 30% 85%;
+  --input: 20 35% 90%;
+  --ring: 8 85% 55%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ⚡ ELECTRIC DARK - High contrast with neon accents
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-electric {
+  --background: 240 15% 6%;           /* Pure dark */
+  --foreground: 60 100% 95%;          /* Electric white */
+  --card: 240 20% 10%;                /* Dark card */
+  --card-foreground: 60 100% 95%;
+  --popover: 240 25% 8%;
+  --popover-foreground: 60 100% 95%;
+  --primary: 50 100% 60%;             /* Electric yellow */
+  --primary-foreground: 240 15% 6%;
+  --secondary: 240 30% 18%;           /* Dark blue */
+  --secondary-foreground: 60 100% 95%;
+  --muted: 240 20% 12%;               /* Muted dark */
+  --muted-foreground: 60 50% 70%;
+  --accent: 300 100% 70%;             /* Electric purple */
+  --accent-foreground: 240 15% 6%;
+  --destructive: 0 100% 65%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 30% 20%;
+  --input: 240 25% 10%;
+  --ring: 50 100% 60%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🌸 SAKURA LIGHT - Soft pinks with Japanese inspiration
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-sakura {
+  --background: 340 30% 97%;          /* Soft blush white */
+  --foreground: 200 20% 15%;          /* Deep slate */
+  --card: 345 40% 99%;                /* Pure pink white */
+  --card-foreground: 200 20% 15%;
+  --popover: 345 40% 99%;
+  --popover-foreground: 200 20% 15%;
+  --primary: 330 60% 65%;             /* Sakura pink */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 200 25% 88%;           /* Soft blue-gray */
+  --secondary-foreground: 200 30% 20%;
+  --muted: 340 20% 92%;               /* Muted blush */
+  --muted-foreground: 200 15% 45%;
+  --accent: 15 80% 75%;               /* Warm peach */
+  --accent-foreground: 200 20% 15%;
+  --destructive: 0 70% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 340 20% 85%;
+  --input: 340 25% 90%;
+  --ring: 330 60% 65%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🏝️ TROPICAL PARADISE - Turquoise escape with coral accents
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-tropical {
+  --background: 185 25% 95%;          /* Soft seafoam */
+  --foreground: 190 100% 12%;         /* Deep teal */
+  --card: 180 30% 98%;                /* Crystal white */
+  --card-foreground: 190 100% 12%;
+  --popover: 180 30% 98%;
+  --popover-foreground: 190 100% 12%;
+  --primary: 180 85% 45%;             /* Tropical turquoise */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 30 70% 88%;            /* Coral sand */
+  --secondary-foreground: 190 80% 15%;
+  --muted: 185 20% 92%;               /* Muted seafoam */
+  --muted-foreground: 190 50% 35%;
+  --accent: 15 85% 70%;               /* Coral accent */
+  --accent-foreground: 190 100% 12%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 185 20% 85%;
+  --input: 185 25% 90%;
+  --ring: 180 85% 45%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🛥️ FRENCH RIVIERA - Elegant Mediterranean blues with gold
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-riviera {
+  --background: 210 30% 96%;          /* Soft Mediterranean blue */
+  --foreground: 220 40% 15%;          /* Deep navy */
+  --card: 205 40% 98%;                /* Pristine white */
+  --card-foreground: 220 40% 15%;
+  --popover: 205 40% 98%;
+  --popover-foreground: 220 40% 15%;
+  --primary: 210 85% 45%;             /* Riviera blue */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 45 60% 88%;            /* Champagne gold */
+  --secondary-foreground: 220 50% 20%;
+  --muted: 210 25% 92%;               /* Muted blue */
+  --muted-foreground: 220 30% 45%;
+  --accent: 45 85% 65%;               /* Rich gold */
+  --accent-foreground: 220 40% 15%;
+  --destructive: 0 70% 55%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 210 25% 85%;
+  --input: 210 30% 90%;
+  --ring: 210 85% 45%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🍷 TUSCANY SUNSET - Warm Italian evenings with wine colors
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-tuscany {
+  --background: 25 35% 95%;           /* Warm cream */
+  --foreground: 15 50% 15%;           /* Rich brown */
+  --card: 30 45% 98%;                 /* Warm white */
+  --card-foreground: 15 50% 15%;
+  --popover: 30 45% 98%;
+  --popover-foreground: 15 50% 15%;
+  --primary: 20 80% 55%;              /* Tuscan orange */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 340 30% 88%;           /* Soft wine */
+  --secondary-foreground: 15 60% 20%;
+  --muted: 25 30% 92%;                /* Muted cream */
+  --muted-foreground: 15 35% 45%;
+  --accent: 340 60% 65%;              /* Wine red */
+  --accent-foreground: 15 50% 15%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 25 30% 85%;
+  --input: 25 35% 90%;
+  --ring: 20 80% 55%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🏔️ SWISS ALPS - Crisp mountain air with cool blues
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-alps {
+  --background: 200 20% 97%;          /* Snow white */
+  --foreground: 215 30% 15%;          /* Deep slate */
+  --card: 195 25% 99%;                /* Pure white */
+  --card-foreground: 215 30% 15%;
+  --popover: 195 25% 99%;
+  --popover-foreground: 215 30% 15%;
+  --primary: 200 75% 50%;             /* Alpine blue */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 90%;              /* Clean silver */
+  --secondary-foreground: 215 40% 20%;
+  --muted: 200 15% 93%;               /* Muted snow */
+  --muted-foreground: 215 20% 45%;
+  --accent: 190 80% 60%;              /* Ice blue */
+  --accent-foreground: 215 30% 15%;
+  --destructive: 0 70% 55%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 200 15% 86%;
+  --input: 200 20% 91%;
+  --ring: 200 75% 50%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🍾 NAPA VALLEY - Rich wine country with burgundy and gold
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-napa {
+  --background: 15 20% 12%;           /* Deep wine */
+  --foreground: 40 50% 88%;           /* Champagne white */
+  --card: 15 25% 15%;                 /* Rich wine card */
+  --card-foreground: 40 50% 88%;
+  --popover: 15 30% 10%;
+  --popover-foreground: 40 50% 88%;
+  --primary: 20 70% 45%;              /* Burgundy */
+  --primary-foreground: 40 50% 88%;
+  --secondary: 40 40% 25%;            /* Golden brown */
+  --secondary-foreground: 40 50% 88%;
+  --muted: 15 20% 18%;                /* Muted wine */
+  --muted-foreground: 40 30% 65%;
+  --accent: 45 80% 65%;               /* Rich gold */
+  --accent-foreground: 15 20% 12%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 15 25% 22%;
+  --input: 15 25% 16%;
+  --ring: 20 70% 45%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🏙️ MANHATTAN PENTHOUSE - Sophisticated urban luxury
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-penthouse {
+  --background: 215 25% 8%;           /* Deep charcoal */
+  --foreground: 0 0% 95%;             /* Platinum white */
+  --card: 215 30% 12%;                /* Rich charcoal */
+  --card-foreground: 0 0% 95%;
+  --popover: 215 35% 6%;
+  --popover-foreground: 0 0% 95%;
+  --primary: 215 40% 35%;             /* Steel blue */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 20%;              /* Gunmetal */
+  --secondary-foreground: 0 0% 95%;
+  --muted: 215 25% 15%;               /* Muted charcoal */
+  --muted-foreground: 0 0% 65%;
+  --accent: 40 80% 70%;               /* Gold accent */
+  --accent-foreground: 215 25% 8%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 215 30% 22%;
+  --input: 215 30% 12%;
+  --ring: 215 40% 35%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🏖️ MALDIVES ESCAPE - Crystal clear waters with sandy beaches
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-maldives {
+  --background: 190 25% 96%;          /* Soft aqua */
+  --foreground: 200 70% 12%;          /* Deep ocean */
+  --card: 185 30% 98%;                /* Crystal white */
+  --card-foreground: 200 70% 12%;
+  --popover: 185 30% 98%;
+  --popover-foreground: 200 70% 12%;
+  --primary: 190 85% 50%;             /* Maldives blue */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 50 40% 88%;            /* Sandy beige */
+  --secondary-foreground: 200 80% 15%;
+  --muted: 190 20% 93%;               /* Muted aqua */
+  --muted-foreground: 200 50% 35%;
+  --accent: 180 100% 70%;             /* Turquoise */
+  --accent-foreground: 200 70% 12%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 190 20% 86%;
+  --input: 190 25% 91%;
+  --ring: 190 85% 50%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🌃 TOKYO NIGHTS - Neon-lit adventures with electric pinks
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-tokyonights {
+  --background: 270 20% 8%;           /* Deep purple night */
+  --foreground: 300 100% 90%;         /* Electric pink */
+  --card: 270 25% 12%;                /* Dark purple card */
+  --card-foreground: 300 100% 90%;
+  --popover: 270 30% 6%;
+  --popover-foreground: 300 100% 90%;
+  --primary: 320 85% 65%;             /* Hot pink */
+  --primary-foreground: 270 20% 8%;
+  --secondary: 270 30% 20%;           /* Purple gray */
+  --secondary-foreground: 300 100% 90%;
+  --muted: 270 20% 15%;               /* Muted purple */
+  --muted-foreground: 300 60% 70%;
+  --accent: 180 100% 70%;             /* Electric cyan */
+  --accent-foreground: 270 20% 8%;
+  --destructive: 0 85% 65%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 270 25% 22%;
+  --input: 270 25% 12%;
+  --ring: 320 85% 65%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🥂 CHAMPAGNE DREAMS - Golden celebration with luxury vibes
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-champagne {
+  --background: 50 30% 96%;           /* Soft champagne */
+  --foreground: 35 40% 15%;           /* Rich bronze */
+  --card: 55 35% 98%;                 /* Bubbles white */
+  --card-foreground: 35 40% 15%;
+  --popover: 55 35% 98%;
+  --popover-foreground: 35 40% 15%;
+  --primary: 45 80% 55%;              /* Champagne gold */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 30 30% 88%;            /* Warm cream */
+  --secondary-foreground: 35 50% 20%;
+  --muted: 50 25% 92%;                /* Muted champagne */
+  --muted-foreground: 35 30% 45%;
+  --accent: 60 85% 70%;               /* Bright gold */
+  --accent-foreground: 35 40% 15%;
+  --destructive: 0 70% 55%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 50 25% 85%;
+  --input: 50 30% 90%;
+  --ring: 45 80% 55%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ✈️ FIRST CLASS LOUNGE - Premium travel with navy and silver
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-firstclass {
+  --background: 220 30% 8%;           /* Deep navy */
+  --foreground: 0 0% 92%;             /* Platinum */
+  --card: 220 35% 12%;                /* Rich navy card */
+  --card-foreground: 0 0% 92%;
+  --popover: 220 40% 6%;
+  --popover-foreground: 0 0% 92%;
+  --primary: 220 70% 35%;             /* Executive blue */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 22%;              /* Silver gray */
+  --secondary-foreground: 0 0% 92%;
+  --muted: 220 30% 15%;               /* Muted navy */
+  --muted-foreground: 0 0% 65%;
+  --accent: 200 100% 70%;             /* Sky blue */
+  --accent-foreground: 220 30% 8%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 220 35% 22%;
+  --input: 220 35% 12%;
+  --ring: 220 70% 35%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ⛵ YACHT CLUB - Nautical elegance with deep blues
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-yacht {
+  --background: 215 40% 6%;           /* Deep ocean */
+  --foreground: 0 0% 94%;             /* Sail white */
+  --card: 215 45% 10%;                /* Deep blue card */
+  --card-foreground: 0 0% 94%;
+  --popover: 215 50% 4%;
+  --popover-foreground: 0 0% 94%;
+  --primary: 215 85% 40%;             /* Yacht blue */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 18%;              /* Anchor gray */
+  --secondary-foreground: 0 0% 94%;
+  --muted: 215 40% 12%;               /* Muted ocean */
+  --muted-foreground: 0 0% 68%;
+  --accent: 5 85% 65%;                /* Rope red */
+  --accent-foreground: 215 40% 6%;
+  --destructive: 0 80% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 215 45% 20%;
+  --input: 215 45% 10%;
+  --ring: 215 85% 40%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🧘 LUXURY SPA - Zen relaxation with calming greens
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-spa {
+  --background: 120 15% 96%;          /* Soft sage */
+  --foreground: 140 30% 15%;          /* Deep forest */
+  --card: 115 20% 98%;                /* Pure white */
+  --card-foreground: 140 30% 15%;
+  --popover: 115 20% 98%;
+  --popover-foreground: 140 30% 15%;
+  --primary: 120 50% 45%;             /* Zen green */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 50 25% 88%;            /* Bamboo beige */
+  --secondary-foreground: 140 40% 20%;
+  --muted: 120 12% 93%;               /* Muted sage */
+  --muted-foreground: 140 20% 45%;
+  --accent: 165 60% 65%;              /* Spa mint */
+  --accent-foreground: 140 30% 15%;
+  --destructive: 0 70% 55%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 120 12% 86%;
+  --input: 120 15% 91%;
+  --ring: 120 50% 45%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🔳 SUBTLE GRID TEXTURE - Clean geometric background pattern
+   ═══════════════════════════════════════════════════════════════════════ */
+.grid-texture-bg {
+  position: relative;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
 
 @layer base {
   * {
