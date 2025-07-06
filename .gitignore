@@ -119,3 +119,5 @@ public
 # Temporary folders
 tmp/
 temp/
+# Prisma generated files
+generated/
