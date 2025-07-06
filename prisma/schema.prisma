@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // NextAuth.js required models
@@ -118,4 +119,16 @@ model UserSearchHistory {
   searchedAt DateTime @default(now())
 
   @@index([userId, searchedAt])
+}
+
+model SavedSearch {
+  id        String   @id @default(cuid())
+  userId    String
+  query     String
+  location  String?
+  radius    Int?     @default(25)
+  remoteOnly Boolean @default(false)
+  createdAt DateTime @default(now())
+  
+  @@index([userId, createdAt])
 }
