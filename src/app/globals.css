@@ -615,28 +615,28 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   🌆 NEON DISTRICT - Cyberpunk meets Tokyo nights fusion
+   🌆 NEON DISTRICT - Tokyo nights with cyberpunk buttons
    ═══════════════════════════════════════════════════════════════════════ */
 .theme-neon {
-  --background: 275 18% 7%;           /* Deep cyber purple */
-  --foreground: 310 100% 88%;         /* Electric pink-cyan */
-  --card: 275 25% 11%;                /* Dark neon card */
-  --card-foreground: 310 100% 88%;
-  --popover: 275 30% 5%;
-  --popover-foreground: 310 100% 88%;
-  --primary: 318 90% 68%;             /* Neon magenta-pink */
-  --primary-foreground: 275 18% 7%;
-  --secondary: 275 35% 18%;           /* Purple-gray */
-  --secondary-foreground: 310 100% 88%;
-  --muted: 275 22% 13%;               /* Muted neon */
-  --muted-foreground: 310 65% 72%;
-  --accent: 180 100% 72%;             /* Electric cyan */
-  --accent-foreground: 275 18% 7%;
-  --destructive: 0 90% 67%;
+  --background: 270 20% 8%;           /* Tokyo nights background */
+  --foreground: 300 100% 90%;         /* Tokyo nights text */
+  --card: 270 25% 12%;                /* Tokyo nights cards */
+  --card-foreground: 300 100% 90%;
+  --popover: 270 30% 6%;
+  --popover-foreground: 300 100% 90%;
+  --primary: 315 100% 65%;            /* Cyberpunk hot magenta buttons */
+  --primary-foreground: 270 20% 8%;
+  --secondary: 270 30% 20%;           /* Tokyo nights secondary */
+  --secondary-foreground: 300 100% 90%;
+  --muted: 270 20% 15%;               /* Tokyo nights muted */
+  --muted-foreground: 300 60% 70%;
+  --accent: 180 100% 70%;             /* Tokyo nights cyan accent */
+  --accent-foreground: 270 20% 8%;
+  --destructive: 0 85% 65%;
   --destructive-foreground: 0 0% 98%;
-  --border: 275 28% 20%;
-  --input: 275 25% 11%;
-  --ring: 318 90% 68%;
+  --border: 270 25% 22%;
+  --input: 270 25% 12%;
+  --ring: 315 100% 65%;               /* Cyberpunk button focus ring */
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
