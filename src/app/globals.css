@@ -615,6 +615,31 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   🌆 NEON DISTRICT - Cyberpunk meets Tokyo nights fusion
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-neon {
+  --background: 275 18% 7%;           /* Deep cyber purple */
+  --foreground: 310 100% 88%;         /* Electric pink-cyan */
+  --card: 275 25% 11%;                /* Dark neon card */
+  --card-foreground: 310 100% 88%;
+  --popover: 275 30% 5%;
+  --popover-foreground: 310 100% 88%;
+  --primary: 318 90% 68%;             /* Neon magenta-pink */
+  --primary-foreground: 275 18% 7%;
+  --secondary: 275 35% 18%;           /* Purple-gray */
+  --secondary-foreground: 310 100% 88%;
+  --muted: 275 22% 13%;               /* Muted neon */
+  --muted-foreground: 310 65% 72%;
+  --accent: 180 100% 72%;             /* Electric cyan */
+  --accent-foreground: 275 18% 7%;
+  --destructive: 0 90% 67%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 275 28% 20%;
+  --input: 275 25% 11%;
+  --ring: 318 90% 68%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    🔳 SUBTLE GRID TEXTURE - Clean geometric background pattern
    ═══════════════════════════════════════════════════════════════════════ */
 .grid-texture-bg {

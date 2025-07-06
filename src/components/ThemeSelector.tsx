@@ -165,6 +165,14 @@ const themes = [
     emoji: '🧘',
     description: 'Zen relaxation',
     category: 'Luxury'
+  },
+  {
+    id: 'neon',
+    name: 'Neon District',
+    color: '#ec4899',
+    emoji: '🌆',
+    description: 'Cyberpunk meets Tokyo',
+    category: 'Luxury'
   }
 ]
 
