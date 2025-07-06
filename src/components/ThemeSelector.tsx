@@ -208,8 +208,20 @@ export default function ThemeSelector({ showPreview = false }: { showPreview?: b
       themeId,
       themeName: theme.name,
       className: html.className,
-      appliedClass: `theme-${themeId}`
+      appliedClass: `theme-${themeId}`,
+      htmlElement: html,
+      computedPrimary: getComputedStyle(html).getPropertyValue('--primary')
     })
+    
+    // Force a style recalculation
+    setTimeout(() => {
+      const primary = getComputedStyle(html).getPropertyValue('--primary')
+      console.log('🔍 CSS Variable check:', { 
+        themeId, 
+        primaryColor: primary,
+        expectedForNeon: '315 100% 65%'
+      })
+    }, 100)
   }
 
   const currentThemeData = themes.find(t => t.id === currentTheme)
