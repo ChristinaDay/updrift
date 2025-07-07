@@ -50,13 +50,13 @@ function DynamicWaves() {
   const topFrequency = 1.2
   const topOffset = 0
   const topPhase = 1
-  const topY = 50
+  const topY = 62
 
   const bottomAmplitude = 7
   const bottomFrequency = 1.7
   const bottomOffset = 1.5
   const bottomPhase = 1.3
-  const bottomY = 150
+  const bottomY = 138
 
   // Generate points for top and bottom waves
   const topPoints = generateWavePoints(topAmplitude, topFrequency, topOffset, topPhase, topY)
@@ -76,13 +76,13 @@ function DynamicWaves() {
   const bgTopFrequency = 0.9
   const bgTopOffset = 0.7
   const bgTopPhase = 0.7
-  const bgTopY = 80
+  const bgTopY = 92
 
   const bgBottomAmplitude = 12
   const bgBottomFrequency = 1.1
   const bgBottomOffset = 2.2
   const bgBottomPhase = 1.1
-  const bgBottomY = 160
+  const bgBottomY = 148
 
   const bgTopPoints = generateWavePoints(bgTopAmplitude, bgTopFrequency, bgTopOffset, bgTopPhase, bgTopY)
   const bgBottomPoints = generateWavePoints(bgBottomAmplitude, bgBottomFrequency, bgBottomOffset, bgBottomPhase, bgBottomY)
@@ -100,13 +100,13 @@ function DynamicWaves() {
   const bg2TopFrequency = 0.7
   const bg2TopOffset = 1.2
   const bg2TopPhase = 0.5
-  const bg2TopY = 90
+  const bg2TopY = 102
 
   const bg2BottomAmplitude = 14
   const bg2BottomFrequency = 0.8
   const bg2BottomOffset = 2.8
   const bg2BottomPhase = 0.8
-  const bg2BottomY = 140
+  const bg2BottomY = 130
 
   const bg2TopPoints = generateWavePoints(bg2TopAmplitude, bg2TopFrequency, bg2TopOffset, bg2TopPhase, bg2TopY)
   const bg2BottomPoints = generateWavePoints(bg2BottomAmplitude, bg2BottomFrequency, bg2BottomOffset, bg2BottomPhase, bg2BottomY)
@@ -227,8 +227,8 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
   // All particles: sharp, twinkling stars
   const starParticles = Array.from({ length: numParticles }).map((_, i) => {
     const progress = Math.random();
-    const baseSpeed = rand(18, 26);
-    const speed = baseSpeed * rand(1.3, 1.5); // 30-50% faster than stars
+    const baseSpeed = rand(6, 10) * 0.6; // 40% faster
+    const speed = baseSpeed * rand(1.3, 1.5); // keep the multiplier for variety
     const riverDepth = Math.random() * 0.1;
     const size = rand(1.2, 2.6);
     const color = [
@@ -255,14 +255,16 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
   const streams = Array.from({ length: numStreams }).map((_, i) => {
     // Fully random positions and delays for organic, sparse effect
     const progress = Math.random(); // random horizontal start
-    const y = 0.45 + Math.random() * 0.1; // random vertical position
-    const speed = rand(18, 26);
+    const y = 0.495 + Math.random() * 0.01; // extremely tight vertical spread
+    const baseSpeed = rand(2, 4) * 0.6; // 40% faster
+    const speed = baseSpeed * rand(1.3, 1.5); // keep the multiplier for variety
     const delay = -rand(0, speed * 2); // negative delay, up to 2x speed, for big gaps
+    const width = rand(6, 22); // more horizontal variation: some shorter, some longer
     return {
       id: `stream-line-${i}`,
       x: -0.25 + progress * 1.5,
       y,
-      width: rand(22, 38), // 30% smaller
+      width,
       color: 'linear-gradient(90deg, white 0%, #f0abfc 18%, #a5b4fc 36%, #7c3aed 54%, #06b6d4 72%, #22d3ee 90%, transparent 100%)',
       opacity: rand(0.09, 0.16), // more subtle
       blur: rand(0.6, 1.1), // more subtle
@@ -521,8 +523,8 @@ export default function Home() {
     // Generate flowing particles within the river area - more natural distribution
     for (let i = 0; i < 35; i++) {
       const progress = Math.random(); // Random position in animation (0 to 1)
-      const baseSpeed = rand(18, 26);
-      const speed = baseSpeed * rand(1.3, 1.5); // 30-50% faster than stars
+      const baseSpeed = rand(6, 10) * 0.6; // 40% faster
+      const speed = baseSpeed * rand(1.3, 1.5); // keep the multiplier for variety
       const riverDepth = Math.random() * 10; // 10% height of river area
       newParticles.push({
         id: `river-particle-${i}`,
@@ -539,18 +541,54 @@ export default function Home() {
     // Generate streaming lines within the river area - like current lines
     for (let i = 0; i < 12; i++) {
       const progress = Math.random(); // Random position in animation (0 to 1)
-      const baseSpeed = rand(18, 26);
-      const speed = baseSpeed * rand(1.3, 1.5); // 30-50% faster than stars
-      const streamHeight = 45 + Math.random() * 10; // Distribute across river height
+      const baseSpeed = rand(2, 4) * 0.6; // 40% faster
+      const speed = baseSpeed * rand(1.3, 1.5); // keep the multiplier for variety
+      const streamHeight = 49.5 + Math.random() * 1; // extremely tight vertical spread
+      const width = rand(6, 22); // more horizontal variation
       newParticles.push({
         id: `stream-line-${i}`,
         x: -25 + (progress * 150), // Extended journey for longer streams
         y: streamHeight, // River area distributed
-        size: 1, // Will be overridden by CSS for line shape
+        size: width, // Will be overridden by CSS for line shape
         color: `linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.6), rgba(59, 130, 246, 0.8), transparent)`,
         animationType: 'streamFlow',
         speed: speed,
         delay: -progress * speed // Negative delay based on position to sync animation
+      })
+    }
+
+    // Add more moving stars above the river, clearly above the river band
+    for (let i = 0; i < 10; i++) {
+      const progress = Math.random();
+      const baseSpeed = rand(6, 10) * 0.6; // 40% faster
+      const speed = baseSpeed * rand(1.3, 1.5);
+      const y = 35 + Math.random() * 8; // above river (35-43)
+      newParticles.push({
+        id: `river-star-above-${i}`,
+        x: -15 + (progress * 130),
+        y,
+        size: 0.8 + Math.random() * 2.2,
+        color: `radial-gradient(circle, rgba(147, 51, 234, 0.8), rgba(59, 130, 246, 0.6))`,
+        animationType: 'riverFlow',
+        speed: speed,
+        delay: -progress * speed
+      })
+    }
+    // Add more moving stars below the river, clearly below the river band
+    for (let i = 0; i < 10; i++) {
+      const progress = Math.random();
+      const baseSpeed = rand(6, 10) * 0.6; // 40% faster
+      const speed = baseSpeed * rand(1.3, 1.5);
+      const y = 57 + Math.random() * 8; // below river (57-65)
+      newParticles.push({
+        id: `river-star-below-${i}`,
+        x: -15 + (progress * 130),
+        y,
+        size: 0.8 + Math.random() * 2.2,
+        color: `radial-gradient(circle, rgba(147, 51, 234, 0.8), rgba(59, 130, 246, 0.6))`,
+        animationType: 'riverFlow',
+        speed: speed,
+        delay: -progress * speed
       })
     }
 
