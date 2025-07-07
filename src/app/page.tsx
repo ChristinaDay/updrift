@@ -219,44 +219,61 @@ function Starfield({ width = 1920, height = 400, numLayers = 3, starsPerLayer = 
   )
 }
 
+// Utility for random between min and max
+function rand(min: number, max: number) { return min + Math.random() * (max - min); }
+
 // RiverParticles Component
-import React from 'react'
-function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStreams = 12 }) {
-  // Generate flowing particles within the river area
-  const particles = Array.from({ length: numParticles }).map((_, i) => {
+function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStreams = 4 }) {
+  // All particles: sharp, twinkling stars
+  const starParticles = Array.from({ length: numParticles }).map((_, i) => {
     const progress = Math.random();
-    const speed = 20 + Math.random() * 10;
-    const riverDepth = Math.random() * 0.1; // 10% of river area
+    const speed = rand(18, 28);
+    const riverDepth = Math.random() * 0.1;
+    const size = rand(1.2, 2.6);
+    const color = [
+      'white',
+      '#a5b4fc',
+      '#7c3aed',
+      '#6366f1',
+      '#bae6fd',
+      '#f0abfc'
+    ][Math.floor(Math.random() * 6)];
     return {
-      id: `river-particle-${i}`,
-      x: -0.15 + progress * 1.3, // -15% to 115%
-      y: 0.45 + riverDepth, // 45-55% of height
-      size: 8 + Math.random() * 16,
-      color: 'radial-gradient(circle, #a5b4fc 0%, #7c3aed 60%, #6366f1 100%)',
+      id: `river-star-${i}`,
+      x: -0.15 + progress * 1.3,
+      y: 0.45 + riverDepth,
+      size,
+      color,
       speed,
-      delay: -progress * speed
+      delay: -progress * speed,
+      twinkleDur: rand(1.5, 3.5),
+      twinkleDelay: rand(0, 2)
     }
-  })
-  // Generate streaming lines within the river area
+  });
+  // Streaming lines within the river area
   const streams = Array.from({ length: numStreams }).map((_, i) => {
-    const progress = Math.random();
-    const speed = 18 + Math.random() * 8;
-    const streamHeight = 0.45 + Math.random() * 0.1;
+    // Fully random positions and delays for organic, sparse effect
+    const progress = Math.random(); // random horizontal start
+    const y = 0.45 + Math.random() * 0.1; // random vertical position
+    const speed = rand(18, 26);
+    const delay = -rand(0, speed * 2); // negative delay, up to 2x speed, for big gaps
     return {
       id: `stream-line-${i}`,
-      x: -0.25 + progress * 1.5, // -25% to 125%
-      y: streamHeight,
-      width: 60 + Math.random() * 40,
-      color: 'linear-gradient(90deg, transparent, #06b6d4 60%, #6366f1 100%, transparent)',
+      x: -0.25 + progress * 1.5,
+      y,
+      width: rand(32, 54), // shorter lines for subtle effect
+      color: 'linear-gradient(90deg, white 0%, #f0abfc 18%, #a5b4fc 36%, #7c3aed 54%, #06b6d4 72%, #22d3ee 90%, transparent 100%)',
+      opacity: rand(0.13, 0.22),
+      blur: rand(0.8, 1.5),
       speed,
-      delay: -progress * speed
+      delay
     }
-  })
+  });
   return (
     <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-10">
-      {/* Flowing particles */}
-      {particles.map(p => (
-        <div
+      {/* Twinkling star particles */}
+      {starParticles.map(p => (
+        <svg
           key={p.id}
           style={{
             position: 'absolute',
@@ -264,15 +281,24 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
             top: `${p.y * 100}%`,
             width: p.size,
             height: p.size,
-            background: p.color,
-            borderRadius: '50%',
-            opacity: 0.7,
-            filter: 'blur(1.5px)',
+            pointerEvents: 'none',
+            zIndex: 2,
             animation: `riverFlow ${p.speed}s linear infinite`,
             animationDelay: `${p.delay}s`,
-            pointerEvents: 'none',
           }}
-        />
+        >
+          <circle
+            cx={p.size / 2}
+            cy={p.size / 2}
+            r={p.size / 2}
+            fill={p.color}
+            style={{
+              opacity: 0.85,
+              filter: 'drop-shadow(0 0 2px white)',
+              animation: `starTwinkle ${p.twinkleDur}s ease-in-out ${p.twinkleDelay}s infinite`,
+            }}
+          />
+        </svg>
       ))}
       {/* Streaming lines */}
       {streams.map(s => (
@@ -283,14 +309,15 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
             left: `${s.x * 100}%`,
             top: `${s.y * 100}%`,
             width: s.width,
-            height: 2,
+            height: 1,
             background: s.color,
-            borderRadius: 2,
-            opacity: 0.4,
-            filter: 'blur(1.5px)',
+            borderRadius: 1,
+            opacity: s.opacity,
+            filter: `blur(${s.blur}px)`,
             animation: `streamFlow ${s.speed}s linear infinite`,
             animationDelay: `${s.delay}s`,
             pointerEvents: 'none',
+            zIndex: 0,
           }}
         />
       ))}
@@ -314,9 +341,15 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
           88% { opacity: 0.7; transform: translateX(95vw) scaleX(1); }
           100% { transform: translateX(calc(100vw + 30px)) scaleX(0.3); opacity: 0; }
         }
+        @keyframes starTwinkle {
+          0%, 100% { opacity: 0.7; transform: scale(1); }
+          25% { opacity: 1; transform: scale(1.2); }
+          50% { opacity: 0.5; transform: scale(0.9); }
+          75% { opacity: 1; transform: scale(1.1); }
+        }
       `}</style>
     </div>
-  )
+  );
 }
 
 export default function Home() {
