@@ -18,93 +18,65 @@ function DynamicWaves() {
   
   useEffect(() => {
     let animationId: number
-    
     const animate = () => {
       setTime(prev => prev + 0.02)
       animationId = requestAnimationFrame(animate)
     }
-    
     animationId = requestAnimationFrame(animate)
-    
-    return () => {
-      if (animationId) {
-        cancelAnimationFrame(animationId)
-      }
-    }
+    return () => { if (animationId) cancelAnimationFrame(animationId) }
   }, [])
-  
+
+  // Only fill above the wave, bottom is transparent
   const generateWavePath = (amplitude: number, frequency: number, offset: number, phase: number) => {
     const points = []
     const width = typeof window !== 'undefined' ? window.innerWidth : 1200
-    const centerY = 60 // Position waves lower for container top effect
-    
-    // Generate points for smooth wave
-    for (let x = -width * 0.1; x <= width * 1.1; x += width / 200) {
+    const height = 60
+    // Top left
+    points.push(`0,0`)
+    // Wave curve
+    for (let x = 0; x <= width; x += width / 200) {
       const normalizedX = x / width
-      const y = centerY + amplitude * Math.sin(frequency * normalizedX * Math.PI * 2 + time * phase + offset)
+      const y = 20 + amplitude * Math.sin(frequency * normalizedX * Math.PI * 2 + time * phase + offset)
       points.push(`${x},${y}`)
     }
-    
-    // Close the path with clean bottom edge for container effect
-    const lastX = width * 1.1
-    points.push(`${lastX},100`)
-    points.push(`${-width * 0.1},100`)
-    
-    return `M ${points.join(' L ')}`
+    // Top right
+    points.push(`${width},0`)
+    // Close path
+    return `M ${points[0]} L ${points.slice(1).join(' L ')} Z`
   }
-  
+
   return (
-    <div className="absolute inset-0 w-full h-full">
-      <svg
-        className="absolute inset-0 w-full h-full"
-        preserveAspectRatio="none"
-        style={{ filter: 'blur(1px)' }}
-      >
-        <defs>
-          <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="rgba(59, 130, 246, 0.8)" />
-            <stop offset="25%" stopColor="rgba(147, 51, 234, 0.9)" />
-            <stop offset="50%" stopColor="rgba(59, 130, 246, 1)" />
-            <stop offset="75%" stopColor="rgba(147, 51, 234, 0.9)" />
-            <stop offset="100%" stopColor="rgba(59, 130, 246, 0.8)" />
-          </linearGradient>
-          <linearGradient id="wave2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="rgba(147, 51, 234, 0.6)" />
-            <stop offset="33%" stopColor="rgba(59, 130, 246, 0.8)" />
-            <stop offset="66%" stopColor="rgba(147, 51, 234, 0.8)" />
-            <stop offset="100%" stopColor="rgba(59, 130, 246, 0.6)" />
-          </linearGradient>
-          <linearGradient id="wave3" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="rgba(59, 130, 246, 0.5)" />
-            <stop offset="50%" stopColor="rgba(147, 51, 234, 0.6)" />
-            <stop offset="100%" stopColor="rgba(59, 130, 246, 0.5)" />
-          </linearGradient>
-        </defs>
-        
-        {/* Main liquid layer */}
-        <path
-          d={generateWavePath(6, 3, 0, 1)}
-          fill="url(#wave1)"
-          opacity="0.7"
-        />
-        
-        {/* Secondary liquid layer */}
-        <path
-          d={generateWavePath(4, 4, Math.PI, -0.8)}
-          fill="url(#wave2)"
-          opacity="0.5"
-          style={{ filter: 'blur(0.5px)' }}
-        />
-        
-        {/* Surface ripples */}
-        <path
-          d={generateWavePath(2, 6, Math.PI / 2, 1.2)}
-          fill="url(#wave3)"
-          opacity="0.3"
-          transform="translateY(-15px)"
-        />
-      </svg>
-    </div>
+    <svg
+      className="absolute top-0 left-0 w-full h-[60px]"
+      viewBox={`0 0 ${typeof window !== 'undefined' ? window.innerWidth : 1200} 60`}
+      fill="none"
+      preserveAspectRatio="none"
+      style={{ pointerEvents: 'none', zIndex: 1 }}
+    >
+      <defs>
+        <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.9" />
+          <stop offset="50%" stopColor="#9333ea" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.9" />
+        </linearGradient>
+        <linearGradient id="wave2" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#9333ea" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.5" />
+        </linearGradient>
+      </defs>
+      {/* Main wave */}
+      <path
+        d={generateWavePath(12, 2.5, 0, 1)}
+        fill="url(#wave1)"
+        opacity="0.9"
+      />
+      {/* Secondary wave */}
+      <path
+        d={generateWavePath(7, 3.5, Math.PI, -1)}
+        fill="url(#wave2)"
+        opacity="0.7"
+      />
+    </svg>
   )
 }
 
@@ -697,16 +669,15 @@ export default function Home() {
       </section>
 
       {/* Stats Section - Liquid Container */}
-      <section className="relative bg-gradient-to-b from-blue-50/50 to-purple-50/50 dark:from-blue-950/30 dark:to-purple-950/30 pt-20 pb-16 overflow-hidden">
+      <section className="relative bg-background pt-16 pb-16 overflow-hidden">
         {/* Liquid Waves at Top */}
         {isClient && (
-          <div className="absolute top-0 left-0 right-0 h-24 liquid-waves overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 w-full h-[60px] z-10">
             <DynamicWaves />
           </div>
         )}
-        
-        {/* Content with top margin to account for waves */}
-        <div className="relative z-10 mt-12">
+        {/* Content with extra top margin to sit below the wave crests */}
+        <div className="relative z-20 mt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
