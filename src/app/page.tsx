@@ -219,6 +219,106 @@ function Starfield({ width = 1920, height = 400, numLayers = 3, starsPerLayer = 
   )
 }
 
+// RiverParticles Component
+import React from 'react'
+function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStreams = 12 }) {
+  // Generate flowing particles within the river area
+  const particles = Array.from({ length: numParticles }).map((_, i) => {
+    const progress = Math.random();
+    const speed = 20 + Math.random() * 10;
+    const riverDepth = Math.random() * 0.1; // 10% of river area
+    return {
+      id: `river-particle-${i}`,
+      x: -0.15 + progress * 1.3, // -15% to 115%
+      y: 0.45 + riverDepth, // 45-55% of height
+      size: 8 + Math.random() * 16,
+      color: 'radial-gradient(circle, #a5b4fc 0%, #7c3aed 60%, #6366f1 100%)',
+      speed,
+      delay: -progress * speed
+    }
+  })
+  // Generate streaming lines within the river area
+  const streams = Array.from({ length: numStreams }).map((_, i) => {
+    const progress = Math.random();
+    const speed = 18 + Math.random() * 8;
+    const streamHeight = 0.45 + Math.random() * 0.1;
+    return {
+      id: `stream-line-${i}`,
+      x: -0.25 + progress * 1.5, // -25% to 125%
+      y: streamHeight,
+      width: 60 + Math.random() * 40,
+      color: 'linear-gradient(90deg, transparent, #06b6d4 60%, #6366f1 100%, transparent)',
+      speed,
+      delay: -progress * speed
+    }
+  })
+  return (
+    <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-10">
+      {/* Flowing particles */}
+      {particles.map(p => (
+        <div
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: `${p.x * 100}%`,
+            top: `${p.y * 100}%`,
+            width: p.size,
+            height: p.size,
+            background: p.color,
+            borderRadius: '50%',
+            opacity: 0.7,
+            filter: 'blur(1.5px)',
+            animation: `riverFlow ${p.speed}s linear infinite`,
+            animationDelay: `${p.delay}s`,
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
+      {/* Streaming lines */}
+      {streams.map(s => (
+        <div
+          key={s.id}
+          style={{
+            position: 'absolute',
+            left: `${s.x * 100}%`,
+            top: `${s.y * 100}%`,
+            width: s.width,
+            height: 2,
+            background: s.color,
+            borderRadius: 2,
+            opacity: 0.4,
+            filter: 'blur(1.5px)',
+            animation: `streamFlow ${s.speed}s linear infinite`,
+            animationDelay: `${s.delay}s`,
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
+      <style jsx>{`
+        @keyframes riverFlow {
+          0% { transform: translateX(-20px); opacity: 0; }
+          8% { opacity: 0.9; }
+          15% { transform: translateX(15vw); }
+          35% { transform: translateX(35vw); }
+          55% { transform: translateX(55vw); }
+          75% { transform: translateX(75vw); }
+          92% { opacity: 0.9; }
+          100% { transform: translateX(calc(100vw + 20px)); opacity: 0; }
+        }
+        @keyframes streamFlow {
+          0% { transform: translateX(-30px) scaleX(0.3); opacity: 0; }
+          12% { opacity: 0.7; transform: translateX(5vw) scaleX(1); }
+          25% { transform: translateX(25vw) scaleX(1.1); }
+          50% { transform: translateX(50vw) scaleX(1); }
+          75% { transform: translateX(75vw) scaleX(1.1); }
+          88% { opacity: 0.7; transform: translateX(95vw) scaleX(1); }
+          100% { transform: translateX(calc(100vw + 30px)) scaleX(0.3); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 export default function Home() {
   const router = useRouter()
   const { data: session, status } = useSession()
@@ -672,6 +772,8 @@ export default function Home() {
             <DynamicWaves />
           </div>
         )}
+        {/* Foreground River Particles */}
+        {isClient && <RiverParticles width={typeof window !== 'undefined' ? window.innerWidth : 1920} height={180} />}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left: Hero Content */}
