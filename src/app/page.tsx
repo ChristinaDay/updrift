@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import Link from 'next/link'
@@ -153,6 +153,69 @@ function DynamicWaves() {
       {/* Main dynamic wave */}
       <path d={path} fill="url(#liquid-gradient)" />
     </svg>
+  )
+}
+
+// Starfield Component
+function Starfield({ width = 1920, height = 400, numLayers = 3, starsPerLayer = [40, 30, 20] }) {
+  const layers = Array.from({ length: numLayers })
+  const colors = [
+    'rgba(255,255,255,0.7)',
+    'rgba(180,200,255,0.5)',
+    'rgba(140,160,255,0.3)'
+  ]
+  return (
+    <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
+      {layers.map((_, layerIdx) => (
+        <svg
+          key={layerIdx}
+          className={`absolute inset-0 w-full h-full animate-starfield-parallax parallax-layer-${layerIdx}`}
+          width={width}
+          height={height}
+          style={{
+            zIndex: layerIdx,
+            opacity: 0.7 - layerIdx * 0.2,
+            filter: 'blur(' + layerIdx * 0.5 + 'px)'
+          }}
+        >
+          {Array.from({ length: starsPerLayer[layerIdx] }).map((_, i) => {
+            const x = Math.random() * width
+            const y = Math.random() * height
+            const r = 0.7 + Math.random() * (1.2 - 0.7)
+            const twinkleDur = 2.5 + Math.random() * 2.5
+            const twinkleDelay = Math.random() * 3
+            return (
+              <circle
+                key={i}
+                cx={x}
+                cy={y}
+                r={r}
+                fill={colors[layerIdx % colors.length]}
+                style={{
+                  opacity: 0.7,
+                  transformOrigin: `${x}px ${y}px`,
+                  animation: `starTwinkle ${twinkleDur}s ease-in-out ${twinkleDelay}s infinite`
+                }}
+              />
+            )
+          })}
+        </svg>
+      ))}
+      <style jsx>{`
+        @keyframes starTwinkle {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          25% { opacity: 0.7; transform: scale(1.1); }
+          50% { opacity: 1; transform: scale(1.2); }
+          75% { opacity: 0.7; transform: scale(1.1); }
+        }
+        .animate-starfield-parallax.parallax-layer-0 { animation: parallax0 60s linear infinite; }
+        .animate-starfield-parallax.parallax-layer-1 { animation: parallax1 90s linear infinite; }
+        .animate-starfield-parallax.parallax-layer-2 { animation: parallax2 120s linear infinite; }
+        @keyframes parallax0 { 0% { transform: translateY(0px); } 100% { transform: translateY(10px); } }
+        @keyframes parallax1 { 0% { transform: translateY(0px); } 100% { transform: translateY(20px); } }
+        @keyframes parallax2 { 0% { transform: translateY(0px); } 100% { transform: translateY(30px); } }
+      `}</style>
+    </div>
   )
 }
 
@@ -591,7 +654,18 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden z-10">
+      <section className="hero-section relative py-20 overflow-hidden z-10">
+        {/* Starfield Background - behind river and hero content */}
+        {isClient && (
+          <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
+            <Starfield
+              width={typeof window !== 'undefined' ? window.innerWidth : 1920}
+              height={typeof window !== 'undefined'
+                ? ((document.querySelector('.hero-section') as HTMLElement)?.offsetHeight || 400)
+                : 400}
+            />
+          </div>
+        )}
         {/* River of Smoke Animation - behind the hero content */}
         {isClient && (
           <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-0">
