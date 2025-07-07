@@ -26,56 +26,70 @@ function DynamicWaves() {
     return () => { if (animationId) cancelAnimationFrame(animationId) }
   }, [])
 
-  // Only fill above the wave, bottom is transparent
-  const generateWavePath = (amplitude: number, frequency: number, offset: number, phase: number) => {
+  // Generate a wave path for a given y offset (top or bottom)
+  const generateWavePoints = (
+    amplitude: number,
+    frequency: number,
+    offset: number,
+    phase: number,
+    yBase: number,
+    invert: boolean = false
+  ) => {
     const points = []
     const width = typeof window !== 'undefined' ? window.innerWidth : 1200
-    const height = 60
-    // Top left
-    points.push(`0,0`)
-    // Wave curve
     for (let x = 0; x <= width; x += width / 200) {
       const normalizedX = x / width
-      const y = 20 + amplitude * Math.sin(frequency * normalizedX * Math.PI * 2 + time * phase + offset)
-      points.push(`${x},${y}`)
+      const y = yBase + amplitude * Math.sin(frequency * normalizedX * Math.PI * 2 + time * phase + offset)
+      points.push([x, invert ? yBase * 2 - y : y])
     }
-    // Top right
-    points.push(`${width},0`)
-    // Close path
-    return `M ${points[0]} L ${points.slice(1).join(' L ')} Z`
+    return points
   }
+
+  // Top wave parameters
+  const topAmplitude = 24
+  const topFrequency = 1.2
+  const topOffset = 0
+  const topPhase = 1
+  const topY = 60
+
+  // Bottom wave parameters (independent)
+  const bottomAmplitude = 18
+  const bottomFrequency = 1.7
+  const bottomOffset = 1.5
+  const bottomPhase = 1.3
+  const bottomY = 340
+
+  // Generate points for top and bottom waves
+  const topPoints = generateWavePoints(topAmplitude, topFrequency, topOffset, topPhase, topY)
+  const bottomPoints = generateWavePoints(bottomAmplitude, bottomFrequency, bottomOffset, bottomPhase, bottomY)
+
+  // Build the path: top wave → right edge → bottom wave (reversed) → left edge
+  const path = [
+    `M ${topPoints[0][0]},${topPoints[0][1]}`,
+    ...topPoints.slice(1).map(([x, y]) => `L ${x},${y}`),
+    `L ${bottomPoints[bottomPoints.length - 1][0]},${bottomPoints[bottomPoints.length - 1][1]}`,
+    ...bottomPoints.slice(0, -1).reverse().map(([x, y]) => `L ${x},${y}`),
+    'Z',
+  ].join(' ')
 
   return (
     <svg
-      className="absolute top-0 left-0 w-full h-[60px]"
-      viewBox={`0 0 ${typeof window !== 'undefined' ? window.innerWidth : 1200} 60`}
+      className="w-full h-[400px]"
+      width="100%"
+      height="400"
+      viewBox={`0 0 ${typeof window !== 'undefined' ? window.innerWidth : 1200} 400`}
       fill="none"
-      preserveAspectRatio="none"
-      style={{ pointerEvents: 'none', zIndex: 1 }}
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ display: 'block' }}
     >
       <defs>
-        <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.9" />
-          <stop offset="50%" stopColor="#9333ea" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.9" />
-        </linearGradient>
-        <linearGradient id="wave2" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#9333ea" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.5" />
+        <linearGradient id="liquid-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#a5b4fc" stopOpacity="0.7" />
+          <stop offset="60%" stopColor="#7c3aed" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#6366f1" stopOpacity="1" />
         </linearGradient>
       </defs>
-      {/* Main wave */}
-      <path
-        d={generateWavePath(12, 2.5, 0, 1)}
-        fill="url(#wave1)"
-        opacity="0.9"
-      />
-      {/* Secondary wave */}
-      <path
-        d={generateWavePath(7, 3.5, Math.PI, -1)}
-        fill="url(#wave2)"
-        opacity="0.7"
-      />
+      <path d={path} fill="url(#liquid-gradient)" />
     </svg>
   )
 }
