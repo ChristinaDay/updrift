@@ -227,7 +227,8 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
   // All particles: sharp, twinkling stars
   const starParticles = Array.from({ length: numParticles }).map((_, i) => {
     const progress = Math.random();
-    const speed = rand(18, 28);
+    const baseSpeed = rand(18, 26);
+    const speed = baseSpeed * rand(1.3, 1.5); // 30-50% faster than stars
     const riverDepth = Math.random() * 0.1;
     const size = rand(1.2, 2.6);
     const color = [
@@ -261,10 +262,10 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
       id: `stream-line-${i}`,
       x: -0.25 + progress * 1.5,
       y,
-      width: rand(32, 54), // shorter lines for subtle effect
+      width: rand(22, 38), // 30% smaller
       color: 'linear-gradient(90deg, white 0%, #f0abfc 18%, #a5b4fc 36%, #7c3aed 54%, #06b6d4 72%, #22d3ee 90%, transparent 100%)',
-      opacity: rand(0.13, 0.22),
-      blur: rand(0.8, 1.5),
+      opacity: rand(0.09, 0.16), // more subtle
+      blur: rand(0.6, 1.1), // more subtle
       speed,
       delay
     }
@@ -520,7 +521,8 @@ export default function Home() {
     // Generate flowing particles within the river area - more natural distribution
     for (let i = 0; i < 35; i++) {
       const progress = Math.random(); // Random position in animation (0 to 1)
-      const speed = 20 + Math.random() * 10; // Varied speeds for natural flow
+      const baseSpeed = rand(18, 26);
+      const speed = baseSpeed * rand(1.3, 1.5); // 30-50% faster than stars
       const riverDepth = Math.random() * 10; // 10% height of river area
       newParticles.push({
         id: `river-particle-${i}`,
@@ -537,7 +539,8 @@ export default function Home() {
     // Generate streaming lines within the river area - like current lines
     for (let i = 0; i < 12; i++) {
       const progress = Math.random(); // Random position in animation (0 to 1)
-      const speed = 18 + Math.random() * 8; // Varied stream speeds
+      const baseSpeed = rand(18, 26);
+      const speed = baseSpeed * rand(1.3, 1.5); // 30-50% faster than stars
       const streamHeight = 45 + Math.random() * 10; // Distribute across river height
       newParticles.push({
         id: `stream-line-${i}`,
@@ -734,6 +737,17 @@ export default function Home() {
           75% { transform: translateY(-5px) rotate(-1deg); }
         }
         
+        /* Subtle floating/bobbing for hero job cards */
+        @keyframes heroCardFloat {
+          0%, 100% { transform: translateY(0px); }
+          20% { transform: translateY(-3.5px); }
+          50% { transform: translateY(2px); }
+          80% { transform: translateY(-2.5px); }
+        }
+        .hero-job-card-float-0 { animation: heroCardFloat 5.2s ease-in-out infinite; animation-delay: 0s; }
+        .hero-job-card-float-1 { animation: heroCardFloat 5.7s ease-in-out infinite; animation-delay: 0.5s; }
+        .hero-job-card-float-2 { animation: heroCardFloat 5.4s ease-in-out infinite; animation-delay: 1.1s; }
+        .hero-job-card-float-3 { animation: heroCardFloat 5.9s ease-in-out infinite; animation-delay: 1.7s; }
         /* Liquid container waves */
         .liquid-waves {
           pointer-events: none;
@@ -917,11 +931,7 @@ export default function Home() {
                 ].map((job, index) => (
                   <div
                     key={index}
-                    className="transform hover:scale-105 transition-all duration-500"
-                    style={{
-                      animation: `float ${3 + index * 0.5}s ease-in-out infinite`,
-                      animationDelay: `${index * 0.7}s`
-                    }}
+                    className={`hero-job-card-float-${index} transition-all duration-500 hover:scale-105`}
                   >
                     <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
                       <CardContent className="p-6">
