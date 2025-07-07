@@ -71,6 +71,54 @@ const themes = [
     category: 'Light'
   },
   {
+    id: 'goldenhour',
+    name: 'Golden Hour Explorer',
+    color: '#f59e0b',
+    emoji: '🌇',
+    description: 'Warm sunset glow for flow states',
+    category: 'Light'
+  },
+  {
+    id: 'goldenhour-twilight',
+    name: 'Golden Hour Twilight',
+    color: '#6366f1',
+    emoji: '🌆',
+    description: 'Warm sunset meets starlit night sky',
+    category: 'Light'
+  },
+  {
+    id: 'coastal',
+    name: 'Coastal Expedition',
+    color: '#0ea5e9',
+    emoji: '🏖️',
+    description: 'Fresh ocean adventure vibes',
+    category: 'Light'
+  },
+  {
+    id: 'coastal-deep',
+    name: 'Coastal Deep',
+    color: '#0891b2',
+    emoji: '🌊',
+    description: 'Dive into crystal-clear tropical waters',
+    category: 'Light'
+  },
+  {
+    id: 'summit',
+    name: 'Morning Summit',
+    color: '#3b82f6',
+    emoji: '🏔️',
+    description: 'Crisp mountain air energy',
+    category: 'Light'
+  },
+  {
+    id: 'nomad',
+    name: 'Café Nomad',
+    color: '#92400e',
+    emoji: '☕',
+    description: 'Warm productivity spaces',
+    category: 'Light'
+  },
+  {
     id: 'tropical',
     name: 'Tropical Paradise',
     color: '#00d4aa',

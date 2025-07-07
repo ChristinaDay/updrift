@@ -102,7 +102,7 @@ body {
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
+    --input: 0 0% 25%;
     --ring: 217 91% 60%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -160,7 +160,7 @@ body {
   --destructive: 0 100% 60%;
   --destructive-foreground: 0 0% 98%;
   --border: 285 30% 20%;
-  --input: 285 25% 12%;
+  --input: 285 25% 30%;
   --ring: 315 100% 65%;
 }
 
@@ -185,7 +185,7 @@ body {
   --destructive: 15 90% 55%;
   --destructive-foreground: 0 0% 98%;
   --border: 210 40% 22%;
-  --input: 210 45% 16%;
+  --input: 210 45% 30%;
   --ring: 195 100% 60%;
 }
 
@@ -235,7 +235,7 @@ body {
   --destructive: 0 75% 60%;
   --destructive-foreground: 0 0% 98%;
   --border: 0 0% 22%;
-  --input: 0 0% 15%;
+  --input: 0 0% 28%;
   --ring: 0 0% 85%;
 }
 
@@ -285,7 +285,7 @@ body {
   --destructive: 0 100% 65%;
   --destructive-foreground: 0 0% 98%;
   --border: 240 30% 20%;
-  --input: 240 25% 10%;
+  --input: 240 25% 30%;
   --ring: 50 100% 60%;
 }
 
@@ -312,6 +312,340 @@ body {
   --border: 340 20% 85%;
   --input: 340 25% 90%;
   --ring: 330 60% 65%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🌇 GOLDEN HOUR EXPLORER - Warm sunset glow for flow states
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-goldenhour {
+  --background: 45 60% 96%;           /* Warm cream white */
+  --foreground: 25 30% 12%;           /* Deep warm brown */
+  --card: 50 80% 98%;                 /* Golden white */
+  --card-foreground: 25 30% 12%;
+  --popover: 50 80% 98%;
+  --popover-foreground: 25 30% 12%;
+  --primary: 38 90% 60%;              /* Golden sunset */
+  --primary-foreground: 25 20% 8%;
+  --secondary: 25 40% 88%;            /* Warm sand */
+  --secondary-foreground: 25 40% 20%;
+  --muted: 40 35% 92%;                /* Muted gold */
+  --muted-foreground: 25 20% 45%;
+  --accent: 15 85% 70%;               /* Sunset orange */
+  --accent-foreground: 25 30% 15%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 35 30% 85%;
+  --input: 40 40% 90%;
+  --ring: 38 90% 60%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🌆 GOLDEN HOUR TWILIGHT - Warm sunset meets starlit night sky
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-goldenhour-twilight {
+  --background: 45 35% 96%;           /* Softer warm cream */
+  --foreground: 25 30% 12%;           /* Deep warm brown */
+  --card: 50 60% 98%;                 /* Subtle golden white */
+  --card-foreground: 25 30% 12%;
+  --popover: 50 60% 98%;
+  --popover-foreground: 25 30% 12%;
+  --primary: 38 85% 58%;              /* Warm golden sunset */
+  --primary-foreground: 25 20% 8%;
+  --secondary: 225 35% 88%;           /* Twilight blue-gray */
+  --secondary-foreground: 230 40% 20%;
+  --muted: 40 25% 92%;                /* Muted warm gold */
+  --muted-foreground: 25 20% 45%;
+  --accent: 235 75% 65%;              /* Night sky blue */
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 200 25% 85%;              /* Soft twilight border */
+  --input: 220 30% 92%;               /* Cool twilight input */
+  --ring: 235 75% 65%;
+}
+
+/* Twilight theme special effects */
+.theme-goldenhour-twilight {
+  background: 
+    /* Twinkling stars */
+    radial-gradient(circle at 20% 20%, rgba(135, 206, 235, 0.1) 0%, transparent 2px),
+    radial-gradient(circle at 80% 30%, rgba(135, 206, 235, 0.1) 0%, transparent 2px),
+    radial-gradient(circle at 40% 70%, rgba(135, 206, 235, 0.1) 0%, transparent 2px),
+    radial-gradient(circle at 90% 80%, rgba(135, 206, 235, 0.1) 0%, transparent 2px),
+    radial-gradient(circle at 10% 90%, rgba(135, 206, 235, 0.1) 0%, transparent 2px),
+    radial-gradient(circle at 70% 10%, rgba(135, 206, 235, 0.1) 0%, transparent 2px),
+    /* Subtle twilight sky gradient */
+    linear-gradient(135deg, 
+      rgba(255, 222, 89, 0.02) 0%,     /* Warm golden glow */
+      rgba(255, 183, 77, 0.02) 30%,    /* Sunset orange */
+      rgba(106, 130, 251, 0.02) 70%,   /* Twilight blue */
+      rgba(67, 56, 202, 0.02) 100%     /* Deep night blue */
+    ),
+    /* Base background */
+    hsl(var(--background));
+}
+
+/* Special twilight card effects */
+.theme-goldenhour-twilight .card {
+  background: 
+    linear-gradient(135deg, 
+      rgba(255, 222, 89, 0.03) 0%,     /* Warm golden glow */
+      rgba(106, 130, 251, 0.03) 100%   /* Subtle night sky */
+    ),
+    hsl(var(--card));
+  border: 1px solid rgba(106, 130, 251, 0.1);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 0 10px rgba(106, 130, 251, 0.05);
+}
+
+/* Twilight button effects */
+.theme-goldenhour-twilight .btn-primary {
+  background: linear-gradient(135deg, 
+    hsl(var(--primary)) 0%,
+    hsl(235, 75%, 65%) 100%
+  );
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(106, 130, 251, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🏖️ COASTAL EXPEDITION - Fresh ocean adventure vibes
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-coastal {
+  --background: 200 40% 96%;          /* Ocean mist white */
+  --foreground: 215 25% 15%;          /* Deep ocean blue */
+  --card: 190 60% 98%;                /* Pure sea foam */
+  --card-foreground: 215 25% 15%;
+  --popover: 190 60% 98%;
+  --popover-foreground: 215 25% 15%;
+  --primary: 195 85% 55%;             /* Bright ocean blue */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 180 25% 88%;           /* Soft seafoam */
+  --secondary-foreground: 215 30% 25%;
+  --muted: 190 30% 92%;               /* Muted sea blue */
+  --muted-foreground: 210 15% 45%;
+  --accent: 25 80% 75%;               /* Coral accent */
+  --accent-foreground: 215 25% 15%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 185 25% 85%;
+  --input: 190 35% 90%;
+  --ring: 195 85% 55%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🌊 COASTAL DEEP - Dive into crystal-clear tropical waters
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-coastal-deep {
+  --background: 200 35% 96%;          /* Soft ocean mist */
+  --foreground: 215 30% 12%;          /* Deep ocean depth */
+  --card: 190 50% 98%;                /* Crystal sea foam */
+  --card-foreground: 215 30% 12%;
+  --popover: 190 50% 98%;
+  --popover-foreground: 215 30% 12%;
+  --primary: 195 90% 50%;             /* Deep ocean blue */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 180 35% 85%;           /* Deeper seafoam */
+  --secondary-foreground: 215 35% 20%;
+  --muted: 190 25% 92%;               /* Muted ocean */
+  --muted-foreground: 210 20% 40%;
+  --accent: 185 85% 65%;              /* Tropical aqua */
+  --accent-foreground: 215 30% 12%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 185 30% 82%;
+  --input: 190 40% 88%;
+  --ring: 185 85% 65%;
+}
+
+/* Deep ocean atmosphere effects */
+.theme-coastal-deep {
+  background: 
+    /* Floating sea foam particles */
+    radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.4) 0%, transparent 3px),
+    radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.3) 0%, transparent 2px),
+    radial-gradient(circle at 45% 85%, rgba(255, 255, 255, 0.4) 0%, transparent 3px),
+    radial-gradient(circle at 75% 65%, rgba(255, 255, 255, 0.3) 0%, transparent 2px),
+    radial-gradient(circle at 25% 75%, rgba(255, 255, 255, 0.4) 0%, transparent 3px),
+    radial-gradient(circle at 90% 85%, rgba(255, 255, 255, 0.3) 0%, transparent 2px),
+    /* Underwater light rays */
+    linear-gradient(135deg, 
+      rgba(59, 130, 246, 0.03) 0%,      /* Surface light */
+      rgba(14, 165, 233, 0.03) 30%,     /* Shallow water */
+      rgba(6, 182, 212, 0.03) 60%,      /* Deep aqua */
+      rgba(20, 184, 166, 0.03) 100%     /* Tropical depths */
+    ),
+    /* Ocean depth gradient */
+    radial-gradient(ellipse at top, 
+      rgba(59, 130, 246, 0.02) 0%,      /* Surface sparkle */
+      rgba(14, 165, 233, 0.02) 50%,     /* Mid-water */
+      rgba(6, 182, 212, 0.02) 100%      /* Ocean floor */
+    ),
+    /* Base background */
+    hsl(var(--background));
+  
+  /* Subtle wave animation */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated wave effects */
+.theme-coastal-deep::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: 
+    linear-gradient(90deg, 
+      transparent 0%, 
+      rgba(14, 165, 233, 0.03) 25%, 
+      rgba(6, 182, 212, 0.03) 50%, 
+      rgba(14, 165, 233, 0.03) 75%, 
+      transparent 100%
+    );
+  animation: oceanWave 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Deep ocean card effects */
+.theme-coastal-deep .card {
+  background: 
+    linear-gradient(135deg, 
+      rgba(59, 130, 246, 0.04) 0%,      /* Surface light */
+      rgba(14, 165, 233, 0.04) 50%,     /* Ocean blue */
+      rgba(6, 182, 212, 0.04) 100%      /* Deep aqua */
+    ),
+    hsl(var(--card));
+  border: 1px solid rgba(14, 165, 233, 0.15);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    0 0 20px rgba(14, 165, 233, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Underwater light refraction on cards */
+.theme-coastal-deep .card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    transparent 100%
+  );
+  animation: underwaterLight 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Deep ocean button effects */
+.theme-coastal-deep .btn-primary {
+  background: linear-gradient(135deg, 
+    hsl(var(--primary)) 0%,
+    hsl(185, 85%, 65%) 100%
+  );
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    0 0 20px rgba(14, 165, 233, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Underwater current effect on buttons */
+.theme-coastal-deep .btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.3) 50%, 
+    transparent 100%
+  );
+  animation: oceanCurrent 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Ocean wave animation */
+@keyframes oceanWave {
+  0%, 100% { transform: translateX(0%); }
+  50% { transform: translateX(-25%); }
+}
+
+/* Underwater light refraction */
+@keyframes underwaterLight {
+  0%, 100% { left: -100%; opacity: 0; }
+  50% { left: 100%; opacity: 1; }
+}
+
+/* Ocean current flow */
+@keyframes oceanCurrent {
+  0%, 100% { left: -100%; }
+  50% { left: 100%; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🏔️ MORNING SUMMIT - Crisp mountain air energy  
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-summit {
+  --background: 220 30% 97%;          /* Crisp snow white */
+  --foreground: 235 20% 15%;          /* Deep slate */
+  --card: 210 50% 98%;                /* Clean mountain white */
+  --card-foreground: 235 20% 15%;
+  --popover: 210 50% 98%;
+  --popover-foreground: 235 20% 15%;
+  --primary: 205 100% 58%;            /* Alpine sky blue */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 15% 90%;           /* Stone gray */
+  --secondary-foreground: 235 25% 25%;
+  --muted: 215 20% 93%;               /* Muted ice blue */
+  --muted-foreground: 230 12% 45%;
+  --accent: 340 75% 75%;              /* Mountain sunrise pink */
+  --accent-foreground: 235 20% 15%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 215 20% 86%;
+  --input: 220 25% 92%;
+  --ring: 205 100% 58%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ☕ CAFÉ NOMAD - Warm productivity spaces
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-nomad {
+  --background: 35 40% 96%;           /* Warm café white */
+  --foreground: 25 30% 15%;           /* Rich coffee brown */
+  --card: 40 50% 98%;                 /* Cream white */
+  --card-foreground: 25 30% 15%;
+  --popover: 40 50% 98%;
+  --popover-foreground: 25 30% 15%;
+  --primary: 25 60% 45%;              /* Coffee brown */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 35 25% 88%;            /* Warm beige */
+  --secondary-foreground: 25 35% 25%;
+  --muted: 35 20% 92%;                /* Soft cream */
+  --muted-foreground: 25 20% 45%;
+  --accent: 45 85% 65%;               /* Warm honey */
+  --accent-foreground: 25 30% 15%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 35 20% 85%;
+  --input: 35 30% 90%;
+  --ring: 25 60% 45%;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -435,7 +769,7 @@ body {
   --destructive: 0 75% 60%;
   --destructive-foreground: 0 0% 98%;
   --border: 15 25% 22%;
-  --input: 15 25% 16%;
+  --input: 15 25% 30%;
   --ring: 20 70% 45%;
 }
 
@@ -460,7 +794,7 @@ body {
   --destructive: 0 75% 60%;
   --destructive-foreground: 0 0% 98%;
   --border: 215 30% 22%;
-  --input: 215 30% 12%;
+  --input: 215 30% 30%;
   --ring: 215 40% 35%;
 }
 
@@ -510,7 +844,7 @@ body {
   --destructive: 0 85% 65%;
   --destructive-foreground: 0 0% 98%;
   --border: 270 25% 22%;
-  --input: 270 25% 12%;
+  --input: 270 25% 30%;
   --ring: 320 85% 65%;
 }
 
@@ -560,7 +894,7 @@ body {
   --destructive: 0 75% 60%;
   --destructive-foreground: 0 0% 98%;
   --border: 220 35% 22%;
-  --input: 220 35% 12%;
+  --input: 220 35% 30%;
   --ring: 220 70% 35%;
 }
 
@@ -585,7 +919,7 @@ body {
   --destructive: 0 80% 60%;
   --destructive-foreground: 0 0% 98%;
   --border: 215 45% 20%;
-  --input: 215 45% 10%;
+  --input: 215 45% 30%;
   --ring: 215 85% 40%;
 }
 
@@ -615,7 +949,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   🌆 NEON DISTRICT - Tokyo nights with cyberpunk buttons
+   🌆 NEON DISTRICT - Tokyo nights with cyberpunk teal buttons
    ═══════════════════════════════════════════════════════════════════════ */
 .theme-neon {
   --background: 270 20% 8%;           /* Tokyo nights background */
@@ -624,7 +958,7 @@ body {
   --card-foreground: 300 100% 90%;
   --popover: 270 30% 6%;
   --popover-foreground: 300 100% 90%;
-  --primary: 315 100% 65%;            /* Cyberpunk hot magenta buttons */
+  --primary: 180 100% 85%;            /* Cyberpunk electric cyan buttons */
   --primary-foreground: 270 20% 8%;
   --secondary: 270 30% 20%;           /* Tokyo nights secondary */
   --secondary-foreground: 300 100% 90%;
@@ -635,19 +969,19 @@ body {
   --destructive: 0 85% 65%;
   --destructive-foreground: 0 0% 98%;
   --border: 270 25% 22%;
-  --input: 270 25% 12%;
-  --ring: 315 100% 65%;               /* Cyberpunk button focus ring */
+  --input: 270 25% 30%;
+  --ring: 180 100% 85%;               /* Cyberpunk teal button focus ring */
 }
 
-/* Force cyberpunk button colors in Neon District theme */
+/* Force cyberpunk teal button colors in Neon District theme */
 .theme-neon .btn-primary,
 .theme-neon button[class*="bg-primary"],
 .theme-neon .bg-primary,
 .theme-neon button[data-variant="default"],
 .theme-neon .button,
 .theme-neon button:not([variant]):not([class*="outline"]):not([class*="ghost"]):not([class*="secondary"]) {
-  background-color: hsl(315 100% 65%) !important;
-  border-color: hsl(315 100% 65%) !important;
+  background-color: hsl(180 100% 85%) !important;
+  border-color: hsl(180 100% 85%) !important;
   color: hsl(270 20% 8%) !important;
 }
 
@@ -657,8 +991,8 @@ body {
 .theme-neon button[data-variant="default"]:hover,
 .theme-neon .button:hover,
 .theme-neon button:not([variant]):not([class*="outline"]):not([class*="ghost"]):not([class*="secondary"]):hover {
-  background-color: hsl(315 100% 60%) !important;
-  border-color: hsl(315 100% 60%) !important;
+  background-color: hsl(180 100% 80%) !important;
+  border-color: hsl(180 100% 80%) !important;
   color: hsl(270 20% 8%) !important;
 }
 
