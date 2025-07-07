@@ -131,9 +131,9 @@ function DynamicWaves() {
     >
       <defs>
         <linearGradient id="liquid-gradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#b3c6ff" stopOpacity="0.39" />
-          <stop offset="60%" stopColor="#a78bfa" stopOpacity="0.50" />
-          <stop offset="100%" stopColor="#818cf8" stopOpacity="0.56" />
+          <stop offset="0%" stopColor="#b3c6ff" stopOpacity="0.28" />
+          <stop offset="60%" stopColor="#a78bfa" stopOpacity="0.36" />
+          <stop offset="100%" stopColor="#818cf8" stopOpacity="0.41" />
         </linearGradient>
         <linearGradient id="liquid-gradient-bg" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#7dd3fc" stopOpacity="0.17" />
