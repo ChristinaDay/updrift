@@ -12,6 +12,101 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import ThemeToggle from '@/components/ThemeToggle'
 
+// Dynamic Wave Component
+function DynamicWaves() {
+  const [time, setTime] = useState(0)
+  
+  useEffect(() => {
+    let animationId: number
+    
+    const animate = () => {
+      setTime(prev => prev + 0.02)
+      animationId = requestAnimationFrame(animate)
+    }
+    
+    animationId = requestAnimationFrame(animate)
+    
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId)
+      }
+    }
+  }, [])
+  
+  const generateWavePath = (amplitude: number, frequency: number, offset: number, phase: number) => {
+    const points = []
+    const width = typeof window !== 'undefined' ? window.innerWidth : 1200
+    const centerY = 60 // Position waves lower for container top effect
+    
+    // Generate points for smooth wave
+    for (let x = -width * 0.1; x <= width * 1.1; x += width / 200) {
+      const normalizedX = x / width
+      const y = centerY + amplitude * Math.sin(frequency * normalizedX * Math.PI * 2 + time * phase + offset)
+      points.push(`${x},${y}`)
+    }
+    
+    // Close the path with clean bottom edge for container effect
+    const lastX = width * 1.1
+    points.push(`${lastX},100`)
+    points.push(`${-width * 0.1},100`)
+    
+    return `M ${points.join(' L ')}`
+  }
+  
+  return (
+    <div className="absolute inset-0 w-full h-full">
+      <svg
+        className="absolute inset-0 w-full h-full"
+        preserveAspectRatio="none"
+        style={{ filter: 'blur(1px)' }}
+      >
+        <defs>
+          <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(59, 130, 246, 0.8)" />
+            <stop offset="25%" stopColor="rgba(147, 51, 234, 0.9)" />
+            <stop offset="50%" stopColor="rgba(59, 130, 246, 1)" />
+            <stop offset="75%" stopColor="rgba(147, 51, 234, 0.9)" />
+            <stop offset="100%" stopColor="rgba(59, 130, 246, 0.8)" />
+          </linearGradient>
+          <linearGradient id="wave2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(147, 51, 234, 0.6)" />
+            <stop offset="33%" stopColor="rgba(59, 130, 246, 0.8)" />
+            <stop offset="66%" stopColor="rgba(147, 51, 234, 0.8)" />
+            <stop offset="100%" stopColor="rgba(59, 130, 246, 0.6)" />
+          </linearGradient>
+          <linearGradient id="wave3" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(59, 130, 246, 0.5)" />
+            <stop offset="50%" stopColor="rgba(147, 51, 234, 0.6)" />
+            <stop offset="100%" stopColor="rgba(59, 130, 246, 0.5)" />
+          </linearGradient>
+        </defs>
+        
+        {/* Main liquid layer */}
+        <path
+          d={generateWavePath(6, 3, 0, 1)}
+          fill="url(#wave1)"
+          opacity="0.7"
+        />
+        
+        {/* Secondary liquid layer */}
+        <path
+          d={generateWavePath(4, 4, Math.PI, -0.8)}
+          fill="url(#wave2)"
+          opacity="0.5"
+          style={{ filter: 'blur(0.5px)' }}
+        />
+        
+        {/* Surface ripples */}
+        <path
+          d={generateWavePath(2, 6, Math.PI / 2, 1.2)}
+          fill="url(#wave3)"
+          opacity="0.3"
+          transform="translateY(-15px)"
+        />
+      </svg>
+    </div>
+  )
+}
 
 export default function Home() {
   const router = useRouter()
@@ -21,6 +116,199 @@ export default function Home() {
   const [radius, setRadius] = useState(25) // Default 25 mile radius
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([])
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+  const [particles, setParticles] = useState<Array<{
+    id: string;
+    x: number;
+    y: number;
+    size: number;
+    color: string;
+    animationType: string;
+    speed: number;
+    delay: number;
+  }>>([])
+
+  // Real job data for hero preview
+  const heroJobs = [
+    {
+      job_id: 'hero-1',
+      job_title: 'Senior Frontend Engineer',
+      employer_name: 'Stripe',
+      job_city: 'San Francisco',
+      job_state: 'CA',
+      job_country: 'US',
+      job_is_remote: false,
+      job_min_salary: 160000,
+      job_max_salary: 220000,
+      job_salary_currency: 'USD',
+      job_salary_period: 'YEAR',
+      job_employment_type: 'FULLTIME',
+      job_posted_at_timestamp: Date.now() - 86400000, // 1 day ago
+      job_posted_at_datetime_utc: new Date(Date.now() - 86400000).toISOString(),
+      job_apply_link: '#',
+      job_apply_is_direct: true,
+      job_publisher: 'Stripe Careers',
+      job_description: 'Build the future of internet commerce with cutting-edge payment infrastructure.',
+      job_required_skills: ['React', 'TypeScript', 'JavaScript', 'CSS'],
+      delay: 0
+    },
+    {
+      job_id: 'hero-2',
+      job_title: 'Product Manager - AI',
+      employer_name: 'Anthropic',
+      job_city: 'Remote',
+      job_state: '',
+      job_country: 'US',
+      job_is_remote: true,
+      job_min_salary: 180000,
+      job_max_salary: 250000,
+      job_salary_currency: 'USD',
+      job_salary_period: 'YEAR',
+      job_employment_type: 'FULLTIME',
+      job_posted_at_timestamp: Date.now() - 172800000, // 2 days ago
+      job_posted_at_datetime_utc: new Date(Date.now() - 172800000).toISOString(),
+      job_apply_link: '#',
+      job_apply_is_direct: true,
+      job_publisher: 'Anthropic Careers',
+      job_description: 'Shape the future of AI safety and alignment in our next-generation language models.',
+      job_required_skills: ['Product Strategy', 'AI/ML', 'Data Analysis', 'Leadership'],
+      delay: 1
+    },
+    {
+      job_id: 'hero-3',
+      job_title: 'DevOps Engineer',
+      employer_name: 'Docker',
+      job_city: 'Austin',
+      job_state: 'TX',
+      job_country: 'US',
+      job_is_remote: true,
+      job_min_salary: 130000,
+      job_max_salary: 170000,
+      job_salary_currency: 'USD',
+      job_salary_period: 'YEAR',
+      job_employment_type: 'FULLTIME',
+      job_posted_at_timestamp: Date.now() - 345600000, // 4 days ago
+      job_posted_at_datetime_utc: new Date(Date.now() - 345600000).toISOString(),
+      job_apply_link: '#',
+      job_apply_is_direct: true,
+      job_publisher: 'Docker Careers',
+      job_description: 'Scale containerized applications and improve developer experience across our global platform.',
+      job_required_skills: ['Docker', 'Kubernetes', 'AWS', 'Terraform'],
+      delay: 2
+    },
+    {
+      job_id: 'hero-4',
+      job_title: 'UX Designer',
+      employer_name: 'Figma',
+      job_city: 'San Francisco',
+      job_state: 'CA',
+      job_country: 'US',
+      job_is_remote: true,
+      job_min_salary: 120000,
+      job_max_salary: 160000,
+      job_salary_currency: 'USD',
+      job_salary_period: 'YEAR',
+      job_employment_type: 'FULLTIME',
+      job_posted_at_timestamp: Date.now() - 518400000, // 6 days ago
+      job_posted_at_datetime_utc: new Date(Date.now() - 518400000).toISOString(),
+      job_apply_link: '#',
+      job_apply_is_direct: true,
+      job_publisher: 'Figma Careers',
+      job_description: 'Design intuitive interfaces that empower creative teams worldwide to bring ideas to life.',
+      job_required_skills: ['Figma', 'Prototyping', 'User Research', 'Design Systems'],
+      delay: 3
+    }
+  ];
+
+  // Helper function to format salary
+  const formatSalary = (minSalary?: number, maxSalary?: number) => {
+    if (!minSalary && !maxSalary) return 'Competitive';
+    if (minSalary && maxSalary) {
+      const minK = Math.round(minSalary / 1000);
+      const maxK = Math.round(maxSalary / 1000);
+      return `$${minK}k - $${maxK}k`;
+    }
+    if (minSalary) return `$${Math.round(minSalary / 1000)}k+`;
+    if (maxSalary) return `Up to $${Math.round(maxSalary / 1000)}k`;
+    return 'Competitive';
+  };
+
+  // Helper function to format location
+  const formatLocation = (job: any) => {
+    if (job.job_is_remote) return 'Remote';
+    if (job.job_city && job.job_state) return `${job.job_city}, ${job.job_state}`;
+    if (job.job_city) return job.job_city;
+    return 'Location TBD';
+  };
+
+  // Helper function to format posting time
+  const formatTimeAgo = (timestamp: number) => {
+    const daysAgo = Math.floor((Date.now() - timestamp) / (1000 * 60 * 60 * 24));
+    if (daysAgo === 0) return 'Today';
+    if (daysAgo === 1) return '1 day ago';
+    return `${daysAgo} days ago`;
+  };
+
+  // Initialize stars only on client side to prevent hydration mismatch
+  useEffect(() => {
+    setIsClient(true)
+    
+    const newParticles = []
+    
+    // Generate stars outside the river area in the hero section
+    for (let i = 0; i < 120; i++) {
+      // Avoid river area (45-53%) by placing stars in top and bottom regions
+      const isTopRegion = Math.random() < 0.5;
+      const yPosition = isTopRegion ? Math.random() * 43 : 54 + Math.random() * 46; // 0-43% or 54-100%
+      
+      newParticles.push({
+        id: `star-${i}`,
+        x: Math.random() * 100,
+        y: yPosition,
+        size: 0.5 + Math.random() * 1.5,
+        color: `radial-gradient(circle, #9333ea, #06b6d4)`,
+        animationType: 'starTwinkle',
+        speed: 300 + Math.random() * 200,
+        delay: Math.random() * 300
+      })
+    }
+
+    // Generate flowing particles within the river area - more natural distribution
+    for (let i = 0; i < 35; i++) {
+      const progress = Math.random(); // Random position in animation (0 to 1)
+      const speed = 20 + Math.random() * 10; // Varied speeds for natural flow
+      const riverDepth = Math.random() * 10; // 10% height of river area
+      newParticles.push({
+        id: `river-particle-${i}`,
+        x: -15 + (progress * 130), // Spread across extended journey (-15% to 115%)
+        y: 45 + riverDepth, // River area (45-55%) distributed naturally
+        size: 0.8 + Math.random() * 2.2, // Varied particle sizes
+        color: `radial-gradient(circle, rgba(147, 51, 234, 0.8), rgba(59, 130, 246, 0.6))`,
+        animationType: 'riverFlow',
+        speed: speed,
+        delay: -progress * speed // Negative delay based on position to sync animation
+      })
+    }
+
+    // Generate streaming lines within the river area - like current lines
+    for (let i = 0; i < 12; i++) {
+      const progress = Math.random(); // Random position in animation (0 to 1)
+      const speed = 18 + Math.random() * 8; // Varied stream speeds
+      const streamHeight = 45 + Math.random() * 10; // Distribute across river height
+      newParticles.push({
+        id: `stream-line-${i}`,
+        x: -25 + (progress * 150), // Extended journey for longer streams
+        y: streamHeight, // River area distributed
+        size: 1, // Will be overridden by CSS for line shape
+        color: `linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.6), rgba(59, 130, 246, 0.8), transparent)`,
+        animationType: 'streamFlow',
+        speed: speed,
+        delay: -progress * speed // Negative delay based on position to sync animation
+      })
+    }
+
+    setParticles(newParticles)
+  }, [])
 
   const handleSearch = () => {
     const params = new URLSearchParams()
@@ -116,9 +404,103 @@ export default function Home() {
   ]
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* CSS Animations */}
+      <style jsx>{`
+        @keyframes starTwinkle {
+          0%, 100% { 
+            opacity: 0.3;
+            transform: scale(1);
+          }
+          25% { 
+            opacity: 0.6;
+            transform: scale(1.1);
+          }
+          50% { 
+            opacity: 1;
+            transform: scale(1.2);
+          }
+          75% { 
+            opacity: 0.6;
+            transform: scale(1.1);
+          }
+        }
+        
+        @keyframes riverFlow {
+          0% { 
+            transform: translateX(-20px) translateY(0px);
+            opacity: 0;
+          }
+          8% {
+            opacity: 0.9;
+          }
+          15% {
+            transform: translateX(15vw) translateY(-1px);
+          }
+          35% {
+            transform: translateX(35vw) translateY(1px);
+          }
+          55% {
+            transform: translateX(55vw) translateY(-0.5px);
+          }
+          75% {
+            transform: translateX(75vw) translateY(0.5px);
+          }
+          92% {
+            opacity: 0.9;
+          }
+          100% { 
+            transform: translateX(calc(100vw + 20px)) translateY(-1px);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes streamFlow {
+          0% { 
+            transform: translateX(-30px) translateY(0px) scaleX(0.3);
+            opacity: 0;
+          }
+          12% {
+            opacity: 0.7;
+            transform: translateX(5vw) translateY(0px) scaleX(1);
+          }
+          25% {
+            transform: translateX(25vw) translateY(-0.5px) scaleX(1.1);
+          }
+          50% {
+            transform: translateX(50vw) translateY(0px) scaleX(1);
+          }
+          75% {
+            transform: translateX(75vw) translateY(0.5px) scaleX(1.1);
+          }
+          88% {
+            opacity: 0.7;
+            transform: translateX(95vw) translateY(0px) scaleX(1);
+          }
+          100% { 
+            transform: translateX(calc(100vw + 30px)) translateY(-0.5px) scaleX(0.3);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes wave {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          25% { transform: translateY(-5px) rotate(1deg); }
+          50% { transform: translateY(-10px) rotate(0deg); }
+          75% { transform: translateY(-5px) rotate(-1deg); }
+        }
+        
+        /* Liquid container waves */
+        .liquid-waves {
+          pointer-events: none;
+        }
+        
+        /* Dynamic waves - no CSS animation needed */
+
+      `}</style>
+
       {/* Header */}
-      <header className="bg-background/80 backdrop-blur-md border-b sticky top-0 z-50">
+      <header className="bg-background/80 backdrop-blur-md border-b sticky top-0 z-50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -161,167 +543,188 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        {/* Theme Indicator */}
-        <div className="bg-primary/10 border-l-4 border-primary mb-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-4 h-4 bg-primary rounded-full"></div>
-                <span className="text-primary font-medium">Theme System Active</span>
-                <span className="text-sm text-muted-foreground">Try the theme buttons above!</span>
-                {/* Accent color showcase */}
-                <div className="hidden sm:flex items-center space-x-2 ml-4">
-                  <div className="w-3 h-3 bg-accent rounded-full"></div>
-                  <Badge className="bg-accent text-accent-foreground">
-                    Accent
-                  </Badge>
-                  <div className="w-3 h-3 bg-secondary rounded-full"></div>
-                  <Badge variant="secondary">
-                    Secondary
-                  </Badge>
+      <section className="relative py-20 overflow-hidden z-10">
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Left: Hero Content */}
+            <div className="space-y-8">
+              <div className="space-y-6">
+                <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
+                  Smart Job Matching
+                </Badge>
+                <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight">
+                  Happy with your
+                  <span className="block bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                    current position?
+                  </span>
+                </h1>
+                <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
+                  UpFetch finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
+                </p>
+              </div>
+              
+              {/* Flowing Search Form */}
+              <div className="relative">
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-secondary rounded-2xl blur opacity-30 animate-pulse"></div>
+                <div className="relative bg-card/70 backdrop-blur-xl rounded-2xl p-6 border border-primary/20 shadow-xl">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <div className="relative">
+                          <MagnifyingGlassIcon className="absolute left-4 top-4 h-5 w-5 text-primary" />
+                          <Input 
+                            placeholder="Job title or keywords"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-primary/50"
+                          />
+                        </div>
+                      </div>
+                      <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent to-secondary rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <div className="relative">
+                          <MapPinIcon className="absolute left-4 top-4 h-5 w-5 text-accent" />
+                          <Input 
+                            placeholder="City, state, or remote"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
+                            onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
+                            className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-accent/50"
+                          />
+                          {showLocationSuggestions && locationSuggestions.length > 0 && (
+                            <Card className="absolute z-10 w-full mt-1 shadow-lg max-h-60 overflow-y-auto bg-card/90 backdrop-blur-xl border-primary/30">
+                              <CardContent className="p-0">
+                                {locationSuggestions.map((suggestion, index) => (
+                                  <Button
+                                    key={index}
+                                    onClick={() => handleLocationSelect(suggestion)}
+                                    variant="ghost"
+                                    className="w-full justify-start text-sm border-b border-primary/20 last:border-b-0 rounded-none text-foreground hover:text-primary hover:bg-primary/10"
+                                  >
+                                    <div className="flex items-center">
+                                      <MapPinIcon className="h-4 w-4 text-accent mr-2" />
+                                      {suggestion}
+                                    </div>
+                                  </Button>
+                                ))}
+                              </CardContent>
+                            </Card>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={handleSearch} 
+                      size="lg" 
+                      className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-primary via-accent to-secondary hover:from-primary/90 hover:via-accent/90 hover:to-secondary/90 transform hover:scale-105 transition-all shadow-lg"
+                    >
+                      Search Jobs
+                    </Button>
+                  </div>
                 </div>
               </div>
-              <div className="flex space-x-2">
-                <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
-                <div className="w-3 h-3 bg-accent rounded-full animate-pulse delay-75"></div>
-                <div className="w-3 h-3 bg-secondary rounded-full animate-pulse delay-150"></div>
+
+              {/* Flowing Tags */}
+              <div className="flex flex-wrap gap-3">
+                {['Remote Work', 'Tech Companies', 'High Growth', 'Well Funded'].map((tag, index) => (
+                  <Badge 
+                    key={tag} 
+                    variant="outline" 
+                    className="cursor-pointer hover:bg-primary/10 transform hover:scale-110 transition-all px-4 py-2 border-primary/30 hover:border-primary/50"
+                    style={{
+                      animation: `float ${2 + index * 0.5}s ease-in-out infinite`,
+                      animationDelay: `${index * 0.2}s`
+                    }}
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: Flowing Job Cards */}
+            <div className="relative">
+              <div className="space-y-6">
+                {[
+                  { company: 'Stripe', role: 'Senior Frontend Engineer', salary: '$160k - $220k', logo: '💳' },
+                  { company: 'Anthropic', role: 'Product Manager - AI', salary: '$180k - $250k', logo: '🤖' },
+                  { company: 'Docker', role: 'DevOps Engineer', salary: '$130k - $170k', logo: '🐳' },
+                  { company: 'Figma', role: 'UX Designer', salary: '$120k - $160k', logo: '🎨' }
+                ].map((job, index) => (
+                  <div
+                    key={index}
+                    className="transform hover:scale-105 transition-all duration-500"
+                    style={{
+                      animation: `float ${3 + index * 0.5}s ease-in-out infinite`,
+                      animationDelay: `${index * 0.7}s`
+                    }}
+                  >
+                    <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
+                      <CardContent className="p-6">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
+                            {job.logo}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-foreground">{job.role}</h3>
+                            <p className="text-sm text-muted-foreground">{job.company}</p>
+                            <p className="text-sm font-medium text-primary">{job.salary}</p>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-sm text-muted-foreground hover:text-primary transition-colors opacity-60 hover:opacity-100"
+                            asChild
+                          >
+                            <Link href={`/search?q=${encodeURIComponent(job.role)}&location=Remote`}>
+                              View →
+                            </Link>
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl tracking-tight font-extrabold text-foreground sm:text-5xl md:text-6xl">
-              <span className="block">Job Search</span>
-              <span className="block gradient-text">Beyond LinkedIn</span>
-            </h1>
-            <p className="mt-3 max-w-md mx-auto text-base text-muted-foreground sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-              Discover your next career opportunity with our AI-powered job search platform. 
-              We aggregate opportunities from 50+ job boards and use intelligent matching to find your perfect role.
-            </p>
-          </div>
-
-          {/* Search Bar */}
-          <div className="mt-10 max-w-4xl mx-auto">
-            <Card className="shadow-lg">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 gap-4">
-                  {/* Main search row */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="relative">
-                      <MagnifyingGlassIcon className="h-5 w-5 text-muted-foreground absolute left-3 top-3" />
-                      <Input
-                        type="text"
-                        placeholder="Job title, keywords, or company"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        className="pl-10"
-                      />
-                    </div>
-                    <div className="relative">
-                      <MapPinIcon className="h-5 w-5 text-muted-foreground absolute left-3 top-3" />
-                      <Input
-                        type="text"
-                        placeholder="Location or remote"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
-                        onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
-                        className="pl-10"
-                      />
-                      {showLocationSuggestions && locationSuggestions.length > 0 && (
-                        <Card className="absolute z-10 w-full mt-1 shadow-lg max-h-60 overflow-y-auto">
-                          <CardContent className="p-0">
-                            {locationSuggestions.map((suggestion, index) => (
-                              <Button
-                                key={index}
-                                onClick={() => handleLocationSelect(suggestion)}
-                                variant="ghost"
-                                className="w-full justify-start text-sm border-b border-border last:border-b-0 rounded-none"
-                              >
-                                <div className="flex items-center">
-                                  <MapPinIcon className="h-4 w-4 text-muted-foreground mr-2" />
-                                  {suggestion}
-                                </div>
-                              </Button>
-                            ))}
-                          </CardContent>
-                        </Card>
-                      )}
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <Button
-                        onClick={handleSearch}
-                        size="lg"
-                      >
-                        <MagnifyingGlassIcon className="h-5 w-5" />
-                        <span>Search Jobs</span>
-                      </Button>
-                      
-                      <Button variant="secondary">
-                        🔍 Filters
-                      </Button>
-                      
-                      <Button variant="outline">
-                        ⭐ Save Search
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {/* Radius selector row - only show when location is entered */}
-                  {location && (
-                    <div className="flex items-center justify-center">
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <span>within</span>
-                        <Select value={radius.toString()} onValueChange={(value) => setRadius(parseInt(value))}>
-                          <SelectTrigger className="w-20">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="5">5</SelectItem>
-                            <SelectItem value="10">10</SelectItem>
-                            <SelectItem value="15">15</SelectItem>
-                            <SelectItem value="25">25</SelectItem>
-                            <SelectItem value="35">35</SelectItem>
-                            <SelectItem value="50">50</SelectItem>
-                            <SelectItem value="75">75</SelectItem>
-                            <SelectItem value="100">100</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <span>miles of {location}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <Card key={index} className="text-center">
-                <CardContent className="p-6">
-                  <div className="text-3xl font-bold text-foreground">{stat.value}</div>
-                  <div className="text-sm font-medium text-muted-foreground mt-1">{stat.label}</div>
-                  <div className="text-xs text-muted-foreground/80 mt-1">{stat.description}</div>
-                </CardContent>
-              </Card>
-            ))}
+      {/* Stats Section - Liquid Container */}
+      <section className="relative bg-gradient-to-b from-blue-50/50 to-purple-50/50 dark:from-blue-950/30 dark:to-purple-950/30 pt-20 pb-16 overflow-hidden">
+        {/* Liquid Waves at Top */}
+        {isClient && (
+          <div className="absolute top-0 left-0 right-0 h-24 liquid-waves overflow-hidden">
+            <DynamicWaves />
+          </div>
+        )}
+        
+        {/* Content with top margin to account for waves */}
+        <div className="relative z-10 mt-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {stats.map((stat, index) => (
+                <Card key={index} className="text-center bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border-white/20 shadow-lg">
+                  <CardContent className="p-6">
+                    <div className="text-3xl font-bold text-foreground">{stat.value}</div>
+                    <div className="text-sm font-medium text-muted-foreground mt-1">{stat.label}</div>
+                    <div className="text-xs text-muted-foreground/80 mt-1">{stat.description}</div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-muted/50">
+      <section className="py-20 bg-muted/50 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl">
@@ -374,7 +777,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-background border-t py-12">
+      <footer className="bg-background border-t py-12 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
