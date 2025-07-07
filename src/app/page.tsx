@@ -45,19 +45,18 @@ function DynamicWaves() {
     return points
   }
 
-  // Top wave parameters
-  const topAmplitude = 24
+  // Main wave parameters (more compact)
+  const topAmplitude = 14
   const topFrequency = 1.2
   const topOffset = 0
   const topPhase = 1
-  const topY = 60
+  const topY = 40
 
-  // Bottom wave parameters (independent)
-  const bottomAmplitude = 18
+  const bottomAmplitude = 10
   const bottomFrequency = 1.7
   const bottomOffset = 1.5
   const bottomPhase = 1.3
-  const bottomY = 340
+  const bottomY = 120
 
   // Generate points for top and bottom waves
   const topPoints = generateWavePoints(topAmplitude, topFrequency, topOffset, topPhase, topY)
@@ -72,12 +71,36 @@ function DynamicWaves() {
     'Z',
   ].join(' ')
 
+  // Background wave parameters (more compact)
+  const bgTopAmplitude = 18
+  const bgTopFrequency = 0.9
+  const bgTopOffset = 0.7
+  const bgTopPhase = 0.7
+  const bgTopY = 60
+
+  const bgBottomAmplitude = 12
+  const bgBottomFrequency = 1.1
+  const bgBottomOffset = 2.2
+  const bgBottomPhase = 1.1
+  const bgBottomY = 110
+
+  const bgTopPoints = generateWavePoints(bgTopAmplitude, bgTopFrequency, bgTopOffset, bgTopPhase, bgTopY)
+  const bgBottomPoints = generateWavePoints(bgBottomAmplitude, bgBottomFrequency, bgBottomOffset, bgBottomPhase, bgBottomY)
+
+  const bgPath = [
+    `M ${bgTopPoints[0][0]},${bgTopPoints[0][1]}`,
+    ...bgTopPoints.slice(1).map(([x, y]) => `L ${x},${y}`),
+    `L ${bgBottomPoints[bgBottomPoints.length - 1][0]},${bgBottomPoints[bgBottomPoints.length - 1][1]}`,
+    ...bgBottomPoints.slice(0, -1).reverse().map(([x, y]) => `L ${x},${y}`),
+    'Z',
+  ].join(' ')
+
   return (
     <svg
-      className="w-full h-[400px]"
+      className="w-full h-[120px]"
       width="100%"
-      height="400"
-      viewBox={`0 0 ${typeof window !== 'undefined' ? window.innerWidth : 1200} 400`}
+      height="120"
+      viewBox={`0 0 ${typeof window !== 'undefined' ? window.innerWidth : 1200} 120`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       style={{ display: 'block' }}
@@ -88,7 +111,15 @@ function DynamicWaves() {
           <stop offset="60%" stopColor="#7c3aed" stopOpacity="0.9" />
           <stop offset="100%" stopColor="#6366f1" stopOpacity="1" />
         </linearGradient>
+        <linearGradient id="liquid-gradient-bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#a5b4fc" stopOpacity="0.3" />
+          <stop offset="60%" stopColor="#7c3aed" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="#6366f1" stopOpacity="0.5" />
+        </linearGradient>
       </defs>
+      {/* Background wave for depth */}
+      <path d={bgPath} fill="url(#liquid-gradient-bg)" />
+      {/* Main dynamic wave */}
       <path d={path} fill="url(#liquid-gradient)" />
     </svg>
   )
@@ -529,169 +560,119 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden z-10">
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            {/* Left: Hero Content */}
-            <div className="space-y-8">
-              <div className="space-y-6">
-                <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
-                  Smart Job Matching
-                </Badge>
-                <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight">
-                  Happy with your
-                  <span className="block bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-                    current position?
-                  </span>
-                </h1>
-                <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
-                  UpFetch finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
-                </p>
-              </div>
-              
-              {/* Flowing Search Form */}
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-secondary rounded-2xl blur opacity-30 animate-pulse"></div>
-                <div className="relative bg-card/70 backdrop-blur-xl rounded-2xl p-6 border border-primary/20 shadow-xl">
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="relative group">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                        <div className="relative">
-                          <MagnifyingGlassIcon className="absolute left-4 top-4 h-5 w-5 text-primary" />
-                          <Input 
-                            placeholder="Job title or keywords"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-primary/50"
-                          />
-                        </div>
-                      </div>
-                      <div className="relative group">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent to-secondary rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                        <div className="relative">
-                          <MapPinIcon className="absolute left-4 top-4 h-5 w-5 text-accent" />
-                          <Input 
-                            placeholder="City, state, or remote"
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
-                            onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
-                            className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-accent/50"
-                          />
-                          {showLocationSuggestions && locationSuggestions.length > 0 && (
-                            <Card className="absolute z-10 w-full mt-1 shadow-lg max-h-60 overflow-y-auto bg-card/90 backdrop-blur-xl border-primary/30">
-                              <CardContent className="p-0">
-                                {locationSuggestions.map((suggestion, index) => (
-                                  <Button
-                                    key={index}
-                                    onClick={() => handleLocationSelect(suggestion)}
-                                    variant="ghost"
-                                    className="w-full justify-start text-sm border-b border-primary/20 last:border-b-0 rounded-none text-foreground hover:text-primary hover:bg-primary/10"
-                                  >
-                                    <div className="flex items-center">
-                                      <MapPinIcon className="h-4 w-4 text-accent mr-2" />
-                                      {suggestion}
-                                    </div>
-                                  </Button>
-                                ))}
-                              </CardContent>
-                            </Card>
-                          )}
-                        </div>
+      <section className="relative min-h-[40vh] flex flex-col justify-center items-center text-center overflow-hidden">
+        {/* Dynamic River of Smoke Animation - behind the form */}
+        {isClient && (
+          <div className="absolute left-0 w-full h-[120px] top-1/2 -translate-y-1/2 pointer-events-none z-0">
+            <DynamicWaves />
+          </div>
+        )}
+        {/* Hero Content (form, text, etc.) */}
+        <div className="relative z-10 w-full flex flex-col items-center">
+          <div className="space-y-8">
+            <div className="space-y-6">
+              <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
+                Smart Job Matching
+              </Badge>
+              <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight">
+                Happy with your
+                <span className="block bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                  current position?
+                </span>
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
+                UpFetch finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
+              </p>
+            </div>
+            
+            {/* Flowing Search Form */}
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-secondary rounded-2xl blur opacity-30 animate-pulse"></div>
+              <div className="relative bg-card/70 backdrop-blur-xl rounded-2xl p-6 border border-primary/20 shadow-xl">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                      <div className="relative">
+                        <MagnifyingGlassIcon className="absolute left-4 top-4 h-5 w-5 text-primary" />
+                        <Input 
+                          placeholder="Job title or keywords"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyPress={handleKeyPress}
+                          className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-primary/50"
+                        />
                       </div>
                     </div>
-                    <Button 
-                      onClick={handleSearch} 
-                      size="lg" 
-                      className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-primary via-accent to-secondary hover:from-primary/90 hover:via-accent/90 hover:to-secondary/90 transform hover:scale-105 transition-all shadow-lg"
-                    >
-                      Search Jobs
-                    </Button>
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-accent to-secondary rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                      <div className="relative">
+                        <MapPinIcon className="absolute left-4 top-4 h-5 w-5 text-accent" />
+                        <Input 
+                          placeholder="City, state, or remote"
+                          value={location}
+                          onChange={(e) => setLocation(e.target.value)}
+                          onKeyPress={handleKeyPress}
+                          onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
+                          onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
+                          className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-accent/50"
+                        />
+                        {showLocationSuggestions && locationSuggestions.length > 0 && (
+                          <Card className="absolute z-10 w-full mt-1 shadow-lg max-h-60 overflow-y-auto bg-card/90 backdrop-blur-xl border-primary/30">
+                            <CardContent className="p-0">
+                              {locationSuggestions.map((suggestion, index) => (
+                                <Button
+                                  key={index}
+                                  onClick={() => handleLocationSelect(suggestion)}
+                                  variant="ghost"
+                                  className="w-full justify-start text-sm border-b border-primary/20 last:border-b-0 rounded-none text-foreground hover:text-primary hover:bg-primary/10"
+                                >
+                                  <div className="flex items-center">
+                                    <MapPinIcon className="h-4 w-4 text-accent mr-2" />
+                                    {suggestion}
+                                  </div>
+                                </Button>
+                              ))}
+                            </CardContent>
+                          </Card>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Flowing Tags */}
-              <div className="flex flex-wrap gap-3">
-                {['Remote Work', 'Tech Companies', 'High Growth', 'Well Funded'].map((tag, index) => (
-                  <Badge 
-                    key={tag} 
-                    variant="outline" 
-                    className="cursor-pointer hover:bg-primary/10 transform hover:scale-110 transition-all px-4 py-2 border-primary/30 hover:border-primary/50"
-                    style={{
-                      animation: `float ${2 + index * 0.5}s ease-in-out infinite`,
-                      animationDelay: `${index * 0.2}s`
-                    }}
+                  <Button 
+                    onClick={handleSearch} 
+                    size="lg" 
+                    className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-primary via-accent to-secondary hover:from-primary/90 hover:via-accent/90 hover:to-secondary/90 transform hover:scale-105 transition-all shadow-lg"
                   >
-                    {tag}
-                  </Badge>
-                ))}
+                    Search Jobs
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {/* Right: Flowing Job Cards */}
-            <div className="relative">
-              <div className="space-y-6">
-                {[
-                  { company: 'Stripe', role: 'Senior Frontend Engineer', salary: '$160k - $220k', logo: '💳' },
-                  { company: 'Anthropic', role: 'Product Manager - AI', salary: '$180k - $250k', logo: '🤖' },
-                  { company: 'Docker', role: 'DevOps Engineer', salary: '$130k - $170k', logo: '🐳' },
-                  { company: 'Figma', role: 'UX Designer', salary: '$120k - $160k', logo: '🎨' }
-                ].map((job, index) => (
-                  <div
-                    key={index}
-                    className="transform hover:scale-105 transition-all duration-500"
-                    style={{
-                      animation: `float ${3 + index * 0.5}s ease-in-out infinite`,
-                      animationDelay: `${index * 0.7}s`
-                    }}
-                  >
-                    <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
-                      <CardContent className="p-6">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
-                            {job.logo}
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-foreground">{job.role}</h3>
-                            <p className="text-sm text-muted-foreground">{job.company}</p>
-                            <p className="text-sm font-medium text-primary">{job.salary}</p>
-                          </div>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="text-sm text-muted-foreground hover:text-primary transition-colors opacity-60 hover:opacity-100"
-                            asChild
-                          >
-                            <Link href={`/search?q=${encodeURIComponent(job.role)}&location=Remote`}>
-                              View →
-                            </Link>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))}
-              </div>
+            {/* Flowing Tags */}
+            <div className="flex flex-wrap gap-3">
+              {['Remote Work', 'Tech Companies', 'High Growth', 'Well Funded'].map((tag, index) => (
+                <Badge 
+                  key={tag} 
+                  variant="outline" 
+                  className="cursor-pointer hover:bg-primary/10 transform hover:scale-110 transition-all px-4 py-2 border-primary/30 hover:border-primary/50"
+                  style={{
+                    animation: `float ${2 + index * 0.5}s ease-in-out infinite`,
+                    animationDelay: `${index * 0.2}s`
+                  }}
+                >
+                  {tag}
+                </Badge>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* Stats Section - Liquid Container */}
-      <section className="relative bg-background pt-16 pb-16 overflow-hidden">
-        {/* Liquid Waves at Top */}
-        {isClient && (
-          <div className="absolute top-0 left-0 right-0 w-full h-[60px] z-10">
-            <DynamicWaves />
-          </div>
-        )}
-        {/* Content with extra top margin to sit below the wave crests */}
-        <div className="relative z-20 mt-16">
+      <section className="relative bg-background pt-32 pb-32 overflow-hidden">
+        <div className="relative z-10 mt-2">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
