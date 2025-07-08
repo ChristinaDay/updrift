@@ -455,7 +455,7 @@ function SearchPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         {/* Header/Nav Bar (identical to dashboard) */}
         <header className="bg-card shadow-sm border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -515,7 +515,7 @@ function SearchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header/Nav Bar (identical to dashboard) */}
       <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -565,17 +565,17 @@ function SearchPage() {
         {/* Always render the search/filter UI here, including the search bar */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-foreground">
               {searchQuery ? `Jobs for "${searchQuery}"` : (location ? `Jobs in ${capitalizeLocation(location)}` : 'Explore Job Opportunities')}
               {location && searchQuery && ` within ${radius} miles of ${capitalizeLocation(location)}`}
             </h1>
             {location && !searchQuery && (
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 within {radius} miles of {capitalizeLocation(location)}
               </p>
             )}
             <div className="flex items-center space-x-2 mt-1">
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 {filteredJobs.length} opportunities found
                 {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
                 {session?.user && userPreferences && ' • Personalized for you'}
@@ -613,7 +613,7 @@ function SearchPage() {
                 style={{ color: '#111827', backgroundColor: '#ffffff' }}
               />
               {showLocationSuggestions && locationSuggestions.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-10 w-full mt-1 bg-card border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   {locationSuggestions.map((suggestion, index) => (
                     <button
                       key={index}
@@ -634,7 +634,7 @@ function SearchPage() {
               <select
                 value={radius}
                 onChange={(e) => setRadius(parseInt(e.target.value))}
-                className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white text-gray-700"
+                className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-card text-foreground"
               >
                 <option value={5}>Within 5 miles</option>
                 <option value={10}>Within 10 miles</option>
@@ -714,9 +714,9 @@ function SearchPage() {
         <div className="lg:grid lg:grid-cols-4 lg:gap-8">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-4">
+            <div className="bg-card rounded-xl shadow-sm border border-gray-200 p-6 sticky top-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+                <h3 className="text-lg font-semibold text-foreground">Filters</h3>
                 <button
                   onClick={clearFilters}
                   className="text-sm text-blue-600 hover:text-blue-700"
@@ -763,13 +763,13 @@ function SearchPage() {
                     onChange={(e) => setFilters(prev => ({ ...prev, remote: e.target.checked }))}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Remote only</span>
+                  <span className="ml-2 text-sm text-muted-foreground">Remote only</span>
                 </label>
               </div>
 
               {/* Salary Range */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Salary Range</h4>
+                <h4 className="text-sm font-medium text-foreground mb-3">Salary Range</h4>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="number"
@@ -790,7 +790,7 @@ function SearchPage() {
 
               {/* Employment Type */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Employment Type</h4>
+                <h4 className="text-sm font-medium text-foreground mb-3">Employment Type</h4>
                 <div className="space-y-2">
                   {['FULLTIME', 'PARTTIME', 'CONTRACT', 'INTERNSHIP'].map(type => (
                     <label key={type} className="flex items-center">
@@ -800,7 +800,7 @@ function SearchPage() {
                         onChange={(e) => handleEmploymentTypeChange(type, e.target.checked)}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <span className="ml-2 text-sm text-gray-700 capitalize">
+                      <span className="ml-2 text-sm text-muted-foreground capitalize">
                         {type.toLowerCase().replace('fulltime', 'Full-time').replace('parttime', 'Part-time')}
                       </span>
                     </label>
@@ -810,7 +810,7 @@ function SearchPage() {
 
               {/* Date Posted */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Date Posted</h4>
+                <h4 className="text-sm font-medium text-foreground mb-3">Date Posted</h4>
                 <select
                   value={filters.datePosted}
                   onChange={(e) => setFilters(prev => ({ ...prev, datePosted: e.target.value }))}
@@ -827,7 +827,7 @@ function SearchPage() {
               <div className="border-t pt-4">
                 <button
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="w-full flex items-center justify-between text-sm font-medium text-gray-700 hover:text-gray-900"
+                  className="w-full flex items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
                 >
                   <span>Advanced Filters</span>
                   <ChevronDownIcon className={`h-4 w-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
@@ -837,7 +837,7 @@ function SearchPage() {
                   <div className="mt-4 space-y-6">
                     {/* Experience Level */}
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Experience Level</h4>
+                      <h4 className="text-sm font-medium text-foreground mb-3">Experience Level</h4>
                       <select
                         value={filters.experience}
                         onChange={(e) => setFilters(prev => ({ ...prev, experience: e.target.value }))}
@@ -853,7 +853,7 @@ function SearchPage() {
 
                     {/* Company Size */}
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Company Size</h4>
+                      <h4 className="text-sm font-medium text-foreground mb-3">Company Size</h4>
                       <div className="space-y-2">
                         {['Startup (1-50)', 'Small (51-200)', 'Medium (201-1000)', 'Large (1001-5000)', 'Enterprise (5000+)'].map(size => (
                           <label key={size} className="flex items-center">
@@ -868,7 +868,7 @@ function SearchPage() {
                               }}
                               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                             />
-                            <span className="ml-2 text-sm text-gray-700">{size}</span>
+                            <span className="ml-2 text-sm text-muted-foreground">{size}</span>
                           </label>
                         ))}
                       </div>
@@ -876,7 +876,7 @@ function SearchPage() {
 
                     {/* Schedule Type */}
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Schedule</h4>
+                      <h4 className="text-sm font-medium text-foreground mb-3">Schedule</h4>
                       <div className="space-y-2">
                         {['Full-time', 'Part-time', 'Flexible', 'Remote', 'Hybrid', 'On-site'].map(schedule => (
                           <label key={schedule} className="flex items-center">
@@ -891,7 +891,7 @@ function SearchPage() {
                               }}
                               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                             />
-                            <span className="ml-2 text-sm text-gray-700">{schedule}</span>
+                            <span className="ml-2 text-sm text-muted-foreground">{schedule}</span>
                           </label>
                         ))}
                       </div>
@@ -908,7 +908,7 @@ function SearchPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
-                  <label className="text-sm text-gray-700">Sort by:</label>
+                  <label className="text-sm text-muted-foreground">Sort by:</label>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as SortOption)}
@@ -947,13 +947,13 @@ function SearchPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <h3 className="text-lg font-medium text-foreground mb-2">
                     {locationFilterResults?.applied && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0
                       ? `No jobs found in ${capitalizeLocation(location)}`
                       : "No jobs found"
                     }
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-muted-foreground mb-4">
                     {locationFilterResults?.applied && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0
                       ? `We found ${locationFilterResults.originalCount} jobs for "${searchQuery}", but none were located in ${capitalizeLocation(location)}.`
                       : "Try adjusting your search criteria or filters"
@@ -1001,7 +1001,7 @@ function SearchPage() {
             {/* Load more button */}
             {filteredJobs.length > 0 && (
               <div className="text-center mt-8">
-                <button className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium">
+                <button className="bg-card border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium">
                   Load more jobs
                 </button>
               </div>
@@ -1022,13 +1022,13 @@ function SearchPage() {
 // Suspense wrapper component
 function SearchPageLoading() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow p-6">
+              <div className="bg-card rounded-lg shadow p-6">
                 <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
                 <div className="space-y-3">
                   <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -1040,7 +1040,7 @@ function SearchPageLoading() {
             <div className="lg:col-span-3">
               <div className="space-y-6">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="bg-white rounded-lg shadow p-6">
+                  <div key={i} className="bg-card rounded-lg shadow p-6">
                     <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
                     <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
                     <div className="space-y-2">
