@@ -1003,7 +1003,7 @@ export default function Home() {
                     <Button 
                       onClick={handleSearch} 
                       size="lg" 
-                      className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-fuchsia-600 via-yellow-400 to-cyan-500 hover:from-fuchsia-500 hover:via-yellow-300 hover:to-cyan-400 transform hover:scale-105 transition-all shadow-lg"
+                      className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-fuchsia-600 to-cyan-500 hover:from-fuchsia-500 hover:to-cyan-400 transform hover:scale-105 transition-all shadow-lg"
                     >
                       Search Jobs
                     </Button>
