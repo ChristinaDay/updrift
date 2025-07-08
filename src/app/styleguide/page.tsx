@@ -25,6 +25,8 @@ import {
 } from '@heroicons/react/24/outline'
 import ThemeSelector from '@/components/ThemeSelector'
 import ThemeToggle from '@/components/ThemeToggle'
+import { ThemeProvider } from '@/contexts/ThemeContext'
+import HomeExperiments from '../home-experiments/page'
 
 export default function StyleGuidePage() {
   const [showThemePreview, setShowThemePreview] = useState(true)
@@ -482,6 +484,19 @@ export default function StyleGuidePage() {
               </div>
             </CardContent>
           </Card>
+        </section>
+
+        {/* Home Experiments Section */}
+        <section className="mt-24 border-t border-border pt-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-foreground mb-8">Experimental Home Layouts</h2>
+            {/* You can add explanatory text here if desired */}
+          </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+            <ThemeProvider>
+              <HomeExperiments />
+            </ThemeProvider>
+          </div>
         </section>
       </main>
     </div>

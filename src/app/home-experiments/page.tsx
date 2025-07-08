@@ -6,7 +6,141 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { MagnifyingGlassIcon, MapPinIcon, StarIcon, BoltIcon, UserGroupIcon, ChartBarIcon, BuildingOfficeIcon, RocketLaunchIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, MapPinIcon, StarIcon, BoltIcon, UserGroupIcon, ChartBarIcon, BuildingOfficeIcon, RocketLaunchIcon, GlobeAltIcon, UserIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import Starfield from '../page';
+import DynamicWaves from '../page';
+import RiverParticles from '../page';
+import ThemeToggle from '@/components/ThemeToggle';
+
+// Move RiverHeroLayout to top level, before HomeExperiments
+const RiverHeroLayout = () => (
+  <div className="min-h-screen bg-background relative overflow-hidden">
+    {/* Starfield Background - behind river and hero content */}
+    <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
+      <Starfield />
+    </div>
+    {/* River of Smoke Animation - behind the hero content */}
+    <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-0">
+      <DynamicWaves />
+    </div>
+    {/* Foreground River Particles */}
+    <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-10">
+      <RiverParticles />
+    </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        {/* Left: Hero Content */}
+        <div className="space-y-8">
+          <div className="space-y-6">
+            <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
+              Smart Job Matching
+            </Badge>
+            <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight">
+              Happy with your
+              <span className="block bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                current position?
+              </span>
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
+              UpFetch finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
+            </p>
+          </div>
+          {/* Flowing Search Form */}
+          <div className="relative">
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-secondary rounded-2xl blur opacity-30 animate-pulse"></div>
+            <div className="relative bg-card/70 backdrop-blur-xl rounded-2xl p-6 border border-primary/20 shadow-xl">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                    <div className="relative">
+                      <MagnifyingGlassIcon className="absolute left-4 top-4 h-5 w-5 text-primary" />
+                      <Input 
+                        placeholder="Job title or keywords"
+                        className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-primary/50"
+                      />
+                    </div>
+                  </div>
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-accent to-secondary rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                    <div className="relative">
+                      <MapPinIcon className="absolute left-4 top-4 h-5 w-5 text-accent" />
+                      <Input 
+                        placeholder="Location"
+                        className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-accent/50"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <Button size="lg" className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-primary via-accent to-secondary hover:from-primary/90 hover:via-accent/90 hover:to-secondary/90 transform hover:scale-105 transition-all shadow-lg">
+                  Search Jobs
+                </Button>
+              </div>
+            </div>
+          </div>
+          {/* Flowing Tags */}
+          <div className="flex flex-wrap gap-3">
+            {['Remote Work', 'Tech Companies', 'High Growth', 'Well Funded'].map((tag, index) => (
+              <Badge 
+                key={tag} 
+                variant="outline" 
+                className="cursor-pointer hover:bg-primary/10 transform hover:scale-110 transition-all px-4 py-2 border-primary/30 hover:border-primary/50"
+                style={{
+                  animation: `float ${2 + index * 0.5}s ease-in-out infinite`,
+                  animationDelay: `${index * 0.2}s`
+                }}
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        </div>
+        {/* Right: Flowing Job Cards */}
+        <div className="relative">
+          <div className="space-y-6">
+            {[
+              { company: 'Stripe', role: 'Senior Frontend Engineer', salary: '$160k - $220k', logo: '💳' },
+              { company: 'Anthropic', role: 'Product Manager - AI', salary: '$180k - $250k', logo: '🤖' },
+              { company: 'Docker', role: 'DevOps Engineer', salary: '$130k - $170k', logo: '🐳' },
+              { company: 'Figma', role: 'UX Designer', salary: '$120k - $160k', logo: '🎨' }
+            ].map((job, index) => (
+              <div
+                key={index}
+                className={`hero-job-card-float-${index} transition-all duration-500 hover:scale-105`}
+              >
+                <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
+                        {job.logo}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground">{job.role}</h3>
+                        <p className="text-sm text-muted-foreground">{job.company}</p>
+                        <p className="text-sm font-medium text-primary">{job.salary}</p>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors opacity-60 hover:opacity-100"
+                        asChild
+                      >
+                        <Link href={`/search?q=${encodeURIComponent(job.role)}&location=Remote`}>
+                          View →
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 function HomeExperiments() {
   const { currentTheme, setTheme } = useTheme();
@@ -34,7 +168,8 @@ function HomeExperiments() {
     { id: 'ai-conversation', name: 'AI Job Guide', emoji: '🤖', description: 'Conversational AI guides your search' },
     { id: 'skills-visual', name: 'Visual Skills Match', emoji: '🎨', description: 'Interactive skill-based matching' },
     { id: 'social-proof', name: 'Success Stories', emoji: '⭐', description: 'Testimonials and success-driven' },
-    { id: 'company-first', name: 'Company Explorer', emoji: '🏢', description: 'Discover companies, then roles' }
+    { id: 'company-first', name: 'Company Explorer', emoji: '🏢', description: 'Discover companies, then roles' },
+    { id: 'cosmic-river', name: 'Cosmic River', emoji: '🌌', description: 'A cosmic, theme-driven hero with a river of light and a modern search experience.' },
   ];
 
   const HeroCardsLayout = () => (
@@ -624,58 +759,157 @@ function HomeExperiments() {
 
   const ParticleFlowLayout = () => (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Animated Particle Background */}
+      {/* Enhanced Depth of Field Particle Background */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Floating particles */}
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-primary rounded-full opacity-60"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 2}s`
-            }}
-          />
-        ))}
+        {/* Far Distance Layer - Smallest, most blurred particles */}
+        <div className="absolute inset-0 opacity-30" style={{ filter: 'blur(1px)' }}>
+          {[...Array(35)].map((_, i) => (
+            <div
+              key={`far-${i}`}
+              className="absolute rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${0.5 + Math.random() * 1}px`,
+                height: `${0.5 + Math.random() * 1}px`,
+                backgroundColor: Math.random() > 0.5 ? 'hsl(var(--primary))' : 'hsl(var(--accent))',
+                opacity: 0.2 + Math.random() * 0.3,
+                animation: `particleDepthFar ${15 + Math.random() * 10}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 5}s`
+              }}
+            />
+          ))}
+        </div>
         
-        {/* Larger floating elements */}
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={`large-${i}`}
-            className="absolute w-2 h-2 bg-accent/40 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${4 + Math.random() * 3}s ease-in-out infinite reverse`,
-              animationDelay: `${Math.random() * 3}s`
-            }}
-          />
-        ))}
+        {/* Mid Distance Layer - Medium particles with moderate blur */}
+        <div className="absolute inset-0 opacity-50" style={{ filter: 'blur(0.5px)' }}>
+          {[...Array(25)].map((_, i) => (
+            <div
+              key={`mid-${i}`}
+              className="absolute rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${1 + Math.random() * 1.5}px`,
+                height: `${1 + Math.random() * 1.5}px`,
+                backgroundColor: Math.random() > 0.3 ? 'hsl(var(--primary))' : 'hsl(var(--accent))',
+                opacity: 0.4 + Math.random() * 0.4,
+                animation: `particleDepthMid ${10 + Math.random() * 8}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 4}s`
+              }}
+            />
+          ))}
+        </div>
         
-        {/* Connecting lines effect */}
-        <div className="absolute inset-0 opacity-20">
+        {/* Near Distance Layer - Larger, crisp particles */}
+        <div className="absolute inset-0 opacity-70">
+          {[...Array(15)].map((_, i) => (
+            <div
+              key={`near-${i}`}
+              className="absolute rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${2 + Math.random() * 2}px`,
+                height: `${2 + Math.random() * 2}px`,
+                backgroundColor: Math.random() > 0.4 ? 'hsl(var(--primary))' : 'hsl(var(--accent))',
+                opacity: 0.6 + Math.random() * 0.3,
+                animation: `particleDepthNear ${6 + Math.random() * 5}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 3}s`
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Closest Layer - Most prominent particles */}
+        <div className="absolute inset-0 opacity-85">
+          {[...Array(8)].map((_, i) => (
+            <div
+              key={`close-${i}`}
+              className="absolute rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${3 + Math.random() * 3}px`,
+                height: `${3 + Math.random() * 3}px`,
+                background: Math.random() > 0.5 ? 
+                  `radial-gradient(circle, hsl(var(--primary)), hsl(var(--primary)/0.6))` :
+                  `radial-gradient(circle, hsl(var(--accent)), hsl(var(--accent)/0.6))`,
+                opacity: 0.7 + Math.random() * 0.3,
+                animation: `particleDepthClose ${4 + Math.random() * 3}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 2}s`,
+                boxShadow: `0 0 ${4 + Math.random() * 4}px hsl(var(--primary)/0.3)`
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Enhanced connecting lines with depth */}
+        <div className="absolute inset-0 opacity-15">
           <svg width="100%" height="100%" className="absolute inset-0">
             <defs>
               <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity="0.1" />
+                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.4" />
+                <stop offset="50%" stopColor="hsl(var(--accent))" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="hsl(var(--secondary))" stopOpacity="0.1" />
+              </linearGradient>
+              <linearGradient id="lineGradientFaint" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.1" />
+                <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity="0.05" />
               </linearGradient>
             </defs>
-            {[...Array(15)].map((_, i) => (
+            
+            {/* Foreground connection lines */}
+            {[...Array(8)].map((_, i) => (
               <line
-                key={i}
+                key={`line-close-${i}`}
                 x1={`${Math.random() * 100}%`}
                 y1={`${Math.random() * 100}%`}
                 x2={`${Math.random() * 100}%`}
                 y2={`${Math.random() * 100}%`}
                 stroke="url(#lineGradient)"
-                strokeWidth="0.5"
-                opacity="0.3"
+                strokeWidth={`${0.8 + Math.random() * 0.4}`}
+                opacity="0.4"
+                style={{
+                  animation: `lineFlow ${8 + Math.random() * 4}s ease-in-out infinite`,
+                  animationDelay: `${Math.random() * 3}s`
+                }}
+              />
+            ))}
+            
+            {/* Background connection lines */}
+            {[...Array(12)].map((_, i) => (
+              <line
+                key={`line-far-${i}`}
+                x1={`${Math.random() * 100}%`}
+                y1={`${Math.random() * 100}%`}
+                x2={`${Math.random() * 100}%`}
+                y2={`${Math.random() * 100}%`}
+                stroke="url(#lineGradientFaint)"
+                strokeWidth="0.3"
+                opacity="0.2"
+                style={{
+                  animation: `lineFlow ${12 + Math.random() * 6}s ease-in-out infinite`,
+                  animationDelay: `${Math.random() * 4}s`
+                }}
               />
             ))}
           </svg>
+        </div>
+        
+        {/* Atmospheric depth gradient overlay */}
+        <div className="absolute inset-0 opacity-10">
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: `
+                radial-gradient(ellipse at 30% 20%, hsl(var(--primary)/0.1) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, hsl(var(--accent)/0.1) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 70%, hsl(var(--secondary)/0.05) 0%, transparent 70%)
+              `,
+              animation: 'atmosphericFlow 20s ease-in-out infinite'
+            }}
+          />
         </div>
       </div>
 
@@ -827,8 +1061,94 @@ function HomeExperiments() {
         </div>
       </div>
       
-      {/* Custom CSS for animations */}
+      {/* Custom CSS for depth of field particle animations */}
       <style jsx>{`
+        @keyframes particleDepthFar {
+          0%, 100% { 
+            transform: translateY(0px) translateX(0px) scale(1);
+            opacity: 0.2;
+          }
+          25% { 
+            transform: translateY(-2px) translateX(1px) scale(1.1);
+            opacity: 0.4;
+          }
+          50% { 
+            transform: translateY(-3px) translateX(-1px) scale(0.9);
+            opacity: 0.3;
+          }
+          75% { 
+            transform: translateY(-1px) translateX(2px) scale(1.05);
+            opacity: 0.5;
+          }
+        }
+        
+        @keyframes particleDepthMid {
+          0%, 100% { 
+            transform: translateY(0px) translateX(0px) scale(1);
+            opacity: 0.4;
+          }
+          33% { 
+            transform: translateY(-5px) translateX(2px) scale(1.2);
+            opacity: 0.7;
+          }
+          66% { 
+            transform: translateY(-8px) translateX(-3px) scale(0.8);
+            opacity: 0.5;
+          }
+        }
+        
+        @keyframes particleDepthNear {
+          0%, 100% { 
+            transform: translateY(0px) translateX(0px) scale(1);
+            opacity: 0.6;
+          }
+          40% { 
+            transform: translateY(-12px) translateX(4px) scale(1.3);
+            opacity: 0.9;
+          }
+          60% { 
+            transform: translateY(-15px) translateX(-2px) scale(0.7);
+            opacity: 0.7;
+          }
+        }
+        
+        @keyframes particleDepthClose {
+          0%, 100% { 
+            transform: translateY(0px) translateX(0px) scale(1) rotate(0deg);
+            opacity: 0.7;
+          }
+          30% { 
+            transform: translateY(-20px) translateX(6px) scale(1.4) rotate(5deg);
+            opacity: 1;
+          }
+          70% { 
+            transform: translateY(-25px) translateX(-4px) scale(0.6) rotate(-3deg);
+            opacity: 0.8;
+          }
+        }
+        
+        @keyframes lineFlow {
+          0%, 100% { 
+            opacity: 0.2;
+            stroke-dasharray: 0 100;
+          }
+          50% { 
+            opacity: 0.6;
+            stroke-dasharray: 50 50;
+          }
+        }
+        
+        @keyframes atmosphericFlow {
+          0%, 100% { 
+            opacity: 0.1; 
+            transform: scale(1) rotate(0deg);
+          }
+          50% { 
+            opacity: 0.2; 
+            transform: scale(1.05) rotate(2deg);
+          }
+        }
+        
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-10px); }
@@ -3883,6 +4203,160 @@ function HomeExperiments() {
     </div>
   );
 
+  const CosmicRiverLayout = () => (
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Header */}
+      <header className="bg-background/80 backdrop-blur-md border-b sticky top-0 z-50 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <h1 className="text-2xl font-bold gradient-text">UpFetch</h1>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <ThemeToggle />
+              <div className="flex items-center space-x-2">
+                <UserIcon className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Demo User</span>
+              </div>
+              <Button variant="ghost" size="sm">Dashboard</Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="hero-section relative py-20 overflow-hidden z-10">
+        {/* Starfield Background - behind river and hero content */}
+        <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
+          <Starfield />
+        </div>
+        {/* River of Smoke Animation - behind the hero content */}
+        <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-0">
+          <DynamicWaves />
+        </div>
+        {/* Foreground River Particles */}
+        <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-10">
+          <RiverParticles />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Left: Hero Content */}
+          <div className="space-y-8">
+            <div className="space-y-6">
+              <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
+                Smart Job Matching
+              </Badge>
+              <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight">
+                Happy with your
+                <span className="block bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                  current position?
+                </span>
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
+                UpFetch finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
+              </p>
+            </div>
+            {/* Flowing Search Form */}
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-secondary rounded-2xl blur opacity-30 animate-pulse"></div>
+              <div className="relative bg-card/70 backdrop-blur-xl rounded-2xl p-6 border border-primary/20 shadow-xl">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                      <div className="relative">
+                        <MagnifyingGlassIcon className="absolute left-4 top-4 h-5 w-5 text-primary" />
+                        <Input 
+                          placeholder="Job title or keywords"
+                          className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-primary/50"
+                          disabled
+                        />
+                      </div>
+                    </div>
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-accent to-secondary rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                      <div className="relative">
+                        <MapPinIcon className="absolute left-4 top-4 h-5 w-5 text-accent" />
+                        <Input 
+                          placeholder="City, state, or remote"
+                          className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-accent/50"
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <Button 
+                    size="lg" 
+                    className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-primary via-accent to-secondary hover:from-primary/90 hover:via-accent/90 hover:to-secondary/90 transform hover:scale-105 transition-all shadow-lg"
+                    disabled
+                  >
+                    Search Jobs
+                  </Button>
+                </div>
+              </div>
+            </div>
+            {/* Flowing Tags */}
+            <div className="flex flex-wrap gap-3">
+              {['Remote Work', 'Tech Companies', 'High Growth', 'Well Funded'].map((tag, index) => (
+                <Badge 
+                  key={tag} 
+                  variant="outline" 
+                  className="cursor-pointer hover:bg-primary/10 transform hover:scale-110 transition-all px-4 py-2 border-primary/30 hover:border-primary/50"
+                  style={{
+                    animation: `float ${2 + index * 0.5}s ease-in-out infinite`,
+                    animationDelay: `${index * 0.2}s`
+                  }}
+                >
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          {/* Right: Flowing Job Cards */}
+          <div className="relative">
+            <div className="space-y-6">
+              {[
+                { company: 'Stripe', role: 'Senior Frontend Engineer', salary: '$160k - $220k', logo: '💳' },
+                { company: 'Anthropic', role: 'Product Manager - AI', salary: '$180k - $250k', logo: '🤖' },
+                { company: 'Docker', role: 'DevOps Engineer', salary: '$130k - $170k', logo: '🐳' },
+                { company: 'Figma', role: 'UX Designer', salary: '$120k - $160k', logo: '🎨' }
+              ].map((job, index) => (
+                <div
+                  key={index}
+                  className={`hero-job-card-float-${index} transition-all duration-500 hover:scale-105`}
+                >
+                  <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
+                    <CardContent className="p-6">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
+                          {job.logo}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground">{job.role}</h3>
+                          <p className="text-sm text-muted-foreground">{job.company}</p>
+                          <p className="text-sm font-medium text-primary">{job.salary}</p>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="text-sm text-muted-foreground hover:text-primary transition-colors opacity-60 hover:opacity-100"
+                          disabled
+                        >
+                          View →
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+
   const renderCurrentLayout = () => {
     switch (activeLayout) {
       case 'hero-cards': return <HeroCardsLayout />;
@@ -3903,6 +4377,8 @@ function HomeExperiments() {
       case 'skills-visual': return <VisualSkillsLayout />;
       case 'social-proof': return <SocialProofLayout />;
       case 'company-first': return <CompanyExplorerLayout />;
+      case 'cosmic-river': return <CosmicRiverLayout />;
+      case 'river-hero': return <RiverHeroLayout />;
       default: return <HeroCardsLayout />;
     }
   };
@@ -3936,6 +4412,7 @@ function HomeExperiments() {
                 <option value="coastal-deep">🌊 Coastal Deep</option>
                 <option value="summit">🏔️ Summit</option>
                 <option value="nomad">☕ Nomad</option>
+                <option value="nomad-forest">🌲 Nomad Forest</option>
               </select>
             </div>
           </div>
@@ -3957,9 +4434,22 @@ function HomeExperiments() {
       </div>
 
       {/* Layout Preview */}
-      <div className="relative">
-        {renderCurrentLayout()}
-      </div>
+      <Card className="overflow-hidden border-2 border-dashed border-border my-8">
+        <CardContent className="p-0">
+          <div className="flex items-center justify-between p-4 bg-muted/20">
+            <h3 className="text-lg font-semibold text-foreground">Home Page Preview</h3>
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="text-xs">Experimental</Badge>
+              <Badge variant="secondary" className="text-xs">Preview</Badge>
+            </div>
+          </div>
+          <div className="relative bg-background h-[32rem] overflow-y-auto overflow-x-hidden">
+            <div className="transform scale-75 origin-top-left w-[133.33%]">
+              {renderCurrentLayout()}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Layout Description */}
       <div className="border-t border-border bg-card/50 p-6">
@@ -3985,4 +4475,6 @@ export default function HomeExperimentsPage() {
       <HomeExperiments />
     </ThemeProvider>
   );
-} 
+}
+
+export { RiverHeroLayout }; 
