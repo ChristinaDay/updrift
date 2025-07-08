@@ -3304,7 +3304,7 @@ export default function StyleGuidePage() {
           </p>
 
           {showThemePreview && (
-            <ThemeSelector showPreview={true} />
+             <ThemeSelector showPreview={true} />
           )}
         </section>
 
@@ -3417,4 +3417,12 @@ export default function StyleGuidePage() {
           <Card>
             <CardContent className="p-6">
               <div className="space-y-4">
-                <h1 className="text-
+              <h1 className="text-4xl font-bold">Typography Example</h1>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      </main>
+    </div>
+  );
+}
