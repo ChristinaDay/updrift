@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { BookmarkIcon, MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline'
+import { BookmarkIcon, MagnifyingGlassIcon, UserIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { capitalizeLocation } from '@/utils/jobUtils'
 import ThemeToggle from '@/components/ThemeToggle'
@@ -160,7 +160,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
             <h3 className="text-lg font-semibold text-foreground mb-4">Quick Search</h3>
             <p className="text-muted-foreground mb-4">Find your next opportunity</p>
@@ -172,7 +172,6 @@ export default function Dashboard() {
               Search Jobs
             </Link>
           </div>
-          
           <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
             <h3 className="text-lg font-semibold text-foreground mb-4">Profile Settings</h3>
             <p className="text-muted-foreground mb-4">Update your preferences and skills</p>
@@ -182,6 +181,17 @@ export default function Dashboard() {
             >
               <UserIcon className="h-4 w-4 mr-2" />
               Edit Profile
+            </Link>
+          </div>
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+            <h3 className="text-lg font-semibold text-foreground mb-4">APIhub</h3>
+            <p className="text-muted-foreground mb-4">See all connected job APIs and their status</p>
+            <Link 
+              href="/apihub"
+              className="inline-flex items-center px-4 py-2 border border-accent bg-accent text-accent-foreground text-sm font-semibold rounded-md shadow hover:brightness-110 transition"
+            >
+              <SparklesIcon className="h-4 w-4 mr-2" />
+              View API Sources
             </Link>
           </div>
         </div>
@@ -271,13 +281,13 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Search History */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="mt-8 bg-card rounded-lg shadow-sm border border-border">
+          <div className="px-6 py-4 border-b border-border">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Searches</h3>
+              <h3 className="text-lg font-semibold text-foreground">Recent Searches</h3>
               <Link 
                 href="/search"
-                className="text-sm text-blue-600 hover:text-blue-500"
+                className="text-sm text-primary hover:text-primary/80"
               >
                 Start new search
               </Link>
@@ -286,16 +296,16 @@ export default function Dashboard() {
           <div className="p-6">
             {searchHistory.length === 0 ? (
               <div className="text-center py-8">
-                <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MagnifyingGlassIcon className="h-6 w-6 text-gray-400" />
+                <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MagnifyingGlassIcon className="h-6 w-6 text-muted-foreground" />
                 </div>
-                <h4 className="text-lg font-medium text-gray-900 mb-2">No searches yet</h4>
-                <p className="text-gray-600 mb-4">
+                <h4 className="text-lg font-medium text-foreground mb-2">No searches yet</h4>
+                <p className="text-muted-foreground mb-4">
                   Start searching for jobs to see your activity here
                 </p>
                 <Link
                   href="/search"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90"
                 >
                   Start Searching
                 </Link>
@@ -303,17 +313,17 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-4">
                 {searchHistory.map((search: any, index: number) => (
-                  <div key={search.id || index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={search.id || index} className="flex items-center justify-between p-4 bg-muted rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <MagnifyingGlassIcon className="h-4 w-4 text-blue-600" />
+                      <div className="p-2 bg-accent rounded-lg">
+                        <MagnifyingGlassIcon className="h-4 w-4 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-foreground">
                           {search.query || 'All jobs'}
                           {search.location && ` in ${capitalizeLocation(search.location)}`}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {new Date(search.searchedAt).toLocaleDateString()} at{' '}
                           {new Date(search.searchedAt).toLocaleTimeString()}
                         </p>
@@ -324,18 +334,17 @@ export default function Dashboard() {
                         ...(search.query && { q: search.query }),
                         ...(search.location && { location: search.location })
                       }).toString()}`}
-                      className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                      className="text-primary hover:text-primary/80 text-sm font-medium"
                     >
                       Search again
                     </Link>
                   </div>
                 ))}
-                
                 {searchHistory.length >= 5 && (
                   <div className="text-center pt-4">
                     <Link
                       href="/profile"
-                      className="text-sm text-gray-500 hover:text-gray-700"
+                      className="text-sm text-muted-foreground hover:text-foreground"
                     >
                       View all search history
                     </Link>
