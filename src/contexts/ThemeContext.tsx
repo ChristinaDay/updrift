@@ -17,7 +17,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Load saved theme from localStorage
-    const savedTheme = localStorage.getItem('upfetch-theme') || 'dawn';
+    const savedTheme = localStorage.getItem('upfetch-theme') || 'cyber';
     const theme = themes.find(t => t.name === savedTheme) || themes[0];
     
     setCurrentTheme(theme);

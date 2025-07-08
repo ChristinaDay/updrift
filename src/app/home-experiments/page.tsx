@@ -142,6 +142,8 @@ const RiverHeroLayout = () => (
   </div>
 );
 
+// CosmicRiverLayout will be defined inside HomeExperiments function to access theme context
+
 function HomeExperiments() {
   const { currentTheme, setTheme } = useTheme();
   const [activeLayout, setActiveLayout] = useState('hero-cards');
@@ -4205,33 +4207,13 @@ function HomeExperiments() {
 
   const CosmicRiverLayout = () => (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Header */}
-      <header className="bg-background/80 backdrop-blur-md border-b sticky top-0 z-50 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold gradient-text">UpFetch</h1>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              <div className="flex items-center space-x-2">
-                <UserIcon className="h-5 w-5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Demo User</span>
-              </div>
-              <Button variant="ghost" size="sm">Dashboard</Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      {/* Starfield Background - behind river and hero content */}
+      <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
+        <Starfield />
+      </div>
+      
       {/* Hero Section */}
-      <section className="hero-section relative py-20 overflow-hidden z-10">
-        {/* Starfield Background - behind river and hero content */}
-        <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
-          <Starfield />
-        </div>
+      <section className="hero-section relative pt-24 pb-20 overflow-hidden z-10">
         {/* River of Smoke Animation - behind the hero content */}
         <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-0">
           <DynamicWaves />
@@ -4240,116 +4222,122 @@ function HomeExperiments() {
         <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-10">
           <RiverParticles />
         </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Left: Hero Content */}
-          <div className="space-y-8">
-            <div className="space-y-6">
-              <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
-                Smart Job Matching
-              </Badge>
-              <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight">
-                Happy with your
-                <span className="block bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-                  current position?
-                </span>
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
-                UpFetch finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
-              </p>
-            </div>
-            {/* Flowing Search Form */}
-            <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-secondary rounded-2xl blur opacity-30 animate-pulse"></div>
-              <div className="relative bg-card/70 backdrop-blur-xl rounded-2xl p-6 border border-primary/20 shadow-xl">
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="relative group">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                      <div className="relative">
-                        <MagnifyingGlassIcon className="absolute left-4 top-4 h-5 w-5 text-primary" />
-                        <Input 
-                          placeholder="Job title or keywords"
-                          className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-primary/50"
-                          disabled
-                        />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Left: Hero Content */}
+            <div className="space-y-8">
+              <div className="space-y-6">
+                <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
+                  Smart Job Matching
+                </Badge>
+                <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight">
+                  Happy with your
+                  <span className="block bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                    current position?
+                  </span>
+                </h1>
+                <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
+                  UpFetch finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
+                </p>
+              </div>
+              
+              {/* Flowing Search Form */}
+              <div className="relative">
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-secondary rounded-2xl blur opacity-30 animate-pulse"></div>
+                <div className="relative bg-card/70 backdrop-blur-xl rounded-2xl p-6 border border-primary/20 shadow-xl">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <div className="relative">
+                          <MagnifyingGlassIcon className="absolute left-4 top-4 h-5 w-5 text-primary" />
+                          <Input 
+                            placeholder="Job title or keywords"
+                            className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-primary/50"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                      <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-accent to-secondary rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <div className="relative">
+                          <MapPinIcon className="absolute left-4 top-4 h-5 w-5 text-accent" />
+                          <Input 
+                            placeholder="City, state, or remote"
+                            className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-accent/50"
+                            disabled
+                          />
+                        </div>
                       </div>
                     </div>
-                    <div className="relative group">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-accent to-secondary rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                      <div className="relative">
-                        <MapPinIcon className="absolute left-4 top-4 h-5 w-5 text-accent" />
-                        <Input 
-                          placeholder="City, state, or remote"
-                          className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-accent/50"
-                          disabled
-                        />
-                      </div>
-                    </div>
+                    <Button 
+                      size="lg" 
+                      className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-primary via-accent to-secondary hover:from-primary/90 hover:via-accent/90 hover:to-secondary/90 transform hover:scale-105 transition-all shadow-lg"
+                      disabled
+                    >
+                      Search Jobs
+                    </Button>
                   </div>
-                  <Button 
-                    size="lg" 
-                    className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-primary via-accent to-secondary hover:from-primary/90 hover:via-accent/90 hover:to-secondary/90 transform hover:scale-105 transition-all shadow-lg"
-                    disabled
-                  >
-                    Search Jobs
-                  </Button>
                 </div>
               </div>
+              
+              {/* Flowing Tags */}
+              <div className="flex flex-wrap gap-3">
+                {['Remote Work', 'Tech Companies', 'High Growth', 'Well Funded'].map((tag, index) => (
+                  <Badge 
+                    key={tag} 
+                    variant="outline" 
+                    className="cursor-pointer hover:bg-primary/10 transform hover:scale-110 transition-all px-4 py-2 border-primary/30 hover:border-primary/50"
+                    style={{
+                      animation: `float ${2 + index * 0.5}s ease-in-out infinite`,
+                      animationDelay: `${index * 0.2}s`
+                    }}
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
             </div>
-            {/* Flowing Tags */}
-            <div className="flex flex-wrap gap-3">
-              {['Remote Work', 'Tech Companies', 'High Growth', 'Well Funded'].map((tag, index) => (
-                <Badge 
-                  key={tag} 
-                  variant="outline" 
-                  className="cursor-pointer hover:bg-primary/10 transform hover:scale-110 transition-all px-4 py-2 border-primary/30 hover:border-primary/50"
-                  style={{
-                    animation: `float ${2 + index * 0.5}s ease-in-out infinite`,
-                    animationDelay: `${index * 0.2}s`
-                  }}
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
-          {/* Right: Flowing Job Cards */}
-          <div className="relative">
-            <div className="space-y-6">
-              {[
-                { company: 'Stripe', role: 'Senior Frontend Engineer', salary: '$160k - $220k', logo: '💳' },
-                { company: 'Anthropic', role: 'Product Manager - AI', salary: '$180k - $250k', logo: '🤖' },
-                { company: 'Docker', role: 'DevOps Engineer', salary: '$130k - $170k', logo: '🐳' },
-                { company: 'Figma', role: 'UX Designer', salary: '$120k - $160k', logo: '🎨' }
-              ].map((job, index) => (
-                <div
-                  key={index}
-                  className={`hero-job-card-float-${index} transition-all duration-500 hover:scale-105`}
-                >
-                  <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
-                    <CardContent className="p-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
-                          {job.logo}
+            
+            {/* Right: Flowing Job Cards */}
+            <div className="relative">
+              <div className="space-y-6">
+                {[
+                  { company: 'Stripe', role: 'Senior Frontend Engineer', salary: '$160k - $220k', logo: '💳' },
+                  { company: 'Anthropic', role: 'Product Manager - AI', salary: '$180k - $250k', logo: '🤖' },
+                  { company: 'Docker', role: 'DevOps Engineer', salary: '$130k - $170k', logo: '🐳' },
+                  { company: 'Figma', role: 'UX Designer', salary: '$120k - $160k', logo: '🎨' }
+                ].map((job, index) => (
+                  <div
+                    key={index}
+                    className={`hero-job-card-float-${index} transition-all duration-500 hover:scale-105`}
+                  >
+                    <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
+                      <CardContent className="p-6">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
+                            {job.logo}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-foreground">{job.role}</h3>
+                            <p className="text-sm text-muted-foreground">{job.company}</p>
+                            <p className="text-sm font-medium text-primary">{job.salary}</p>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="text-sm text-muted-foreground hover:text-primary transition-colors opacity-60 hover:opacity-100"
+                            disabled
+                          >
+                            View →
+                          </Button>
                         </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-foreground">{job.role}</h3>
-                          <p className="text-sm text-muted-foreground">{job.company}</p>
-                          <p className="text-sm font-medium text-primary">{job.salary}</p>
-                        </div>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="text-sm text-muted-foreground hover:text-primary transition-colors opacity-60 hover:opacity-100"
-                          disabled
-                        >
-                          View →
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
+                      </CardContent>
+                    </Card>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

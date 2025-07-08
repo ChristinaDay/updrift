@@ -119,6 +119,14 @@ const themes = [
     category: 'Light'
   },
   {
+    id: 'nomad-forest',
+    name: 'Café Nomad Forest',
+    color: '#228b22',
+    emoji: '🌲',
+    description: 'Warm café vibes with forest green accents',
+    category: 'Light'
+  },
+  {
     id: 'tropical',
     name: 'Tropical Paradise',
     color: '#00d4aa',
@@ -225,11 +233,11 @@ const themes = [
 ]
 
 export default function ThemeSelector({ showPreview = false }: { showPreview?: boolean }) {
-  const [currentTheme, setCurrentTheme] = useState<string>('dawn')
+  const [currentTheme, setCurrentTheme] = useState<string>('cyber')
 
   // Load saved theme on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('upfetch-theme') || 'dawn'
+    const savedTheme = localStorage.getItem('upfetch-theme') || 'cyber'
     setCurrentTheme(savedTheme)
     applyTheme(savedTheme)
   }, [])

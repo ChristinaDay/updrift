@@ -19,8 +19,8 @@ export default function ThemeToggle() {
     const html = document.documentElement
     
     if (dark) {
-      // Apply a sophisticated dark theme (Ocean Depth)
-      html.className = html.className.replace(/theme-\w+/g, '') + ' theme-ocean'
+      // Apply a sophisticated dark theme (Cyberpunk)
+      html.className = html.className.replace(/theme-\w+/g, '') + ' theme-cyber'
     } else {
       // Apply a sophisticated light theme (Dawn)
       html.className = html.className.replace(/theme-\w+/g, '') + ' theme-dawn'

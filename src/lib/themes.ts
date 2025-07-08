@@ -78,6 +78,13 @@ export const themes: Theme[] = [
     description: 'Warm productivity spaces',
     category: 'Light'
   },
+  {
+    name: 'nomad-forest',
+    displayName: 'Café Nomad Forest',
+    emoji: '🌲',
+    description: 'Warm café vibes with forest green accents',
+    category: 'Light'
+  },
   
   // Dark Themes
   {
@@ -106,6 +113,13 @@ export const themes: Theme[] = [
     displayName: 'Electric',
     emoji: '⚡',
     description: 'High voltage energy',
+    category: 'Dark'
+  },
+  {
+    name: 'cosmic',
+    displayName: 'Cosmic River',
+    emoji: '🌌',
+    description: 'Galactic gradients and starfield vibes',
     category: 'Dark'
   },
   
