@@ -224,11 +224,11 @@ function rand(min: number, max: number) { return min + Math.random() * (max - mi
 
 // RiverParticles Component
 function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStreams = 4 }) {
-  // All particles: sharp, twinkling stars
+  // All particles: sharp, twinkling stars (within river)
   const starParticles = Array.from({ length: numParticles }).map((_, i) => {
     const progress = Math.random();
     const baseSpeed = rand(6, 10) * 0.6; // 40% faster
-    const speed = baseSpeed * rand(1.3, 1.5); // keep the multiplier for variety
+    const speed = baseSpeed * rand(1.3, 1.5);
     const riverDepth = Math.random() * 0.1;
     const size = rand(1.2, 2.6);
     const color = [
@@ -254,27 +254,69 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
   // Streaming lines within the river area
   const streams = Array.from({ length: numStreams }).map((_, i) => {
     // Fully random positions and delays for organic, sparse effect
-    const progress = Math.random(); // random horizontal start
     const y = 0.495 + Math.random() * 0.01; // extremely tight vertical spread
     const baseSpeed = rand(2, 4) * 0.6; // 40% faster
-    const speed = baseSpeed * rand(1.3, 1.5); // keep the multiplier for variety
-    const delay = -rand(0, speed * 2); // negative delay, up to 2x speed, for big gaps
-    const width = rand(6, 22); // more horizontal variation: some shorter, some longer
+    const speed = baseSpeed * rand(1.3, 1.5);
+    const width = rand(12, 32); // much longer, still thin
+    const blur = rand(0.05, 0.2); // even less blur, max 0.2px
+    const progress = Math.random();
     return {
       id: `stream-line-${i}`,
-      x: -0.25 + progress * 1.5,
+      x: -0.15, // spawn much further left
       y,
       width,
       color: 'linear-gradient(90deg, white 0%, #f0abfc 18%, #a5b4fc 36%, #7c3aed 54%, #06b6d4 72%, #22d3ee 90%, transparent 100%)',
       opacity: rand(0.09, 0.16), // more subtle
-      blur: rand(0.6, 1.1), // more subtle
+      blur,
       speed,
-      delay
+      delay: -progress * speed
+    }
+  });
+  // Above river moving particles (20% slower, much higher)
+  const aboveParticles = Array.from({ length: 10 }).map((_, i) => {
+    const baseSpeed = rand(6, 10) * 0.6 * 1.2; // 20% slower
+    const speed = baseSpeed * rand(1.3, 1.5);
+    // Place 40-45px above the river band (river band is at 45-55% of 180px = 81-99px)
+    // So above: 40-45px above 81px = 36-41px (20-23% of 180px)
+    // We'll use 18-25% for a nice spread
+    const y = 0.18 + Math.random() * 0.07; // 18-25%
+    const progress = Math.random();
+    return {
+      id: `river-star-above-${i}`,
+      x: -0.15 + progress * 1.3,
+      y,
+      size: 0.8 + Math.random() * 2.2,
+      color: 'white',
+      speed,
+      delay: -progress * speed,
+      twinkleDur: rand(1.5, 3.5),
+      twinkleDelay: rand(0, 2)
+    }
+  });
+  // Below river moving particles (20% slower, much lower)
+  const belowParticles = Array.from({ length: 10 }).map((_, i) => {
+    const baseSpeed = rand(6, 10) * 0.6 * 1.2; // 20% slower
+    const speed = baseSpeed * rand(1.3, 1.5);
+    // Place 40-45px below the river band (river band is at 45-55% of 180px = 81-99px)
+    // So below: 40-45px below 99px = 139-144px (77-80% of 180px)
+    // We'll use 75-82% for a nice spread
+    const y = 0.75 + Math.random() * 0.07; // 75-82%
+    const progress = Math.random();
+    return {
+      id: `river-star-below-${i}`,
+      x: -0.15 + progress * 1.3,
+      y,
+      size: 0.8 + Math.random() * 2.2,
+      color: 'white',
+      speed,
+      delay: -progress * speed,
+      twinkleDur: rand(1.5, 3.5),
+      twinkleDelay: rand(0, 2)
     }
   });
   return (
     <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-10">
-      {/* Twinkling star particles */}
+      {/* Twinkling star particles (river) */}
       {starParticles.map(p => (
         <svg
           key={p.id}
@@ -286,8 +328,63 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
             height: p.size,
             pointerEvents: 'none',
             zIndex: 2,
-            animation: `riverFlow ${p.speed}s linear infinite`,
-            animationDelay: `${p.delay}s`,
+            animation: `riverFlow ${p.speed}s linear ${p.delay}s infinite`,
+          }}
+        >
+          <circle
+            cx={p.size / 2}
+            cy={p.size / 2}
+            r={p.size / 2}
+            fill={p.color}
+            style={{
+              opacity: 0.85,
+              filter: 'drop-shadow(0 0 2px white)',
+              animation: `starTwinkle ${p.twinkleDur}s ease-in-out ${p.twinkleDelay}s infinite`,
+            }}
+          />
+        </svg>
+      ))}
+      {/* Above river moving particles */}
+      {aboveParticles.map(p => (
+        <svg
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: `${p.x * 100}%`,
+            top: `${p.y * 100}%`,
+            width: p.size,
+            height: p.size,
+            pointerEvents: 'none',
+            zIndex: 2,
+            animation: `riverFlow ${p.speed}s linear ${p.delay}s infinite`,
+          }}
+        >
+          <circle
+            cx={p.size / 2}
+            cy={p.size / 2}
+            r={p.size / 2}
+            fill={p.color}
+            style={{
+              opacity: 0.85,
+              filter: 'drop-shadow(0 0 2px white)',
+              animation: `starTwinkle ${p.twinkleDur}s ease-in-out ${p.twinkleDelay}s infinite`,
+            }}
+          />
+        </svg>
+      ))}
+      {/* Below river moving particles */}
+      {belowParticles.map(p => (
+        <svg
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: `${p.x * 100}%`,
+            top: `${p.y * 100}%`,
+            width: p.size,
+            height: p.size,
+            pointerEvents: 'none',
+            zIndex: 2,
+            animation: `riverFlow ${p.speed}s linear ${p.delay}s infinite`,
           }}
         >
           <circle
@@ -317,8 +414,7 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
             borderRadius: 1,
             opacity: s.opacity,
             filter: `blur(${s.blur}px)`,
-            animation: `streamFlow ${s.speed}s linear infinite`,
-            animationDelay: `${s.delay}s`,
+            animation: `streamFlow ${s.speed}s linear ${s.delay}s infinite`,
             pointerEvents: 'none',
             zIndex: 0,
           }}
@@ -522,73 +618,40 @@ export default function Home() {
 
     // Generate flowing particles within the river area - more natural distribution
     for (let i = 0; i < 35; i++) {
-      const progress = Math.random(); // Random position in animation (0 to 1)
       const baseSpeed = rand(6, 10) * 0.6; // 40% faster
       const speed = baseSpeed * rand(1.3, 1.5); // keep the multiplier for variety
       const riverDepth = Math.random() * 10; // 10% height of river area
+      const progress = Math.random();
       newParticles.push({
         id: `river-particle-${i}`,
-        x: -15 + (progress * 130), // Spread across extended journey (-15% to 115%)
+        x: -15, // spawn much further left
         y: 45 + riverDepth, // River area (45-55%) distributed naturally
         size: 0.8 + Math.random() * 2.2, // Varied particle sizes
         color: `radial-gradient(circle, rgba(147, 51, 234, 0.8), rgba(59, 130, 246, 0.6))`,
         animationType: 'riverFlow',
         speed: speed,
-        delay: -progress * speed // Negative delay based on position to sync animation
+        delay: -progress * speed // negative delay for smooth flow
       })
     }
 
     // Generate streaming lines within the river area - like current lines
     for (let i = 0; i < 12; i++) {
-      const progress = Math.random(); // Random position in animation (0 to 1)
       const baseSpeed = rand(2, 4) * 0.6; // 40% faster
       const speed = baseSpeed * rand(1.3, 1.5); // keep the multiplier for variety
       const streamHeight = 49.5 + Math.random() * 1; // extremely tight vertical spread
-      const width = rand(6, 22); // more horizontal variation
+      const width = rand(12, 32); // much longer, still thin
+      const blur = rand(0.05, 0.2); // even less blur, max 0.2px
+      const progress = Math.random();
       newParticles.push({
         id: `stream-line-${i}`,
-        x: -25 + (progress * 150), // Extended journey for longer streams
+        x: -0.15, // spawn much further left
         y: streamHeight, // River area distributed
         size: width, // Will be overridden by CSS for line shape
         color: `linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.6), rgba(59, 130, 246, 0.8), transparent)`,
         animationType: 'streamFlow',
         speed: speed,
-        delay: -progress * speed // Negative delay based on position to sync animation
-      })
-    }
-
-    // Add more moving stars above the river, clearly above the river band
-    for (let i = 0; i < 10; i++) {
-      const progress = Math.random();
-      const baseSpeed = rand(6, 10) * 0.6; // 40% faster
-      const speed = baseSpeed * rand(1.3, 1.5);
-      const y = 35 + Math.random() * 8; // above river (35-43)
-      newParticles.push({
-        id: `river-star-above-${i}`,
-        x: -15 + (progress * 130),
-        y,
-        size: 0.8 + Math.random() * 2.2,
-        color: `radial-gradient(circle, rgba(147, 51, 234, 0.8), rgba(59, 130, 246, 0.6))`,
-        animationType: 'riverFlow',
-        speed: speed,
-        delay: -progress * speed
-      })
-    }
-    // Add more moving stars below the river, clearly below the river band
-    for (let i = 0; i < 10; i++) {
-      const progress = Math.random();
-      const baseSpeed = rand(6, 10) * 0.6; // 40% faster
-      const speed = baseSpeed * rand(1.3, 1.5);
-      const y = 57 + Math.random() * 8; // below river (57-65)
-      newParticles.push({
-        id: `river-star-below-${i}`,
-        x: -15 + (progress * 130),
-        y,
-        size: 0.8 + Math.random() * 2.2,
-        color: `radial-gradient(circle, rgba(147, 51, 234, 0.8), rgba(59, 130, 246, 0.6))`,
-        animationType: 'riverFlow',
-        speed: speed,
-        delay: -progress * speed
+        delay: -progress * speed, // negative delay for smooth flow
+        blur,
       })
     }
 
