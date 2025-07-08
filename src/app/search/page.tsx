@@ -37,7 +37,10 @@ import {
   UserIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline'
-import ThemeSelector from '@/components/ThemeSelector'
+import Link from 'next/link';
+import ThemeToggle from '@/components/ThemeToggle';
+import { signOut } from 'next-auth/react';
+// import ThemeSelector from '@/components/ThemeSelector'
 
 type SortOption = 'relevance' | 'date' | 'salary' | 'company'
 type ViewMode = 'grid' | 'list'
@@ -453,6 +456,50 @@ function SearchPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
+        {/* Header/Nav Bar (identical to dashboard) */}
+        <header className="bg-card shadow-sm border-b border-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center space-x-4">
+                <Link href="/" className="text-2xl font-bold text-primary">
+                  UpFetch
+                </Link>
+                <nav className="hidden md:flex space-x-8">
+                  <Link href="/search" className="text-primary font-medium flex items-center space-x-1 border-b-2 border-blue-600 pb-1">
+                    <MagnifyingGlassIcon className="h-4 w-4" />
+                    <span>Search Jobs</span>
+                  </Link>
+                  <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
+                    <BookmarkIcon className="h-4 w-4" />
+                    <span>Saved Jobs</span>
+                  </Link>
+                </nav>
+              </div>
+              <div className="flex items-center space-x-4">
+                <ThemeToggle />
+                {session && (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <UserIcon className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {session.user.name || session.user.email}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => signOut()}
+                      className="text-sm text-muted-foreground hover:text-destructive"
+                    >
+                      Sign out
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </header>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
@@ -469,139 +516,146 @@ function SearchPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {searchQuery ? `Jobs for "${searchQuery}"` : (location ? `Jobs in ${capitalizeLocation(location)}` : 'Explore Job Opportunities')}
-                {location && searchQuery && ` within ${radius} miles of ${capitalizeLocation(location)}`}
-              </h1>
-              {location && !searchQuery && (
-                <p className="text-sm text-gray-500 mt-1">
-                  within {radius} miles of {capitalizeLocation(location)}
-                </p>
-              )}
-              <div className="flex items-center space-x-2 mt-1">
-                <p className="text-gray-600">
-                  {filteredJobs.length} opportunities found
-                  {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
-                  {session?.user && userPreferences && ' • Personalized for you'}
-                  {!session?.user && ' • Sign in for personalized results'}
-                                      • Powered by UpFetch AI
-                </p>
-                {session?.user && userPreferences && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
-                    <SparklesIcon className="h-3 w-3 mr-1" />
-                    AI Matched
-                  </span>
-                )}
-                {dataSource === 'real' && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                    ✅ Live Data
-                  </span>
-                )}
-                {dataSource === 'mock' && (
-                  <button
-                    onClick={() => setShowApiGuide(true)}
-                    className="inline-flex items-center px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full hover:bg-yellow-200 transition-colors"
-                    title="Click to set up real job data"
-                  >
-                    🚨 Demo Data - Click to upgrade
-                  </button>
-                )}
-                {dataSource === 'error' && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-                    ⚠️ Error
-                  </span>
-                )}
-              </div>
+      {/* Header/Nav Bar (identical to dashboard) */}
+      <header className="bg-card shadow-sm border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="text-2xl font-bold text-primary">
+                UpFetch
+              </Link>
+              <nav className="hidden md:flex space-x-8">
+                <Link href="/search" className="text-primary font-medium flex items-center space-x-1 border-b-2 border-blue-600 pb-1">
+                  <MagnifyingGlassIcon className="h-4 w-4" />
+                  <span>Search Jobs</span>
+                </Link>
+                <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
+                  <span>Dashboard</span>
+                </Link>
+                <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
+                  <BookmarkIcon className="h-4 w-4" />
+                  <span>Saved Jobs</span>
+                </Link>
+              </nav>
             </div>
-
-            {/* Search refinement */}
-            <div className="mt-4 lg:mt-0 flex space-x-4">
-              <ThemeSelector />
-              <div className="relative">
-                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  placeholder="Refine search..."
-                  value={inputQuery}
-                  onChange={(e) => setInputQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
-                  style={{
-                    color: '#111827',
-                    backgroundColor: '#ffffff'
-                  }}
-                />
-              </div>
-              <div className="relative">
-                <MapPinIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  placeholder="Location..."
-                  value={inputLocation}
-                  onChange={(e) => setInputLocation(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
-                  onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-48"
-                  style={{
-                    color: '#111827',
-                    backgroundColor: '#ffffff'
-                  }}
-                />
-                {showLocationSuggestions && locationSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                    {locationSuggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleLocationSelect(suggestion)}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 text-sm text-gray-700 border-b border-gray-100 last:border-b-0"
-                      >
-                        <div className="flex items-center">
-                          <MapPinIcon className="h-4 w-4 text-gray-400 mr-2" />
-                          {suggestion}
-                        </div>
-                      </button>
-                    ))}
+            <div className="flex items-center space-x-4">
+              <ThemeToggle />
+              {session && (
+                <>
+                  <div className="flex items-center space-x-2">
+                    <UserIcon className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {session.user.name || session.user.email}
+                    </span>
                   </div>
-                )}
-              </div>
-              {/* Radius Selector */}
-              {inputLocation && (
-                <div className="relative">
-                  <select
-                    value={radius}
-                    onChange={(e) => setRadius(parseInt(e.target.value))}
-                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white text-gray-700"
+                  <button
+                    onClick={() => signOut()}
+                    className="text-sm text-muted-foreground hover:text-destructive"
                   >
-                    <option value={5}>Within 5 miles</option>
-                    <option value={10}>Within 10 miles</option>
-                    <option value={15}>Within 15 miles</option>
-                    <option value={25}>Within 25 miles</option>
-                    <option value={35}>Within 35 miles</option>
-                    <option value={50}>Within 50 miles</option>
-                    <option value={75}>Within 75 miles</option>
-                    <option value={100}>Within 100 miles</option>
-                  </select>
-                </div>
+                    Sign out
+                  </button>
+                </>
               )}
-              <button
-                onClick={triggerSearch}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-              >
-                <MagnifyingGlassIcon className="h-4 w-4" />
-                <span>Search</span>
-              </button>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-20">
+        {/* Always render the search/filter UI here, including the search bar */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {searchQuery ? `Jobs for "${searchQuery}"` : (location ? `Jobs in ${capitalizeLocation(location)}` : 'Explore Job Opportunities')}
+              {location && searchQuery && ` within ${radius} miles of ${capitalizeLocation(location)}`}
+            </h1>
+            {location && !searchQuery && (
+              <p className="text-sm text-gray-500 mt-1">
+                within {radius} miles of {capitalizeLocation(location)}
+              </p>
+            )}
+            <div className="flex items-center space-x-2 mt-1">
+              <p className="text-gray-600">
+                {filteredJobs.length} opportunities found
+                {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
+                {session?.user && userPreferences && ' • Personalized for you'}
+                {!session?.user && ' • Sign in for personalized results'}
+                • Powered by UpFetch AI
+              </p>
+              {/* ...status badges... */}
+            </div>
+          </div>
+          {/* Search refinement bar (search bar UI) - always visible */}
+          <div className="mt-4 lg:mt-0 flex space-x-4">
+            <div className="relative">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                placeholder="Refine search..."
+                value={inputQuery}
+                onChange={(e) => setInputQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div className="relative">
+              <MapPinIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                placeholder="Location..."
+                value={inputLocation}
+                onChange={(e) => setInputLocation(e.target.value)}
+                onKeyPress={handleKeyPress}
+                onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
+                onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-48"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+              {showLocationSuggestions && locationSuggestions.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {locationSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleLocationSelect(suggestion)}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 text-sm text-gray-700 border-b border-gray-100 last:border-b-0"
+                    >
+                      <div className="flex items-center">
+                        <MapPinIcon className="h-4 w-4 text-gray-400 mr-2" />
+                        {suggestion}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Radius Selector - always visible */}
+            <div className="relative">
+              <select
+                value={radius}
+                onChange={(e) => setRadius(parseInt(e.target.value))}
+                className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white text-gray-700"
+              >
+                <option value={5}>Within 5 miles</option>
+                <option value={10}>Within 10 miles</option>
+                <option value={15}>Within 15 miles</option>
+                <option value={25}>Within 25 miles</option>
+                <option value={35}>Within 35 miles</option>
+                <option value={50}>Within 50 miles</option>
+                <option value={75}>Within 75 miles</option>
+                <option value={100}>Within 100 miles</option>
+              </select>
+            </div>
+            <button
+              onClick={triggerSearch}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            >
+              <MagnifyingGlassIcon className="h-4 w-4" />
+              <span>Search</span>
+            </button>
+          </div>
+        </div>
+
         {/* Save Message */}
         {saveMessage && (
           <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md">
