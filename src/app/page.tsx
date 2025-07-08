@@ -131,19 +131,22 @@ function DynamicWaves() {
     >
       <defs>
         <linearGradient id="liquid-gradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#b3c6ff" stopOpacity="0.28" />
-          <stop offset="60%" stopColor="#a78bfa" stopOpacity="0.36" />
-          <stop offset="100%" stopColor="#818cf8" stopOpacity="0.41" />
+          <stop offset="0%" stopColor="#b8e1ff" stopOpacity={0.21} />
+          <stop offset="25%" stopColor="#7c3aed" stopOpacity={0.24} />
+          <stop offset="50%" stopColor="#38bdf8" stopOpacity={0.26} />
+          <stop offset="75%" stopColor="#06b6d4" stopOpacity={0.23} />
+          <stop offset="100%" stopColor="#818cf8" stopOpacity={0.31} />
         </linearGradient>
         <linearGradient id="liquid-gradient-bg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#7dd3fc" stopOpacity="0.17" />
-          <stop offset="60%" stopColor="#38bdf8" stopOpacity="0.22" />
-          <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.28" />
+          <stop offset="0%" stopColor="#a5b4fc" stopOpacity={0.12} />
+          <stop offset="33%" stopColor="#22d3ee" stopOpacity={0.14} />
+          <stop offset="66%" stopColor="#f472b6" stopOpacity={0.15} />
+          <stop offset="100%" stopColor="#0ea5e9" stopOpacity={0.20} />
         </linearGradient>
         <linearGradient id="liquid-gradient-bg2" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#f0abfc" stopOpacity="0.08" />
-          <stop offset="60%" stopColor="#f472b6" stopOpacity="0.11" />
-          <stop offset="100%" stopColor="#f9a8d4" stopOpacity="0.14" />
+          <stop offset="0%" stopColor="#f0abfc" stopOpacity={0.056} />
+          <stop offset="50%" stopColor="#38bdf8" stopOpacity={0.077} />
+          <stop offset="100%" stopColor="#f9a8d4" stopOpacity={0.098} />
         </linearGradient>
       </defs>
       {/* Third, most transparent background wave for extra depth */}
