@@ -80,7 +80,7 @@ export const mockProvider: JobProvider = {
 export const jobProviders: JobProvider[] = [
   adzunaProvider,
   jsearchProvider,
-  mockProvider,
+  // mockProvider, // Temporarily disabled
 ];
 
 // Search all providers in parallel and aggregate results
