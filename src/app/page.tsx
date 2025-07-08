@@ -260,13 +260,16 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
     const width = rand(12, 32); // much longer, still thin
     const blur = rand(0.05, 0.2); // even less blur, max 0.2px
     const progress = Math.random();
+    // Reduce opacity by 20%
+    const baseOpacity = rand(0.09, 0.16);
+    const opacity = baseOpacity * 0.8;
     return {
       id: `stream-line-${i}`,
       x: -0.15, // spawn much further left
       y,
       width,
       color: 'linear-gradient(90deg, white 0%, #f0abfc 18%, #a5b4fc 36%, #7c3aed 54%, #06b6d4 72%, #22d3ee 90%, transparent 100%)',
-      opacity: rand(0.09, 0.16), // more subtle
+      opacity, // 20% more transparent
       blur,
       speed,
       delay: -progress * speed
@@ -905,7 +908,7 @@ export default function Home() {
       <section className="hero-section relative py-20 overflow-hidden z-10">
         {/* Starfield Background - behind river and hero content */}
         {isClient && (
-          <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
+          <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
             <Starfield
               width={typeof window !== 'undefined' ? window.innerWidth : 1920}
               height={typeof window !== 'undefined'
@@ -921,7 +924,7 @@ export default function Home() {
           </div>
         )}
         {/* Foreground River Particles */}
-        {isClient && <RiverParticles width={typeof window !== 'undefined' ? window.innerWidth : 1920} height={180} />}
+        {isClient && <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-10"><RiverParticles width={typeof window !== 'undefined' ? window.innerWidth : 1920} height={180} /></div>}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left: Hero Content */}
