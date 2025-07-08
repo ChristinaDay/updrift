@@ -12,23 +12,32 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(themes[0]);
+  // Only two themes: 'dawn' (light) and 'cyber' (dark)
+  const lightTheme = themes.find(t => t.name === 'dawn');
+  const darkTheme = themes.find(t => t.name === 'cyber');
+  const [currentTheme, setCurrentTheme] = useState<Theme>(darkTheme!);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Load saved theme from localStorage
-    const savedTheme = localStorage.getItem('upfetch-theme') || 'cyber';
-    const theme = themes.find(t => t.name === savedTheme) || themes[0];
-    
-    setCurrentTheme(theme);
-    applyTheme(theme.name);
+    // Load saved mode from localStorage
+    const savedMode = localStorage.getItem('upfetch-mode') || 'dark';
+    const theme = savedMode === 'dark' ? darkTheme : lightTheme;
+    setCurrentTheme(theme!);
+    applyTheme(theme!.name);
     setIsLoading(false);
   }, []);
 
+  // Only allow 'light' or 'dark' as themeName
   const setTheme = (themeName: string) => {
-    const theme = themes.find(t => t.name === themeName);
+    let theme: Theme | undefined;
+    if (themeName === 'dark') {
+      theme = darkTheme;
+      localStorage.setItem('upfetch-mode', 'dark');
+    } else {
+      theme = lightTheme;
+      localStorage.setItem('upfetch-mode', 'light');
+    }
     if (!theme) return;
-    
     setCurrentTheme(theme);
     applyTheme(theme.name);
   };
