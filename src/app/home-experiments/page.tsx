@@ -4366,7 +4366,6 @@ function HomeExperiments() {
       case 'social-proof': return <SocialProofLayout />;
       case 'company-first': return <CompanyExplorerLayout />;
       case 'cosmic-river': return <CosmicRiverLayout />;
-      case 'river-hero': return <RiverHeroLayout />;
       default: return <HeroCardsLayout />;
     }
   };
@@ -4464,5 +4463,3 @@ export default function HomeExperimentsPage() {
     </ThemeProvider>
   );
 }
-
-export { RiverHeroLayout }; 
