@@ -462,7 +462,7 @@ function SearchPage() {
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center space-x-4">
                 <Link href="/" className="text-2xl font-bold text-primary">
-                  UpFetch
+                  Updrift
                 </Link>
                 <nav className="hidden md:flex space-x-8">
                   <Link href="/search" className="text-primary font-medium flex items-center space-x-1 border-b-2 border-blue-600 pb-1">
@@ -522,7 +522,7 @@ function SearchPage() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-2xl font-bold text-primary">
-                UpFetch
+                Updrift
               </Link>
               <nav className="hidden md:flex space-x-8">
                 <Link href="/search" className="text-primary font-medium flex items-center space-x-1 border-b-2 border-blue-600 pb-1">
@@ -580,7 +580,7 @@ function SearchPage() {
                 {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
                 {session?.user && userPreferences && ' • Personalized for you'}
                 {!session?.user && ' • Sign in for personalized results'}
-                • Powered by UpFetch AI
+                • Powered by Updrift AI
               </p>
               {/* ...status badges... */}
             </div>

@@ -22,7 +22,7 @@ RAPIDAPI_HOST=jsearch.p.rapidapi.com
 
 # Application Configuration
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_APP_NAME=UpFetch`
+NEXT_PUBLIC_APP_NAME=Updrift`
 
   const handleCopyEnv = () => {
     navigator.clipboard.writeText(envContent)

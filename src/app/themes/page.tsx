@@ -98,7 +98,7 @@ export default function ThemesPage() {
             🎨 Choose Your Perfect Theme
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            Instantly transform your UpFetch experience. Click any theme below to see the magic happen!
+            Instantly transform your Updrift experience. Click any theme below to see the magic happen!
           </p>
           
           {/* Interactive Theme Selector */}

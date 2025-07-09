@@ -85,6 +85,13 @@ export const themes: Theme[] = [
     description: 'Warm café vibes with forest green accents',
     category: 'Light'
   },
+  {
+    name: 'cyberlight',
+    displayName: 'Cyberpunk Light',
+    emoji: '🌅',
+    description: 'Futuristic neon light mode',
+    category: 'Light'
+  },
   
   // Dark Themes
   {
@@ -236,7 +243,7 @@ export const applyTheme = (themeId: string) => {
   html.className = filteredClasses.join(' ') + ` theme-${themeId}`;
   
   // Save to localStorage
-  localStorage.setItem('upfetch-theme', themeId);
+  localStorage.setItem('updrift-theme', themeId);
   
   console.log('✅ Theme applied successfully!', {
     themeId,

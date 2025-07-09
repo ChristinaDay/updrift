@@ -4,7 +4,7 @@
   "framework": "nextjs",
   "installCommand": "npm install",
   "env": {
-    "NEXT_PUBLIC_APP_URL": "https://upfetch.me",
-    "NEXT_PUBLIC_APP_NAME": "UpFetch"
+    "NEXT_PUBLIC_APP_URL": "https://updrift.me",
+    "NEXT_PUBLIC_APP_NAME": "Updrift"
   }
 } 

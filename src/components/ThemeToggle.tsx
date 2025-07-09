@@ -1,48 +1,31 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useTheme } from '@/contexts/ThemeContext'
 import { Button } from '@/components/ui/button'
 import { SunIcon, MoonIcon } from '@heroicons/react/24/outline'
 
 export default function ThemeToggle() {
-  const [isDark, setIsDark] = useState(false)
+  const { currentTheme, setTheme, isLoading } = useTheme();
 
-  useEffect(() => {
-    // Check for saved theme preference or default to light
-    const savedTheme = localStorage.getItem('upfetch-theme-mode') || 'light'
-    const prefersDark = savedTheme === 'dark'
-    setIsDark(prefersDark)
-    applyTheme(prefersDark)
-  }, [])
+  if (isLoading) return null;
 
-  const applyTheme = (dark: boolean) => {
-    const html = document.documentElement
-    
-    if (dark) {
-      // Apply a sophisticated dark theme (Cyberpunk)
-      html.className = html.className.replace(/theme-\w+/g, '') + ' theme-cyber'
-    } else {
-      // Apply a sophisticated light theme (Dawn)
-      html.className = html.className.replace(/theme-\w+/g, '') + ' theme-dawn'
-    }
-    
-    // Save preference
-    localStorage.setItem('upfetch-theme-mode', dark ? 'dark' : 'light')
-  }
+  const isDark = currentTheme.name === 'cyber';
 
   const toggleTheme = () => {
-    const newIsDark = !isDark
-    setIsDark(newIsDark)
-    applyTheme(newIsDark)
-  }
+    setTheme(isDark ? 'light' : 'dark');
+  };
+
+  // For testing: use extremely dark gradient colors in both modes
+  const gradientClass = 'bg-gradient-to-r from-black via-gray-900 to-gray-800 text-white shadow-lg hover:from-gray-900 hover:via-gray-800 hover:to-black transform hover:scale-105 transition-all rounded-xl';
 
   return (
     <Button
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className="w-9 h-9 p-0"
+      className={`w-9 h-9 p-0 border-0 ${gradientClass}`}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      style={{ color: 'white' }}
     >
       {isDark ? (
         <SunIcon className="h-4 w-4" />
@@ -50,5 +33,5 @@ export default function ThemeToggle() {
         <MoonIcon className="h-4 w-4" />
       )}
     </Button>
-  )
+  );
 } 

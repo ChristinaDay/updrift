@@ -2984,7 +2984,7 @@ export default function StyleGuidePage() {
   // Track current theme from localStorage and HTML class changes
   useEffect(() => {
     const getCurrentTheme = () => {
-      const savedTheme = localStorage.getItem('upfetch-theme') || 'dawn'
+      const savedTheme = localStorage.getItem('updrift-theme') || 'dawn'
       const htmlClasses = document.documentElement.className
       const themeMatch = htmlClasses.match(/theme-(\w+)/)
       const activeTheme = themeMatch ? themeMatch[1] : savedTheme
@@ -3053,10 +3053,10 @@ export default function StyleGuidePage() {
         {/* Introduction */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            UpFetch Design System
+            Updrift Design System
           </h1>
           <p className="text-lg text-muted-foreground mb-6">
-            A comprehensive collection of themes, components, and design tokens for the UpFetch platform.
+            A comprehensive collection of themes, components, and design tokens for the Updrift platform.
             This page is for internal design and development reference.
           </p>
           
@@ -3113,7 +3113,7 @@ export default function StyleGuidePage() {
                          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                            <div className="flex justify-between items-center h-16">
                              <div className="flex items-center">
-                               <h1 className="text-2xl font-bold gradient-text">UpFetch</h1>
+                               <h1 className="text-2xl font-bold gradient-text">Updrift</h1>
                              </div>
                              <div className="flex items-center space-x-4">
                                <ThemeToggle />
@@ -3227,7 +3227,7 @@ export default function StyleGuidePage() {
                          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                            <div className="text-center mb-16">
                              <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl">
-                               Why UpFetch Beats LinkedIn
+                               Why Updrift Beats LinkedIn
                              </h2>
                              <p className="mt-4 text-xl text-muted-foreground">
                                Experience the future of job searching with features that actually work for you
@@ -3304,7 +3304,7 @@ export default function StyleGuidePage() {
           </p>
 
           {showThemePreview && (
-            <ThemeSelector showPreview={true} />
+             <ThemeSelector showPreview={true} />
           )}
         </section>
 
@@ -3417,4 +3417,12 @@ export default function StyleGuidePage() {
           <Card>
             <CardContent className="p-6">
               <div className="space-y-4">
-                <h1 className="text-
+              <h1 className="text-4xl font-bold">Typography Example</h1>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      </main>
+    </div>
+  );
+}
