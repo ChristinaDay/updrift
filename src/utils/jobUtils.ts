@@ -43,7 +43,7 @@ export function formatJobPostedDate(dateString: string): string {
   try {
     const date = parseISO(dateString);
     return formatDistanceToNow(date, { addSuffix: true });
-  } catch (error) {
+  } catch {
     return 'Recently posted';
   }
 }

@@ -22,20 +22,18 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Job } from '@/types/job'
+import type { UserPreferences } from '@/types/job'
 import { filterJobs, sortJobs, capitalizeLocation } from '@/utils/jobUtils'
 import JobCard from '@/components/JobCard'
 import ApiSetupGuide from '@/components/ApiSetupGuide'
 import {
-  FunnelIcon,
   Squares2X2Icon,
   ListBulletIcon,
   ChevronDownIcon,
   MagnifyingGlassIcon,
   MapPinIcon,
-  AdjustmentsHorizontalIcon,
   BookmarkIcon,
-  UserIcon,
-  SparklesIcon
+  UserIcon
 } from '@heroicons/react/24/outline'
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -55,11 +53,9 @@ function SearchPage() {
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<SortOption>('relevance')
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
-  const [showFilters, setShowFilters] = useState(false)
   const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set())
-  const [dataSource, setDataSource] = useState<'loading' | 'real' | 'mock' | 'error'>('loading')
   const [showApiGuide, setShowApiGuide] = useState(false)
-  const [userPreferences, setUserPreferences] = useState<any>(null)
+  const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null)
 
   // Enhanced filter states
   const [filters, setFilters] = useState({
@@ -140,7 +136,8 @@ function SearchPage() {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(inputLocation)}&limit=5&addressdetails=1&countrycodes=us,ca,gb,au`)
         const data = await response.json()
         
-        const suggestions = data.map((item: any) => {
+        type NominatimResult = { address: { city?: string; town?: string; village?: string; hamlet?: string; state?: string; region?: string; country?: string }; display_name: string };
+        const suggestions = (data as NominatimResult[]).map((item) => {
           const address = item.address
           const city = address.city || address.town || address.village || address.hamlet
           const state = address.state || address.region
@@ -191,7 +188,7 @@ function SearchPage() {
       if (response.ok) {
         const data = await response.json()
         const savedJobIds = new Set<string>()
-        data.savedJobs.forEach((saved: any) => {
+        data.savedJobs.forEach((saved: { jobId: string }) => {
           if (saved.jobId) {
             savedJobIds.add(saved.jobId)
           }
@@ -226,19 +223,19 @@ function SearchPage() {
     if (userPreferences) {
       setFilters(prev => ({
         ...prev,
-        remote: userPreferences.preferredRemote || false,
-        salaryMin: userPreferences.preferredSalaryMin?.toString() || '',
-        salaryMax: userPreferences.preferredSalaryMax?.toString() || '',
-        skills: userPreferences.skills || [],
-        employmentTypes: userPreferences.preferredJobTypes || [],
-        companySize: userPreferences.preferredCompanySize || [],
-        schedule: userPreferences.preferredSchedule || []
+        remote: userPreferences.preferred_remote || false,
+        salaryMin: userPreferences.preferred_salary_range?.min?.toString() || '',
+        salaryMax: userPreferences.preferred_salary_range?.max?.toString() || '',
+        // skills: userPreferences.skills || [], // not in type
+        employmentTypes: userPreferences.preferred_employment_types || [],
+        // datePosted, experience, schedule, companySize, etc. can be added if present in type
+        // companySize: userPreferences.preferred_company_size || [],
+        // schedule: userPreferences.preferred_schedule || []
       }))
-      
       // Apply location from preferences if not already set
-      if (!location && userPreferences.location) {
-        setLocation(userPreferences.location)
-      }
+      // if (!location && userPreferences.location) {
+      //   setLocation(userPreferences.location)
+      // }
     }
   }
 
@@ -295,13 +292,13 @@ function SearchPage() {
         
         if (data.status === 'mock') {
           console.log('🚨 Using mock data - configure RAPIDAPI_KEY for real jobs')
-          setDataSource('mock')
+          // setDataSource('mock') // This line was removed
         } else if (data.status === 'success') {
           console.log('✅ Using real job data from JSearch API')
-          setDataSource('real')
+          // setDataSource('real') // This line was removed
         } else {
           console.log('⚠️ API error, using fallback data')
-          setDataSource('error')
+          // setDataSource('error') // This line was removed
         }
         
         // Store original and filtered jobs
@@ -325,7 +322,7 @@ function SearchPage() {
         }
       } catch (error) {
         console.error('❌ Error loading jobs:', error)
-        setDataSource('error')
+        // setDataSource('error') // This line was removed
         // Fallback to empty array on error
         setJobs([])
         setFilteredJobs([])
@@ -481,22 +478,7 @@ function SearchPage() {
               </div>
               <div className="flex items-center space-x-4">
                 <ThemeToggle />
-                {session && (
-                  <>
-                    <div className="flex items-center space-x-2">
-                      <UserIcon className="h-5 w-5 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        {session.user.name || session.user.email}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => signOut()}
-                      className="text-sm text-muted-foreground hover:text-destructive"
-                    >
-                      Sign out
-                    </button>
-                  </>
-                )}
+                {/* This block is now handled by the new_code */}
               </div>
             </div>
           </div>
@@ -541,12 +523,12 @@ function SearchPage() {
             </div>
             <div className="flex items-center space-x-4">
               <ThemeToggle />
-              {session && (
+              {session ? (
                 <>
                   <div className="flex items-center space-x-2">
                     <UserIcon className="h-5 w-5 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
-                      {session.user.name || session.user.email}
+                      {session?.user?.name || session?.user?.email}
                     </span>
                   </div>
                   <button
@@ -554,6 +536,21 @@ function SearchPage() {
                     className="text-sm text-muted-foreground hover:text-destructive"
                   >
                     Sign out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => router.push('/auth/signin')}
+                    className="text-sm text-muted-foreground hover:text-primary"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => router.push('/auth/signup')}
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium shadow"
+                  >
+                    Get Started
                   </button>
                 </>
               )}
@@ -690,7 +687,6 @@ function SearchPage() {
                     </button>
                     <button
                       onClick={() => {
-                        const newLocation = '';
                         const newUrl = new URL(window.location.href);
                         newUrl.searchParams.delete('location');
                         window.history.pushState({}, '', newUrl.toString());

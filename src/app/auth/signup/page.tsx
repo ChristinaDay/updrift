@@ -49,8 +49,8 @@ export default function SignUpPage() {
       } else {
         router.push('/dashboard')
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred. Please try again.')
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'An error occurred. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -60,7 +60,7 @@ export default function SignUpPage() {
     setIsLoading(true)
     try {
       await signIn(provider, { callbackUrl: '/dashboard' })
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.')
       setIsLoading(false)
     }

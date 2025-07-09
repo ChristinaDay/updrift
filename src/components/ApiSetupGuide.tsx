@@ -53,7 +53,7 @@ NEXT_PUBLIC_APP_NAME=Updrift`
 
           <div className="space-y-6">
             <p className="text-gray-600">
-              You're currently viewing demo data. Follow these steps to connect real job listings from 50+ job boards including LinkedIn, Indeed, and Glassdoor.
+              You&apos;re currently viewing demo data. Follow these steps to connect real job listings from 50+ job boards including LinkedIn, Indeed, and Glassdoor.
             </p>
 
             <div className="space-y-4">
@@ -132,7 +132,7 @@ NEXT_PUBLIC_APP_NAME=Updrift`
               <div className="flex items-start space-x-3">
                 <CheckCircleIcon className="w-5 h-5 text-green-600 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-green-900">What you'll get:</h4>
+                  <h4 className="font-medium text-green-900">What you&apos;ll get:</h4>
                   <ul className="text-sm text-green-800 mt-1 space-y-1">
                     <li>• Real job listings from 50+ job boards</li>
                     <li>• LinkedIn, Indeed, Glassdoor, and more</li>
@@ -150,7 +150,7 @@ NEXT_PUBLIC_APP_NAME=Updrift`
               onClick={onClose}
               className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg"
             >
-              I'll do this later
+              I&apos;ll do this later
             </button>
             <a
               href="https://rapidapi.com/letscrape-6b082d6c-6d1b-4be1-8d2e-a1f6b4c8b5c5/api/jsearch"

@@ -17,7 +17,7 @@ export default function APIhubPage() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-2xl font-bold text-primary">
-                Updrift
+                UpDrift
               </Link>
               <nav className="hidden md:flex space-x-8">
                 <Link href="/search" className="text-muted-foreground hover:text-primary flex items-center space-x-1">

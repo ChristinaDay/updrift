@@ -9,12 +9,32 @@ import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { capitalizeLocation } from '@/utils/jobUtils'
 import ThemeToggle from '@/components/ThemeToggle'
 
+// Add UserSearchHistory type
+interface UserSearchHistory {
+  id: string;
+  userId: string;
+  query: string;
+  location?: string;
+  searchedAt: string;
+}
+
 export default function Dashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [savedJobs, setSavedJobs] = useState([])
-  const [searchHistory, setSearchHistory] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [savedJobs, setSavedJobs] = useState<Array<{
+    id: string;
+    userId: string;
+    jobId: string;
+    jobData: {
+      job_title: string;
+      employer_name: string;
+      job_apply_link: string;
+      // add more fields as needed
+    };
+    notes?: string;
+    savedAt: string;
+  }>>([])
+  const [searchHistory, setSearchHistory] = useState<UserSearchHistory[]>([])
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -30,7 +50,6 @@ export default function Dashboard() {
 
   const loadDashboardData = async () => {
     try {
-      setIsLoading(true)
       
       // Load search history
       const searchResponse = await fetch('/api/user/saved-searches')
@@ -49,7 +68,7 @@ export default function Dashboard() {
     } catch (error) {
       console.error('Error loading dashboard data:', error)
     } finally {
-      setIsLoading(false)
+      // setIsLoading(false) // This line was removed
     }
   }
 
@@ -73,7 +92,7 @@ export default function Dashboard() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-2xl font-bold text-primary">
-                Updrift
+                UpDrift
               </Link>
               <nav className="hidden md:flex space-x-8">
                 <Link href="/search" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
@@ -95,11 +114,11 @@ export default function Dashboard() {
               <div className="flex items-center space-x-2">
                 <UserIcon className="h-5 w-5 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  {session.user.name || session.user.email}
+                  {session?.user?.name || session?.user?.email}
                 </span>
               </div>
               <button
-                onClick={() => signOut()}
+                onClick={() => signOut({ callbackUrl: '/auth/signin' })}
                 className="text-sm text-muted-foreground hover:text-destructive"
               >
                 Sign out
@@ -113,10 +132,10 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome back, {session.user.name?.split(' ')[0] || 'there'}! 👋
+            Welcome back, {session?.user?.name?.split(' ')[0] || 'there'}! 👋
           </h1>
           <p className="text-muted-foreground mt-2">
-            Here's what's happening with your job search
+            Here&apos;s what&apos;s happening with your job search
           </p>
         </div>
 
@@ -217,7 +236,7 @@ export default function Dashboard() {
                 <BookmarkIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h4 className="text-lg font-medium text-gray-900 mb-2">No saved jobs yet</h4>
                 <p className="text-gray-600 mb-4">
-                  Start saving jobs you're interested in to keep track of them
+                  Start saving jobs you&apos;re interested in to keep track of them
                 </p>
                 <Link
                   href="/search"
@@ -228,7 +247,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {savedJobs.map((savedJob: any, index: number) => (
+                {savedJobs.map((savedJob, index) => (
                   <div key={savedJob.id || index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-3 flex-1">
                       <div className="p-2 bg-blue-100 rounded-lg">
@@ -312,7 +331,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {searchHistory.map((search: any, index: number) => (
+                {searchHistory.map((search, index) => (
                   <div key={search.id || index} className="flex items-center justify-between p-4 bg-muted rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="p-2 bg-accent rounded-lg">

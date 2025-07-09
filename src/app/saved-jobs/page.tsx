@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import JobCard from '@/components/JobCard'
+import { Job } from '@/types/job'
 import { 
   BookmarkIcon, 
   TrashIcon, 
   PencilIcon,
   MagnifyingGlassIcon,
-  FunnelIcon,
   UserIcon,
   CalendarIcon,
   CheckIcon
@@ -20,7 +20,7 @@ import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 interface SavedJob {
   id: string
   jobId: string
-  jobData: any
+  jobData: Job
   notes: string | null
   savedAt: string
 }
@@ -213,7 +213,7 @@ export default function SavedJobsPage() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-2xl font-bold text-blue-600">
-                Updrift
+                UpDrift
               </Link>
               <nav className="hidden md:flex space-x-8">
                 <Link href="/search" className="text-gray-600 hover:text-blue-600">
@@ -232,7 +232,7 @@ export default function SavedJobsPage() {
               <div className="flex items-center space-x-2">
                 <UserIcon className="h-5 w-5 text-gray-400" />
                 <span className="text-sm text-gray-600">
-                  {session.user.name || session.user.email}
+                  {session?.user?.name || session?.user?.email}
                 </span>
               </div>
             </div>
@@ -280,7 +280,7 @@ export default function SavedJobsPage() {
                 <label className="text-sm text-gray-700">Sort by:</label>
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
+                  onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'title' | 'company')}
                   className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="newest">Newest First</option>

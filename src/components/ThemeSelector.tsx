@@ -280,8 +280,6 @@ export default function ThemeSelector({ showPreview = false }: { showPreview?: b
     }, 100)
   }
 
-  const currentThemeData = themes.find(t => t.id === currentTheme)
-
   if (showPreview) {
     const lightThemes = themes.filter(t => t.category === 'Light')
     const darkThemes = themes.filter(t => t.category === 'Dark')
@@ -426,7 +424,7 @@ export default function ThemeSelector({ showPreview = false }: { showPreview?: b
   // Simple button version instead of complex dropdown
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      <span className="text-xs text-muted-foreground hidden sm:inline">Theme:</span>
+      <span className="text-xs text-muted-foreground hidden sm:inline">Theme&apos;s selector</span>
       {themes.map((theme) => (
         <Button
           key={theme.id}

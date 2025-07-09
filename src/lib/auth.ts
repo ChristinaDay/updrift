@@ -1,4 +1,3 @@
-import { NextAuthOptions } from 'next-auth'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
@@ -6,7 +5,9 @@ import GitHubProvider from 'next-auth/providers/github'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
 
-export const authOptions: NextAuthOptions = {
+// TODO: Add proper type for authOptions when NextAuthOptions is available
+export const authOptions = {
+  // TODO: Replace 'any' with Adapter type from 'next-auth/adapters' or '@auth/core/adapters' when available in node_modules
   adapter: PrismaAdapter(prisma) as any,
   providers: [
     // Email/Password Provider
@@ -66,14 +67,16 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user }) {
+    // TODO: Add proper types for token and user
+    async jwt({ token, user }: { token: unknown; user: unknown }) {
       if (user) {
         token.id = user.id
       }
       return token
     },
     
-    async session({ session, token }) {
+    // TODO: Add proper types for session and token
+    async session({ session, token }: { session: unknown; token: unknown }) {
       if (token) {
         session.user.id = token.id as string
       }
@@ -89,7 +92,13 @@ export const authOptions: NextAuthOptions = {
 }
 
 // Helper function to get server-side session
+// TODO: Update this when getServerSession is available in next-auth
 export async function getServerSession() {
-  const { getServerSession: getNextAuthServerSession } = await import('next-auth')
-  return getNextAuthServerSession(authOptions)
+  const nextAuth = await import('next-auth')
+  if (typeof nextAuth.getServerSession === 'function') {
+    return nextAuth.getServerSession(authOptions)
+  } else {
+    // TODO: Handle missing getServerSession gracefully
+    throw new Error('getServerSession is not available in this version of next-auth')
+  }
 } 

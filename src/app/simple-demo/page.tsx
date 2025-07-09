@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MagnifyingGlassIcon, MapPinIcon } from '@heroicons/react/24/outline';
 
 function DemoContent() {
@@ -185,7 +184,7 @@ function DemoContent() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    All colors, shadows, and spacing adapt automatically to match the theme's design philosophy.
+                    All colors, shadows, and spacing adapt automatically to match the theme&apos;s design philosophy.
                   </p>
                   <div className="flex gap-2">
                     <Button size="sm">Action</Button>
@@ -229,7 +228,7 @@ function DemoContent() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg">Color Palette</CardTitle>
                   <CardDescription>
-                    Current theme's color system
+                    Current theme&apos;s color system
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -287,7 +286,7 @@ function DemoContent() {
             </CardTitle>
             <CardDescription>
               Light themes that capture the energy of new adventures, flow states, and productive exploration.
-              Each theme embodies that feeling when you're "solitary in your task, but never alone."
+              Each theme embodies that feeling when you&apos;re &quot;solitary in your task, but never alone.&quot;
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -298,10 +297,10 @@ function DemoContent() {
                 <p className="text-sm text-muted-foreground">
                   These themes are inspired by the excitement of taking a vacation, 
                   the possibilities of upgrading to a new city for work, or working late 
-                  on a special project because you're in the flow.
+                  on a special project because you&apos;re in the flow.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Where dark mode feels like "exciting nightlife in the city," 
+                  Where dark mode feels like &quot;exciting nightlife in the city,&quot; 
                   these light modes capture that optimistic, adventure-filled energy 
                   of daytime exploration and productive flow states.
                 </p>
@@ -484,7 +483,7 @@ function DemoContent() {
                 </ul>
               </div>
               <div className="space-y-2">
-                <h3 className="font-semibold text-red-600">❌ What Doesn't</h3>
+                <h3 className="font-semibold text-red-600">❌ What Doesn&apos;t</h3>
                 <ul className="text-sm space-y-1 text-muted-foreground">
                   <li>• Custom Tailwind class overrides</li>
                   <li>• Hardcoded color values</li>

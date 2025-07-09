@@ -13,10 +13,29 @@ const adzunaClient = axios.create({
   timeout: 10000,
 });
 
+// 1. Define AdzunaJob type
+type AdzunaJob = {
+  id?: string | number;
+  title?: string;
+  description?: string;
+  redirect_url?: string;
+  location?: {
+    display_name?: string;
+    area?: string[];
+  };
+  contract_type?: string;
+  created?: string;
+  salary_min?: number;
+  salary_max?: number;
+  company?: { display_name?: string };
+  latitude?: number;
+  longitude?: number;
+};
+
 /**
  * Convert Adzuna job format to our Job interface
  */
-function convertAdzunaJob(adzunaJob: any): Job {
+function convertAdzunaJob(adzunaJob: AdzunaJob): Job {
   return {
     job_id: adzunaJob.id?.toString() || '',
     job_title: adzunaJob.title || '',
@@ -118,7 +137,7 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
     const searchUrl = `/${country}/search/${page}`;
     
     // Build query parameters
-    const queryParams: any = {
+    const queryParams: Record<string, string | number | boolean> = {
       app_id: ADZUNA_APP_ID,
       app_key: ADZUNA_APP_KEY,
       results_per_page: 20, // Reduced from 50 to 20 - API might have limits
@@ -132,7 +151,7 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
     
     // Add location with radius-based search approach
     if (location?.trim()) {
-      let searchLocation = location.trim();
+      const searchLocation = location.trim();
       
       // Clean location string to just get the city name
       const cleanLocation = searchLocation
@@ -172,7 +191,7 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
           
           filteredJobs = originalJobs.filter((job: Job) => {
             // Check if job has coordinates (from adzunaJob.latitude and adzunaJob.longitude)
-            const jobData = response.data.results.find((r: any) => r.id?.toString() === job.job_id);
+            const jobData = response.data.results.find((r: AdzunaJob) => r.id?.toString() === job.job_id);
             if (jobData && jobData.latitude && jobData.longitude) {
               const distance = calculateDistance(
                 searchCoords.lat, 
@@ -199,7 +218,7 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
         parameters: params,
         data: filteredJobs,
         original_data: originalJobs,
-        num_pages: Math.ceil(response.data.count / 20),
+        num_pages: typeof response.data.count === 'number' ? Math.ceil(response.data.count / 20) : 1,
         client_filtered: radiusFiltered,
         original_count: originalJobs.length,
         filtered_count: filteredJobs.length
@@ -208,15 +227,24 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
       throw new Error('No results from Adzuna API');
     }
     
-  } catch (error: any) {
-    console.error('❌ Adzuna API error:', error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('❌ Adzuna API error:', error);
+    } else {
+      console.error('❌ Adzuna API error:', error);
+    }
     
     // Log more detailed error information
-    if (error.response) {
-      console.error('🔍 Response status:', error.response.status);
-      console.error('🔍 Response data:', error.response.data);
-      console.error('🔍 Request URL:', error.config?.url);
-      console.error('🔍 Request params:', error.config?.params);
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      const err = error as { response?: unknown; config?: unknown };
+      if (typeof err.response === 'object' && err.response !== null) {
+        console.error('🔍 Response status:', (err.response as { status?: unknown }).status);
+        console.error('🔍 Response data:', (err.response as { data?: unknown }).data);
+      }
+      if (typeof err.config === 'object' && err.config !== null) {
+        console.error('🔍 Request URL:', (err.config as { url?: unknown }).url);
+        console.error('🔍 Request params:', (err.config as { params?: unknown }).params);
+      }
     }
     
     // Fallback to mock data

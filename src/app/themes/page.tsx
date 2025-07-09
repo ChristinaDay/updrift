@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import ThemeSelector from '@/components/ThemeSelector'
-import { ArrowLeftIcon, MagnifyingGlassIcon, MapPinIcon, HeartIcon, BookmarkIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, MagnifyingGlassIcon, MapPinIcon, BookmarkIcon } from '@heroicons/react/24/outline'
 
 // Sample job card for preview
 const SampleJobCard = () => (

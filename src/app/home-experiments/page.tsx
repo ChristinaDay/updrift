@@ -6,141 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { MagnifyingGlassIcon, MapPinIcon, StarIcon, BoltIcon, UserGroupIcon, ChartBarIcon, BuildingOfficeIcon, RocketLaunchIcon, GlobeAltIcon, UserIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
+import { MagnifyingGlassIcon, MapPinIcon, StarIcon, BoltIcon, UserGroupIcon, ChartBarIcon, BuildingOfficeIcon, RocketLaunchIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import Starfield from '../page';
 import DynamicWaves from '../page';
 import RiverParticles from '../page';
-import ThemeToggle from '@/components/ThemeToggle';
-
-// Move RiverHeroLayout to top level, before HomeExperiments
-const RiverHeroLayout = () => (
-  <div className="min-h-screen bg-background relative overflow-hidden">
-    {/* Starfield Background - behind river and hero content */}
-    <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
-      <Starfield />
-    </div>
-    {/* River of Smoke Animation - behind the hero content */}
-    <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-0">
-      <DynamicWaves />
-    </div>
-    {/* Foreground River Particles */}
-    <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-10">
-      <RiverParticles />
-    </div>
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        {/* Left: Hero Content */}
-        <div className="space-y-8">
-          <div className="space-y-6">
-            <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
-              Smart Job Matching
-            </Badge>
-            <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight">
-              Happy with your
-              <span className="block bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-                current position?
-              </span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
-              Updrift finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
-            </p>
-          </div>
-          {/* Flowing Search Form */}
-          <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-secondary rounded-2xl blur opacity-30 animate-pulse"></div>
-            <div className="relative bg-card/70 backdrop-blur-xl rounded-2xl p-6 border border-primary/20 shadow-xl">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                    <div className="relative">
-                      <MagnifyingGlassIcon className="absolute left-4 top-4 h-5 w-5 text-primary" />
-                      <Input 
-                        placeholder="Job title or keywords"
-                        className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-primary/50"
-                      />
-                    </div>
-                  </div>
-                  <div className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-accent to-secondary rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                    <div className="relative">
-                      <MapPinIcon className="absolute left-4 top-4 h-5 w-5 text-accent" />
-                      <Input 
-                        placeholder="Location"
-                        className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-accent/50"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <Button size="lg" className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-primary via-accent to-secondary hover:from-primary/90 hover:via-accent/90 hover:to-secondary/90 transform hover:scale-105 transition-all shadow-lg">
-                  Search Jobs
-                </Button>
-              </div>
-            </div>
-          </div>
-          {/* Flowing Tags */}
-          <div className="flex flex-wrap gap-3">
-            {['Remote Work', 'Tech Companies', 'High Growth', 'Well Funded'].map((tag, index) => (
-              <Badge 
-                key={tag} 
-                variant="outline" 
-                className="cursor-pointer hover:bg-primary/10 transform hover:scale-110 transition-all px-4 py-2 border-primary/30 hover:border-primary/50"
-                style={{
-                  animation: `float ${2 + index * 0.5}s ease-in-out infinite`,
-                  animationDelay: `${index * 0.2}s`
-                }}
-              >
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        </div>
-        {/* Right: Flowing Job Cards */}
-        <div className="relative">
-          <div className="space-y-6">
-            {[
-              { company: 'Stripe', role: 'Senior Frontend Engineer', salary: '$160k - $220k', logo: '💳' },
-              { company: 'Anthropic', role: 'Product Manager - AI', salary: '$180k - $250k', logo: '🤖' },
-              { company: 'Docker', role: 'DevOps Engineer', salary: '$130k - $170k', logo: '🐳' },
-              { company: 'Figma', role: 'UX Designer', salary: '$120k - $160k', logo: '🎨' }
-            ].map((job, index) => (
-              <div
-                key={index}
-                className={`hero-job-card-float-${index} transition-all duration-500 hover:scale-105`}
-              >
-                <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
-                        {job.logo}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-foreground">{job.role}</h3>
-                        <p className="text-sm text-muted-foreground">{job.company}</p>
-                        <p className="text-sm font-medium text-primary">{job.salary}</p>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="text-sm text-muted-foreground hover:text-primary transition-colors opacity-60 hover:opacity-100"
-                        asChild
-                      >
-                        <Link href={`/search?q=${encodeURIComponent(job.role)}&location=Remote`}>
-                          View →
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
 
 // CosmicRiverLayout will be defined inside HomeExperiments function to access theme context
 
@@ -974,14 +843,14 @@ function HomeExperiments() {
                 
                 {/* Flowing Tags */}
                 <div className="flex flex-wrap gap-3">
-                  {['Remote Freedom', 'Creative Teams', 'Growth Mindset', 'Innovation First'].map((tag, i) => (
+                  {['Remote Freedom', 'Creative Teams', 'Growth Mindset', 'Innovation First'].map((tag, index) => (
                     <Badge 
                       key={tag} 
                       variant="outline" 
                       className="cursor-pointer hover:bg-primary/10 transform hover:scale-110 transition-all px-4 py-2 border-primary/30 hover:border-primary/50"
                       style={{
-                        animation: `float ${2 + i * 0.5}s ease-in-out infinite`,
-                        animationDelay: `${i * 0.2}s`
+                        animation: `float ${2 + index * 0.5}s ease-in-out infinite`,
+                        animationDelay: `${index * 0.2}s`
                       }}
                     >
                       {tag}
@@ -1040,13 +909,13 @@ function HomeExperiments() {
                 { icon: BoltIcon, title: 'Dynamic Matching', desc: 'AI that learns your preferences' },
                 { icon: StarIcon, title: 'Curated Flow', desc: 'Handpicked opportunities' },
                 { icon: UserGroupIcon, title: 'Human Connection', desc: 'Real relationships, not algorithms' }
-              ].map((feature, i) => (
-                <div key={i} className="text-center space-y-6 group">
+              ].map((feature, index) => (
+                <div key={index} className="text-center space-y-6 group">
                   <div 
                     className="relative mx-auto w-20 h-20"
                     style={{
-                      animation: `float ${2.5 + i * 0.3}s ease-in-out infinite`,
-                      animationDelay: `${i * 0.4}s`
+                      animation: `float ${2.5 + index * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${index * 0.4}s`
                     }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl transform group-hover:rotate-12 transition-transform duration-300"></div>
@@ -1263,13 +1132,13 @@ function HomeExperiments() {
                 
                 {/* Wave Tags */}
                 <div className="flex flex-wrap gap-3">
-                  {['Remote Waves', 'Creative Currents', 'Growth Tides', 'Innovation Flows'].map((tag, i) => (
+                  {['Remote Waves', 'Creative Currents', 'Growth Tides', 'Innovation Flows'].map((tag, index) => (
                     <Badge 
                       key={tag} 
                       className="bg-gradient-to-r from-primary/20 to-accent/20 text-foreground border-0 hover:from-primary/30 hover:to-accent/30 transition-all cursor-pointer px-4 py-2"
                       style={{
-                        animation: `wave ${3 + i * 0.5}s ease-in-out infinite`,
-                        animationDelay: `${i * 0.3}s`
+                        animation: `wave ${3 + index * 0.5}s ease-in-out infinite`,
+                        animationDelay: `${index * 0.3}s`
                       }}
                     >
                       {tag}
@@ -1285,13 +1154,13 @@ function HomeExperiments() {
                     { company: 'Ripple', role: 'Flow Engineer', salary: '$170k+', logo: '🌊' },
                     { company: 'Stream', role: 'Data Architect', salary: '$185k+', logo: '💫' },
                     { company: 'Current', role: 'Platform Lead', salary: '$200k+', logo: '⚡' }
-                  ].map((job, i) => (
+                  ].map((job, index) => (
                     <div
-                      key={i}
+                      key={index}
                       className="transform hover:scale-105 transition-all duration-500"
                       style={{
-                        animation: `wave ${4 + i * 0.5}s ease-in-out infinite`,
-                        animationDelay: `${i * 0.5}s`
+                        animation: `wave ${4 + index * 0.5}s ease-in-out infinite`,
+                        animationDelay: `${index * 0.5}s`
                       }}
                     >
                       <Card className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow">
@@ -1332,13 +1201,13 @@ function HomeExperiments() {
                 { icon: BoltIcon, title: 'Natural Flow', desc: 'Organic job discovery' },
                 { icon: StarIcon, title: 'Current Awareness', desc: 'Real-time market insights' },
                 { icon: UserGroupIcon, title: 'Fluid Connections', desc: 'Seamless networking' }
-              ].map((feature, i) => (
-                <div key={i} className="text-center space-y-6 group">
+              ].map((feature, index) => (
+                <div key={index} className="text-center space-y-6 group">
                   <div 
                     className="relative mx-auto w-20 h-20"
                     style={{
-                      animation: `wave ${3 + i * 0.2}s ease-in-out infinite`,
-                      animationDelay: `${i * 0.5}s`
+                      animation: `wave ${3 + index * 0.2}s ease-in-out infinite`,
+                      animationDelay: `${index * 0.5}s`
                     }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl transform group-hover:rotate-12 transition-transform duration-300"></div>
@@ -1538,15 +1407,15 @@ function HomeExperiments() {
                 
                 {/* Holographic Tags */}
                 <div className="flex flex-wrap gap-3">
-                  {['Prismatic Roles', 'Spectrum Salaries', 'Refracted Benefits', 'Holographic Teams'].map((tag, i) => (
+                  {['Prismatic Roles', 'Spectrum Salaries', 'Refracted Benefits', 'Holographic Teams'].map((tag, index) => (
                     <Badge 
                       key={tag} 
                       className="cursor-pointer transform hover:scale-110 transition-all px-4 py-2 border-0 text-background"
                       style={{
-                        background: `linear-gradient(${45 + i * 30}deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)))`,
+                        background: `linear-gradient(${45 + index * 30}deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)))`,
                         backgroundSize: '200% 200%',
-                        animation: `shimmer ${3 + i * 0.5}s ease-in-out infinite`,
-                        animationDelay: `${i * 0.2}s`
+                        animation: `shimmer ${3 + index * 0.5}s ease-in-out infinite`,
+                        animationDelay: `${index * 0.2}s`
                       }}
                     >
                       {tag}
@@ -1562,20 +1431,20 @@ function HomeExperiments() {
                     { company: 'Prism', role: 'Spectrum Analyst', salary: '$180k+', logo: '🔮' },
                     { company: 'Refract', role: 'Light Engineer', salary: '$195k+', logo: '✨' },
                     { company: 'Hologram', role: 'Vision Architect', salary: '$210k+', logo: '🌟' }
-                  ].map((job, i) => (
+                  ].map((job, index) => (
                     <div
-                      key={i}
+                      key={index}
                       className="transform hover:scale-105 transition-all duration-500"
                       style={{
-                        animation: `float ${3 + i * 0.3}s ease-in-out infinite`,
-                        animationDelay: `${i * 0.4}s`
+                        animation: `float ${3 + index * 0.3}s ease-in-out infinite`,
+                        animationDelay: `${index * 0.4}s`
                       }}
                     >
                       <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow relative overflow-hidden">
                         <div 
                           className="absolute inset-0 opacity-10"
                           style={{
-                            background: `linear-gradient(${45 + i * 30}deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)))`,
+                            background: `linear-gradient(${45 + index * 30}deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)))`,
                             backgroundSize: '200% 200%',
                             animation: 'shimmer 6s ease-in-out infinite'
                           }}
@@ -1585,7 +1454,7 @@ function HomeExperiments() {
                             <div 
                               className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl"
                               style={{
-                                background: `conic-gradient(from ${i * 60}deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)), hsl(var(--primary)))`
+                                background: `conic-gradient(from ${index * 60}deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)), hsl(var(--primary)))`
                               }}
                             >
                               {job.logo}
@@ -1634,13 +1503,13 @@ function HomeExperiments() {
                 { icon: BoltIcon, title: 'Spectrum Analysis', desc: 'Multi-layered job matching' },
                 { icon: StarIcon, title: 'Prismatic Insights', desc: 'Holographic market data' },
                 { icon: UserGroupIcon, title: 'Refracted Networks', desc: 'Dimensional connections' }
-              ].map((feature, i) => (
-                <div key={i} className="text-center space-y-6 group">
+              ].map((feature, index) => (
+                <div key={index} className="text-center space-y-6 group">
                   <div 
                     className="relative mx-auto w-20 h-20"
                     style={{
-                      animation: `float ${2.5 + i * 0.2}s ease-in-out infinite`,
-                      animationDelay: `${i * 0.3}s`
+                      animation: `float ${2.5 + index * 0.2}s ease-in-out infinite`,
+                      animationDelay: `${index * 0.3}s`
                     }}
                   >
                     <div 
@@ -1822,8 +1691,8 @@ function HomeExperiments() {
                   desc: 'Skip recruiters, talk directly to engineering teams',
                   code: 'await sendMessage(candidate, engineeringManager);'
                 }
-              ].map((feature, i) => (
-                <div key={i} className="text-center space-y-6 group">
+              ].map((feature, index) => (
+                <div key={index} className="text-center space-y-6 group">
                   <div className="relative mx-auto w-20 h-20">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg transform group-hover:rotate-12 transition-transform duration-300"></div>
                     <div className="relative w-full h-full bg-card/80 backdrop-blur-xl rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 border border-primary/20">
@@ -1945,8 +1814,8 @@ function HomeExperiments() {
                     description: 'Modernize the auction house experience for the digital age.',
                     logo: '🎨' 
                   }
-                ].map((job, i) => (
-                  <Card key={i} className="bg-card/90 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow rounded-none">
+                ].map((job, index) => (
+                  <Card key={index} className="bg-card/90 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow rounded-none">
                     <CardContent className="p-8">
                       <div className="flex items-start space-x-6">
                         <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center text-2xl">
@@ -2003,8 +1872,8 @@ function HomeExperiments() {
                 desc: 'We focus on roles that build careers, not just fill positions. Every placement is a step toward your professional legacy.',
                 number: 'III'
               }
-            ].map((feature, i) => (
-              <div key={i} className="text-center space-y-6">
+            ].map((feature, index) => (
+              <div key={index} className="text-center space-y-6">
                 <div className="relative">
                   <div className="w-16 h-16 border-2 border-primary/30 flex items-center justify-center mx-auto">
                     <span className="text-2xl font-light text-primary">{feature.number}</span>
@@ -2115,8 +1984,8 @@ function HomeExperiments() {
                     impact: 'BUILD THE FUTURE',
                     logo: '🤖' 
                   }
-                ].map((job, i) => (
-                  <Card key={i} className="bg-gradient-to-r from-primary/20 to-accent/20 border-4 border-primary hover:border-accent transition-all transform hover:scale-105 hover:-rotate-1">
+                ].map((job, index) => (
+                  <Card key={index} className="bg-gradient-to-r from-primary/20 to-accent/20 border-4 border-primary hover:border-accent transition-all transform hover:scale-105 hover:-rotate-1">
                     <CardContent className="p-8">
                       <div className="flex items-center space-x-6">
                         <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-3xl font-black transform rotate-3">
@@ -2170,8 +2039,8 @@ function HomeExperiments() {
                 icon: UserGroupIcon,
                 number: '03'
               }
-            ].map((feature, i) => (
-              <div key={i} className="text-center space-y-6 group">
+            ].map((feature, index) => (
+              <div key={index} className="text-center space-y-6 group">
                 <div className="relative">
                   <div className="w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-lg mx-auto transform group-hover:rotate-12 transition-transform duration-300 flex items-center justify-center relative">
                     <feature.icon className="h-12 w-12 text-background relative z-10" />
@@ -2414,8 +2283,8 @@ function HomeExperiments() {
                 note: 'Stress-free process',
                 transform: 'rotate-1'
               }
-            ].map((feature, i) => (
-              <div key={i} className={`text-center space-y-6 transform ${feature.transform}`}>
+            ].map((feature, index) => (
+              <div key={index} className={`text-center space-y-6 transform ${feature.transform}`}>
                 <div className="relative mx-auto w-20 h-20">
                   <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-3xl transform hover:rotate-12 transition-transform duration-300">
                     {feature.icon}
@@ -2517,8 +2386,8 @@ function HomeExperiments() {
                   { company: 'NOTION', role: 'PRODUCT ENG', salary: '200K', type: 'SF', urgency: 'LOW' },
                   { company: 'FIGMA', role: 'PLATFORM', salary: '210K', type: 'NYC', urgency: 'HIGH' },
                   { company: 'ANTHROPIC', role: 'AI/ML', salary: '250K', type: 'REMOTE', urgency: 'MED' }
-                ].map((job, i) => (
-                  <div key={i} className="bg-card border border-border p-3 hover:border-primary/50 transition-colors cursor-pointer">
+                ].map((job, index) => (
+                  <div key={index} className="bg-card border border-border p-3 hover:border-primary/50 transition-colors cursor-pointer">
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2">
@@ -2565,8 +2434,8 @@ function HomeExperiments() {
                 { title: 'INSTANT RESULTS', desc: 'SUB-SECOND RESPONSE TIME', icon: StarIcon },
                 { title: 'DIRECT PIPELINE', desc: 'ZERO-FRICTION CONNECTIONS', icon: UserGroupIcon },
                 { title: 'LIVE UPDATES', desc: 'REAL-TIME JOB STREAMING', icon: ChartBarIcon }
-              ].map((feature, i) => (
-                <div key={i} className="bg-card border border-border p-4 hover:border-primary/50 transition-colors">
+              ].map((feature, index) => (
+                <div key={index} className="bg-card border border-border p-4 hover:border-primary/50 transition-colors">
                   <div className="flex items-center space-x-3 mb-2">
                     <div className="w-8 h-8 bg-primary/20 rounded flex items-center justify-center">
                       <feature.icon className="h-4 w-4 text-primary" />
@@ -2690,8 +2559,8 @@ function HomeExperiments() {
                     description: 'Join our investment team focusing on enterprise software and AI.',
                     tier: 'EXCLUSIVE'
                   }
-                ].map((opportunity, i) => (
-                  <Card key={i} className="bg-gradient-to-br from-card/60 to-card/30 backdrop-blur-xl border border-primary/10 shadow-2xl hover:shadow-3xl transition-all hover:border-primary/20">
+                ].map((opportunity, index) => (
+                  <Card key={index} className="bg-gradient-to-br from-card/60 to-card/30 backdrop-blur-xl border border-primary/10 shadow-2xl hover:shadow-3xl transition-all hover:border-primary/20">
                     <CardContent className="p-10">
                       <div className="space-y-6">
                         <div className="flex items-start justify-between">
@@ -2756,8 +2625,8 @@ function HomeExperiments() {
                 icon: BoltIcon,
                 number: '0 3'
               }
-            ].map((service, i) => (
-              <div key={i} className="text-center space-y-8 group">
+            ].map((service, index) => (
+              <div key={index} className="text-center space-y-8 group">
                 <div className="relative mx-auto">
                   <div className="w-24 h-24 bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 flex items-center justify-center relative group-hover:border-primary/40 transition-colors">
                     <service.icon className="h-8 w-8 text-primary" />
@@ -2994,8 +2863,8 @@ function HomeExperiments() {
                 topSkills: ['Vue.js', 'Kubernetes', 'Go'],
                 image: '🍺'
               }
-            ].map((destination, i) => (
-              <Card key={i} className="cursor-pointer hover:shadow-lg transition-all group">
+            ].map((destination, index) => (
+              <Card key={index} className="cursor-pointer hover:shadow-lg transition-all group">
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
                     <div className="text-4xl">{destination.image}</div>
@@ -3196,8 +3065,8 @@ function HomeExperiments() {
                   salary: '$140k - $180k',
                   highlights: ['React + Node.js', 'Product focus', 'Fast-growing team']
                 }
-              ].map((job, i) => (
-                <div key={i} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
+              ].map((job, index) => (
+                <div key={index} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-foreground">{job.role}</h4>
                     <Badge variant="secondary" className="bg-primary/20 text-primary">
@@ -3335,8 +3204,8 @@ function HomeExperiments() {
                         { name: 'Figma', level: 70, demand: 'medium' }
                       ]
                     }
-                  ].map((category, i) => (
-                    <div key={i} className="space-y-3">
+                  ].map((category, index) => (
+                    <div key={index} className="space-y-3">
                       <h4 className="font-semibold text-foreground flex items-center">
                         <div className={`w-3 h-3 bg-${category.color} rounded-full mr-3`}></div>
                         {category.category}
@@ -3431,8 +3300,8 @@ function HomeExperiments() {
                       growthSkills: ['Python', 'PostgreSQL'],
                       logo: '📐'
                     }
-                  ].map((job, i) => (
-                    <Card key={i} className="hover:shadow-lg transition-all cursor-pointer group">
+                  ].map((job, index) => (
+                    <Card key={index} className="hover:shadow-lg transition-all cursor-pointer group">
                       <CardContent className="p-6">
                         <div className="flex items-start space-x-4">
                           <div className="text-3xl">{job.logo}</div>
@@ -3513,8 +3382,8 @@ function HomeExperiments() {
                   { skill: 'React', demand: 88, trend: '+15%' },
                   { skill: 'AWS', demand: 92, trend: '+31%' },
                   { skill: 'Python', demand: 90, trend: '+18%' }
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between">
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center justify-between">
                     <span className="text-sm font-medium text-foreground">{item.skill}</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-12 h-2 bg-muted rounded-full overflow-hidden">
@@ -3618,8 +3487,8 @@ function HomeExperiments() {
               { metric: '4.9★', label: 'User Rating', icon: '⭐' },
               { metric: '73%', label: 'Salary Increase', icon: '📈' },
               { metric: '18 days', label: 'Avg Time to Hire', icon: '⚡' }
-            ].map((stat, i) => (
-              <div key={i} className="text-center bg-card/50 backdrop-blur rounded-lg p-4 border border-border/50">
+            ].map((stat, index) => (
+              <div key={index} className="text-center bg-card/50 backdrop-blur rounded-lg p-4 border border-border/50">
                 <div className="text-2xl mb-2">{stat.icon}</div>
                 <div className="text-2xl font-bold text-foreground">{stat.metric}</div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
@@ -3683,8 +3552,8 @@ function HomeExperiments() {
                   skills: ['Next.js', 'PostgreSQL', 'AWS'],
                   timeToHire: '9 days'
                 }
-              ].map((story, i) => (
-                <Card key={i} className="hover:shadow-lg transition-all">
+              ].map((story, index) => (
+                <Card key={index} className="hover:shadow-lg transition-all">
                   <CardContent className="p-6">
                     <div className="flex items-start space-x-4 mb-4">
                       <div className="text-4xl">{story.avatar}</div>
@@ -3789,8 +3658,8 @@ function HomeExperiments() {
                   { role: 'Product Manager', count: '4,293', rate: '91%' },
                   { role: 'Designer', count: '3,184', rate: '89%' },
                   { role: 'Data Scientist', count: '2,847', rate: '92%' }
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between">
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center justify-between">
                     <div>
                       <div className="text-sm font-medium text-foreground">{item.role}</div>
                       <div className="text-xs text-muted-foreground">{item.count} placements</div>
@@ -3843,8 +3712,8 @@ function HomeExperiments() {
                   { feature: 'Direct company connections', impact: 'Skip the black hole' },
                   { feature: 'Salary transparency', impact: 'Negotiate with confidence' },
                   { feature: 'Success coaching', impact: 'Interview preparation' }
-                ].map((item, i) => (
-                  <div key={i} className="space-y-1">
+                ].map((item, index) => (
+                  <div key={index} className="space-y-1">
                     <div className="text-sm font-medium text-foreground">✅ {item.feature}</div>
                     <div className="text-xs text-muted-foreground ml-4">{item.impact}</div>
                   </div>
@@ -3949,8 +3818,8 @@ function HomeExperiments() {
                     { metric: '89%', label: 'Remote-friendly', trend: '+23%' },
                     { metric: '4.2★', label: 'Avg culture rating', trend: '+0.3' },
                     { metric: '$165k', label: 'Median salary', trend: '+15%' }
-                  ].map((stat, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-card/50 rounded-lg">
+                  ].map((stat, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-card/50 rounded-lg">
                       <div>
                         <div className="font-bold text-foreground">{stat.metric}</div>
                         <div className="text-sm text-muted-foreground">{stat.label}</div>
@@ -4043,8 +3912,8 @@ function HomeExperiments() {
                 avgSalary: '$190k',
                 benefits: ['GPU credits', 'Research time', 'AI conferences']
               }
-            ].map((company, i) => (
-              <Card key={i} className="hover:shadow-lg transition-all cursor-pointer group">
+            ].map((company, index) => (
+              <Card key={index} className="hover:shadow-lg transition-all cursor-pointer group">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
@@ -4128,8 +3997,8 @@ function HomeExperiments() {
                   { name: 'AI/ML Platform', stage: 'Series B', growth: '+340%' },
                   { name: 'Developer Tools', stage: 'Series A', growth: '+280%' },
                   { name: 'FinTech Startup', stage: 'Seed', growth: '+450%' }
-                ].map((startup, i) => (
-                  <div key={i} className="flex items-center justify-between p-2 bg-primary/5 rounded-lg">
+                ].map((startup, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-primary/5 rounded-lg">
                     <div>
                       <div className="text-sm font-medium text-foreground">{startup.name}</div>
                       <div className="text-xs text-muted-foreground">{startup.stage}</div>
@@ -4159,8 +4028,8 @@ function HomeExperiments() {
                   { name: 'Google', benefits: 'Top-tier comp', rating: '4.4★' },
                   { name: 'Microsoft', benefits: 'Work-life balance', rating: '4.5★' },
                   { name: 'Apple', benefits: 'Product impact', rating: '4.3★' }
-                ].map((company, i) => (
-                  <div key={i} className="flex items-center justify-between p-2 bg-accent/5 rounded-lg">
+                ].map((company, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-accent/5 rounded-lg">
                     <div>
                       <div className="text-sm font-medium text-foreground">{company.name}</div>
                       <div className="text-xs text-muted-foreground">{company.benefits}</div>
@@ -4188,8 +4057,8 @@ function HomeExperiments() {
                   { name: 'GitLab', model: '100% remote', since: '2011' },
                   { name: 'Automattic', model: 'Distributed', since: '2005' },
                   { name: 'Buffer', model: 'Remote-first', since: '2010' }
-                ].map((company, i) => (
-                  <div key={i} className="flex items-center justify-between p-2 bg-secondary/5 rounded-lg">
+                ].map((company, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-secondary/5 rounded-lg">
                     <div>
                       <div className="text-sm font-medium text-foreground">{company.name}</div>
                       <div className="text-xs text-muted-foreground">{company.model}</div>

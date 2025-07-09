@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import Link from 'next/link'
@@ -8,7 +8,6 @@ import { MagnifyingGlassIcon, MapPinIcon, BriefcaseIcon, ChartBarIcon, SparklesI
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import ThemeToggle from '@/components/ThemeToggle'
 
@@ -226,7 +225,7 @@ function Starfield({ width = 1920, height = 400, numLayers = 3, starsPerLayer = 
 function rand(min: number, max: number) { return min + Math.random() * (max - min); }
 
 // RiverParticles Component
-function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStreams = 4 }) {
+function RiverParticles({ numParticles = 35, numStreams = 4 }) {
   // All particles: sharp, twinkling stars (within river)
   const starParticles = Array.from({ length: numParticles }).map((_, i) => {
     const progress = Math.random();
@@ -462,13 +461,12 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
 const AnimatedCount: React.FC<{ value: string }> = ({ value }) => {
   const [display, setDisplay] = useState('0');
   useEffect(() => {
-    let start = 0;
     const end = parseInt(value.replace(/\D/g, '')) || 0;
     if (isNaN(end) || end === 0) {
       setDisplay(value);
       return;
     }
-    let current = start;
+    let current = 0;
     const duration = 1200;
     const step = Math.ceil(end / (duration / 16));
     const interval = setInterval(() => {
@@ -490,141 +488,13 @@ export default function Home() {
   const { data: session, status } = useSession()
   const [searchQuery, setSearchQuery] = useState('')
   const [location, setLocation] = useState('')
-  const [radius, setRadius] = useState(25) // Default 25 mile radius
+  const [radius] = useState(25)
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([])
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false)
   const [isClient, setIsClient] = useState(false)
-  const [particles, setParticles] = useState<Array<{
-    id: string;
-    x: number;
-    y: number;
-    size: number;
-    color: string;
-    animationType: string;
-    speed: number;
-    delay: number;
-  }>>([])
 
   // Real job data for hero preview
-  const heroJobs = [
-    {
-      job_id: 'hero-1',
-      job_title: 'Senior Frontend Engineer',
-      employer_name: 'Stripe',
-      job_city: 'San Francisco',
-      job_state: 'CA',
-      job_country: 'US',
-      job_is_remote: false,
-      job_min_salary: 160000,
-      job_max_salary: 220000,
-      job_salary_currency: 'USD',
-      job_salary_period: 'YEAR',
-      job_employment_type: 'FULLTIME',
-      job_posted_at_timestamp: Date.now() - 86400000, // 1 day ago
-      job_posted_at_datetime_utc: new Date(Date.now() - 86400000).toISOString(),
-      job_apply_link: '#',
-      job_apply_is_direct: true,
-      job_publisher: 'Stripe Careers',
-      job_description: 'Build the future of internet commerce with cutting-edge payment infrastructure.',
-      job_required_skills: ['React', 'TypeScript', 'JavaScript', 'CSS'],
-      delay: 0
-    },
-    {
-      job_id: 'hero-2',
-      job_title: 'Product Manager - AI',
-      employer_name: 'Anthropic',
-      job_city: 'Remote',
-      job_state: '',
-      job_country: 'US',
-      job_is_remote: true,
-      job_min_salary: 180000,
-      job_max_salary: 250000,
-      job_salary_currency: 'USD',
-      job_salary_period: 'YEAR',
-      job_employment_type: 'FULLTIME',
-      job_posted_at_timestamp: Date.now() - 172800000, // 2 days ago
-      job_posted_at_datetime_utc: new Date(Date.now() - 172800000).toISOString(),
-      job_apply_link: '#',
-      job_apply_is_direct: true,
-      job_publisher: 'Anthropic Careers',
-      job_description: 'Shape the future of AI safety and alignment in our next-generation language models.',
-      job_required_skills: ['Product Strategy', 'AI/ML', 'Data Analysis', 'Leadership'],
-      delay: 1
-    },
-    {
-      job_id: 'hero-3',
-      job_title: 'DevOps Engineer',
-      employer_name: 'Docker',
-      job_city: 'Austin',
-      job_state: 'TX',
-      job_country: 'US',
-      job_is_remote: true,
-      job_min_salary: 130000,
-      job_max_salary: 170000,
-      job_salary_currency: 'USD',
-      job_salary_period: 'YEAR',
-      job_employment_type: 'FULLTIME',
-      job_posted_at_timestamp: Date.now() - 345600000, // 4 days ago
-      job_posted_at_datetime_utc: new Date(Date.now() - 345600000).toISOString(),
-      job_apply_link: '#',
-      job_apply_is_direct: true,
-      job_publisher: 'Docker Careers',
-      job_description: 'Scale containerized applications and improve developer experience across our global platform.',
-      job_required_skills: ['Docker', 'Kubernetes', 'AWS', 'Terraform'],
-      delay: 2
-    },
-    {
-      job_id: 'hero-4',
-      job_title: 'UX Designer',
-      employer_name: 'Figma',
-      job_city: 'San Francisco',
-      job_state: 'CA',
-      job_country: 'US',
-      job_is_remote: true,
-      job_min_salary: 120000,
-      job_max_salary: 160000,
-      job_salary_currency: 'USD',
-      job_salary_period: 'YEAR',
-      job_employment_type: 'FULLTIME',
-      job_posted_at_timestamp: Date.now() - 518400000, // 6 days ago
-      job_posted_at_datetime_utc: new Date(Date.now() - 518400000).toISOString(),
-      job_apply_link: '#',
-      job_apply_is_direct: true,
-      job_publisher: 'Figma Careers',
-      job_description: 'Design intuitive interfaces that empower creative teams worldwide to bring ideas to life.',
-      job_required_skills: ['Figma', 'Prototyping', 'User Research', 'Design Systems'],
-      delay: 3
-    }
-  ];
-
-  // Helper function to format salary
-  const formatSalary = (minSalary?: number, maxSalary?: number) => {
-    if (!minSalary && !maxSalary) return 'Competitive';
-    if (minSalary && maxSalary) {
-      const minK = Math.round(minSalary / 1000);
-      const maxK = Math.round(maxSalary / 1000);
-      return `$${minK}k - $${maxK}k`;
-    }
-    if (minSalary) return `$${Math.round(minSalary / 1000)}k+`;
-    if (maxSalary) return `Up to $${Math.round(maxSalary / 1000)}k`;
-    return 'Competitive';
-  };
-
-  // Helper function to format location
-  const formatLocation = (job: any) => {
-    if (job.job_is_remote) return 'Remote';
-    if (job.job_city && job.job_state) return `${job.job_city}, ${job.job_state}`;
-    if (job.job_city) return job.job_city;
-    return 'Location TBD';
-  };
-
-  // Helper function to format posting time
-  const formatTimeAgo = (timestamp: number) => {
-    const daysAgo = Math.floor((Date.now() - timestamp) / (1000 * 60 * 60 * 24));
-    if (daysAgo === 0) return 'Today';
-    if (daysAgo === 1) return '1 day ago';
-    return `${daysAgo} days ago`;
-  };
+  // Removed unused variables: heroJobs, formatSalary, formatLocation, formatTimeAgo
 
   // Initialize stars only on client side to prevent hydration mismatch
   useEffect(() => {
@@ -689,7 +559,7 @@ export default function Home() {
       })
     }
 
-    setParticles(newParticles)
+    // setParticles(newParticles) // This line was removed as per the edit hint
   }, [])
 
   const handleSearch = () => {
@@ -714,7 +584,8 @@ export default function Home() {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=5&addressdetails=1&countrycodes=us,ca,gb,au`)
         const data = await response.json()
         
-        const suggestions = data.map((item: any) => {
+        type NominatimResult = { address: { city?: string; town?: string; village?: string; hamlet?: string; state?: string; region?: string; country?: string }; display_name: string };
+        const suggestions = data.map((item: NominatimResult) => {
           const address = item.address
           const city = address.city || address.town || address.village || address.hamlet
           const state = address.state || address.region
@@ -910,7 +781,7 @@ export default function Home() {
                   <div className="flex items-center space-x-2">
                     <UserIcon className="h-5 w-5 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
-                      {session.user.name?.split(' ')[0] || 'User'}
+                      {session?.user?.name?.split(' ')[0] || 'User'}
                     </span>
                   </div>
                   <Button variant="ghost" asChild>
@@ -955,7 +826,7 @@ export default function Home() {
           </div>
         )}
         {/* Foreground River Particles */}
-        {isClient && <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-10"><RiverParticles width={typeof window !== 'undefined' ? window.innerWidth : 1920} height={180} /></div>}
+        {isClient && <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-10"><RiverParticles numParticles={35} numStreams={4} /></div>}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left: Hero Content */}
@@ -971,7 +842,7 @@ export default function Home() {
                   </span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
-                  Updrift finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
+                  UpDrift finds jobs that actually match what you&apos;re looking for. No more scrolling through irrelevant listings or applying into the void.
                 </p>
               </div>
               {/* Flowing Search Form */}
@@ -1137,7 +1008,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl">
-              Why Updrift Beats LinkedIn
+              Why UpDrift Beats LinkedIn
             </h2>
             <p className="mt-4 text-xl text-muted-foreground">
               Experience the future of job searching with features that actually work for you
@@ -1179,11 +1050,11 @@ export default function Home() {
             Ready to Find Your Dream Job?
           </h2>
           <p className="mt-4 text-xl opacity-90">
-            Join thousands of professionals who've upgraded their job search experience
+            Join thousands of professionals who&apos;ve upgraded their job search experience
           </p>
           {/* Trusted by row */}
           <div className="mt-8 flex flex-wrap justify-center gap-6 opacity-80">
-            {["Google","Meta","Stripe","Netflix","Amazon"].map((logo, i) => (
+            {['Google','Meta','Stripe','Netflix','Amazon'].map((logo) => (
               <div key={logo} className="grayscale opacity-70 hover:opacity-100 hover:grayscale-0 transition-all text-2xl font-bold tracking-wide px-4 py-2 bg-white/10 rounded-lg shadow-sm">
                 {logo}
               </div>

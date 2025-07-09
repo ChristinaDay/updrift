@@ -4,8 +4,6 @@ import { Job } from '@/types/job'
 import { 
   formatSalaryRange, 
   formatJobPostedDate, 
-  formatJobLocation, 
-  formatEmploymentType,
   truncateDescription,
   extractSkills,
   calculateJobMatchScore,

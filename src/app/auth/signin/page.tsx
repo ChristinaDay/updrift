@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { signIn, getSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ThemeToggle from '@/components/ThemeToggle';
@@ -33,7 +33,7 @@ export default function SignInPage() {
       } else {
         router.push('/dashboard')
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.')
     } finally {
       setIsLoading(false)
@@ -44,7 +44,7 @@ export default function SignInPage() {
     setIsLoading(true)
     try {
       await signIn(provider, { callbackUrl: '/dashboard' })
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again.')
       setIsLoading(false)
     }
@@ -156,9 +156,9 @@ export default function SignInPage() {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/auth/signup" className="font-medium text-primary hover:text-primary/80">
-                Sign up now
+                Sign up
               </Link>
             </p>
           </div>
