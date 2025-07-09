@@ -13,7 +13,7 @@ export interface JobProvider {
 export const adzunaProvider: JobProvider = {
   id: 'adzuna',
   displayName: 'Adzuna',
-  logoUrl: '/logos/adzuna.png', // Placeholder, update as needed
+  logoUrl: '/logos/Adzuna.png', // Fixed case-sensitive filename
   searchJobs: async (params: JobSearchParams): Promise<Job[]> => {
     const response = await adzunaSearch(params);
     return response.data;
