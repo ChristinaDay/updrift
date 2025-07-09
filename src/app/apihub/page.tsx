@@ -5,6 +5,13 @@ import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 import { MagnifyingGlassIcon, BookmarkIcon, UserIcon } from '@heroicons/react/24/outline';
 import { jobProviders } from '@/lib/apihub';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
 
 export default function APIhubPage() {
   const { data: session } = useSession();
@@ -36,20 +43,25 @@ export default function APIhubPage() {
             <div className="flex items-center space-x-4">
               <ThemeToggle />
               {session && (
-                <>
-                  <div className="flex items-center space-x-2">
-                    <UserIcon className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      {session.user.name || session.user.email}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => signOut()}
-                    className="text-sm text-muted-foreground hover:text-destructive"
-                  >
-                    Sign out
-                  </button>
-                </>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center space-x-2 focus:outline-none">
+                      <UserIcon className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {session.user?.name || session.user?.email}
+                      </span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => signOut({ callbackUrl: '/auth/signin' })}>
+                      Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
           </div>

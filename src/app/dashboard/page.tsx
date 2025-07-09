@@ -8,6 +8,13 @@ import { BookmarkIcon, MagnifyingGlassIcon, UserIcon, SparklesIcon } from '@hero
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { capitalizeLocation } from '@/utils/jobUtils'
 import ThemeToggle from '@/components/ThemeToggle'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
 
 // Add UserSearchHistory type
 interface UserSearchHistory {
@@ -99,7 +106,7 @@ export default function Dashboard() {
                   <MagnifyingGlassIcon className="h-4 w-4" />
                   <span>Search Jobs</span>
                 </Link>
-                <Link href="/dashboard" className="text-primary font-medium">
+                <Link href="/dashboard" className="text-primary font-medium border-b-2 border-blue-600 pb-1">
                   Dashboard
                 </Link>
                 <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
@@ -111,18 +118,25 @@ export default function Dashboard() {
             
             <div className="flex items-center space-x-4">
               <ThemeToggle />
-              <div className="flex items-center space-x-2">
-                <UserIcon className="h-5 w-5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  {session?.user?.name || session?.user?.email}
-                </span>
-              </div>
-              <button
-                onClick={() => signOut({ callbackUrl: '/auth/signin' })}
-                className="text-sm text-muted-foreground hover:text-destructive"
-              >
-                Sign out
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center space-x-2 focus:outline-none">
+                    <UserIcon className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {session?.user?.name || session?.user?.email}
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => signOut({ callbackUrl: '/auth/signin' })}>
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

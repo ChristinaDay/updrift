@@ -12,9 +12,10 @@ import {
   CurrencyDollarIcon,
   BriefcaseIcon,
   AcademicCapIcon,
-  ClockIcon
+  ClockIcon,
 } from '@heroicons/react/24/outline'
 import ThemeToggle from '@/components/ThemeToggle'
+import { signOut } from 'next-auth/react'
 
 interface UserPreferences {
   location: string
@@ -85,6 +86,10 @@ export default function ProfilePage() {
   })
 
   const [newSkill, setNewSkill] = useState('')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+  const [showDeleteSection, setShowDeleteSection] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -211,7 +216,7 @@ export default function ProfilePage() {
               <div className="flex items-center space-x-2">
                 <UserIcon className="h-5 w-5 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  {session.user.name || session.user.email}
+                  {session?.user?.name || session?.user?.email}
                 </span>
               </div>
             </div>
@@ -249,7 +254,7 @@ export default function ProfilePage() {
                   </label>
                   <input
                     type="text"
-                    value={preferences.location}
+                    value={preferences.location || ''}
                     onChange={(e) => setPreferences(prev => ({ ...prev, location: e.target.value }))}
                     className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
                     placeholder="e.g., San Francisco, CA or Remote"
@@ -285,7 +290,7 @@ export default function ProfilePage() {
                   </label>
                   <input
                     type="number"
-                    value={preferences.preferredSalaryMin || ''}
+                    value={preferences.preferredSalaryMin !== null && preferences.preferredSalaryMin !== undefined ? preferences.preferredSalaryMin : ''}
                     onChange={(e) => setPreferences(prev => ({ ...prev, preferredSalaryMin: parseInt(e.target.value) || 0 }))}
                     className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
                     placeholder="e.g., 80000"
@@ -298,7 +303,7 @@ export default function ProfilePage() {
                   </label>
                   <input
                     type="number"
-                    value={preferences.preferredSalaryMax || ''}
+                    value={preferences.preferredSalaryMax !== null && preferences.preferredSalaryMax !== undefined ? preferences.preferredSalaryMax : ''}
                     onChange={(e) => setPreferences(prev => ({ ...prev, preferredSalaryMax: parseInt(e.target.value) || 0 }))}
                     className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
                     placeholder="e.g., 150000"
@@ -308,16 +313,16 @@ export default function ProfilePage() {
           </div>
 
           {/* Experience Level */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center space-x-2 mb-4">
               <AcademicCapIcon className="h-5 w-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Experience Level</h3>
+              <h3 className="text-lg font-semibold text-card-foreground">Experience Level</h3>
             </div>
             
             <select
-              value={preferences.experienceLevel}
+              value={preferences.experienceLevel || ''}
               onChange={(e) => setPreferences(prev => ({ ...prev, experienceLevel: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
             >
               <option value="">Select experience level</option>
               {experienceLevels.map(level => (
@@ -327,10 +332,10 @@ export default function ProfilePage() {
           </div>
 
           {/* Skills */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center space-x-2 mb-4">
               <CogIcon className="h-5 w-5 text-orange-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Skills</h3>
+              <h3 className="text-lg font-semibold text-card-foreground">Skills</h3>
             </div>
             
             <div className="mb-4">
@@ -340,12 +345,12 @@ export default function ProfilePage() {
                   value={newSkill}
                   onChange={(e) => setNewSkill(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addSkill()}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground placeholder:text-muted-foreground"
                   placeholder="Add a skill (e.g., JavaScript, Python, React)"
                 />
                 <button
                   onClick={addSkill}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
                 >
                   Add
                 </button>
@@ -356,12 +361,12 @@ export default function ProfilePage() {
               {preferences.skills.map(skill => (
                 <span
                   key={skill}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-accent text-accent-foreground"
                 >
                   {skill}
                   <button
                     onClick={() => removeSkill(skill)}
-                    className="ml-2 text-blue-600 hover:text-blue-800"
+                    className="ml-2 text-primary hover:text-primary/80"
                   >
                     ×
                   </button>
@@ -371,10 +376,10 @@ export default function ProfilePage() {
           </div>
 
           {/* Job Type Preferences */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center space-x-2 mb-4">
               <BriefcaseIcon className="h-5 w-5 text-indigo-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Job Type Preferences</h3>
+              <h3 className="text-lg font-semibold text-card-foreground">Job Type Preferences</h3>
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -384,63 +389,61 @@ export default function ProfilePage() {
                     type="checkbox"
                     checked={preferences.preferredJobTypes.includes(type)}
                     onChange={() => handleArrayToggle(preferences.preferredJobTypes, type, 'preferredJobTypes')}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                   className="h-4 w-4 text-primary focus:ring-primary border-input rounded"
                   />
-                  <span className="text-sm text-gray-700">{type}</span>
+                  <span className="text-sm text-muted-foreground">{type}</span>
                 </label>
               ))}
             </div>
           </div>
 
           {/* Company Size Preferences */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <BriefcaseIcon className="h-5 w-5 text-green-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Company Size Preferences</h3>
+              <UserIcon className="h-5 w-5 text-green-600" />
+              <h3 className="text-lg font-semibold text-card-foreground">Company Size Preferences</h3>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {companySizes.map(size => (
                 <label key={size} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     checked={preferences.preferredCompanySize.includes(size)}
                     onChange={() => handleArrayToggle(preferences.preferredCompanySize, size, 'preferredCompanySize')}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                   className="h-4 w-4 text-primary focus:ring-primary border-input rounded"
                   />
-                  <span className="text-sm text-gray-700">{size}</span>
+                  <span className="text-sm text-muted-foreground">{size}</span>
                 </label>
               ))}
             </div>
           </div>
 
           {/* Schedule Preferences */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <ClockIcon className="h-5 w-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Schedule Preferences</h3>
+              <ClockIcon className="h-5 w-5 text-pink-600" />
+              <h3 className="text-lg font-semibold text-card-foreground">Schedule Preferences</h3>
             </div>
-            
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {scheduleTypes.map(schedule => (
-                <label key={schedule} className="flex items-center space-x-2">
+              {scheduleTypes.map(type => (
+                <label key={type} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={preferences.preferredSchedule.includes(schedule)}
-                    onChange={() => handleArrayToggle(preferences.preferredSchedule, schedule, 'preferredSchedule')}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    checked={preferences.preferredSchedule.includes(type)}
+                    onChange={() => handleArrayToggle(preferences.preferredSchedule, type, 'preferredSchedule')}
+                   className="h-4 w-4 text-primary focus:ring-primary border-input rounded"
                   />
-                  <span className="text-sm text-gray-700">{schedule}</span>
+                  <span className="text-sm text-muted-foreground">{type}</span>
                 </label>
               ))}
             </div>
           </div>
 
           {/* Notification Preferences */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center space-x-2 mb-4">
               <BellIcon className="h-5 w-5 text-yellow-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Notification Preferences</h3>
+              <h3 className="text-lg font-semibold text-card-foreground">Notification Preferences</h3>
             </div>
             
             <div className="space-y-3">
@@ -449,9 +452,9 @@ export default function ProfilePage() {
                   type="checkbox"
                   checked={preferences.jobAlerts}
                   onChange={(e) => setPreferences(prev => ({ ...prev, jobAlerts: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-primary focus:ring-primary border-input rounded"
                 />
-                <span className="text-sm text-gray-700">Enable job alerts for matching positions</span>
+                <span className="text-sm text-muted-foreground">Enable job alerts for matching positions</span>
               </label>
               
               <label className="flex items-center space-x-2">
@@ -459,9 +462,9 @@ export default function ProfilePage() {
                   type="checkbox"
                   checked={preferences.emailNotifications}
                   onChange={(e) => setPreferences(prev => ({ ...prev, emailNotifications: e.target.checked }))}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-primary focus:ring-primary border-input rounded"
                 />
-                <span className="text-sm text-gray-700">Receive email notifications</span>
+                <span className="text-sm text-muted-foreground">Receive email notifications</span>
               </label>
             </div>
           </div>
@@ -478,6 +481,91 @@ export default function ProfilePage() {
           </div>
         </div>
       </main>
+      <div className="mt-12 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-destructive/10 border border-destructive rounded-lg p-6">
+          <div>
+            <h3 className="text-lg font-semibold text-destructive mb-2">Delete Account</h3>
+            <p className="text-destructive mb-0">
+              Warning: Deleting your account is permanent and cannot be undone. All your data will be erased.
+            </p>
+            {!showDeleteSection && (
+              <div className="flex justify-end mt-4">
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded-md bg-muted text-foreground hover:bg-muted/80 border border-border text-sm font-medium"
+                  onClick={() => setShowDeleteSection(true)}
+                >
+                  I understand
+                </button>
+              </div>
+            )}
+            {showDeleteSection && (
+              <>
+                <div className="flex justify-end mt-4 space-x-4">
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="px-6 py-3 bg-destructive text-white rounded-md hover:bg-destructive/90 transition-colors font-semibold"
+                  >
+                    Delete Account
+                  </button>
+                  <button
+                    type="button"
+                    className="px-4 py-2 rounded-md bg-muted text-foreground hover:bg-muted/80 border border-border text-sm font-medium"
+                    onClick={() => setShowDeleteSection(false)}
+                  >
+                    Take me back
+                  </button>
+                </div>
+                {deleteError && (
+                  <div className="mt-4 text-destructive text-sm">{deleteError}</div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+        {/* Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-card rounded-lg shadow-lg p-8 max-w-sm w-full border border-border">
+              <h4 className="text-lg font-bold text-destructive mb-4">Confirm Account Deletion</h4>
+              <p className="mb-6 text-muted-foreground">Are you sure you want to delete your account? This action cannot be undone.</p>
+              <div className="flex justify-end space-x-4">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-4 py-2 rounded-md bg-muted text-foreground hover:bg-muted/80"
+                  disabled={deleting}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    setDeleting(true)
+                    setDeleteError('')
+                    try {
+                      const res = await fetch('/api/user/delete', { method: 'DELETE' })
+                      if (res.ok) {
+                        setShowDeleteConfirm(false)
+                        await signOut({ callbackUrl: '/' })
+                      } else {
+                        const data = await res.json()
+                        setDeleteError(data.error || 'Failed to delete account')
+                      }
+                    } catch {
+                      setDeleteError('Failed to delete account')
+                    } finally {
+                      setDeleting(false)
+                    }
+                  }}
+                  className="px-4 py-2 rounded-md bg-destructive text-white hover:bg-destructive/90 font-semibold"
+                  disabled={deleting}
+                >
+                  {deleting ? 'Deleting...' : 'Confirm Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 } 
