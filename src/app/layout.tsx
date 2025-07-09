@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import SessionWrapper from '@/components/SessionWrapper'
+import { ThemeProvider } from '@/contexts/ThemeContext'
+import ThemedBody from '@/components/ThemedBody';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -44,13 +46,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <SessionWrapper>
-          <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-            {children}
-          </div>
-        </SessionWrapper>
-      </body>
+      <ThemeProvider>
+        <ThemedBody>{children}</ThemedBody>
+      </ThemeProvider>
     </html>
   )
 } 

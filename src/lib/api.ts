@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Job, JobSearchParams, JobSearchResponse } from '@/types/job';
+import { searchAllProviders } from './apihub';
 
 // Adzuna API Configuration (much better than JSearch!)
 const ADZUNA_BASE_URL = 'https://api.adzuna.com/v1/api/jobs';
@@ -53,17 +54,22 @@ function convertAdzunaJob(adzunaJob: any): Job {
 }
 
 /**
- * Search jobs using Adzuna API (much better location filtering!)
+ * Search jobs using all providers (Adzuna, JSearch, etc.)
  */
 export async function searchJobs(params: JobSearchParams): Promise<JobSearchResponse> {
-  // Use Adzuna if credentials are available
-  if (ADZUNA_APP_ID && ADZUNA_APP_KEY) {
-    return searchAdzunaJobs(params);
-  }
-  
-  // Fallback to mock data
-  console.log('🚨 ADZUNA credentials not configured, using mock data');
-  return searchMockJobs(params);
+  // Aggregate jobs from all providers
+  const allJobs = await searchAllProviders(params);
+  return {
+    status: 'success',
+    request_id: 'multi-' + Date.now(),
+    parameters: params,
+    data: allJobs,
+    original_data: allJobs,
+    num_pages: 1, // For now, pagination is not aggregated
+    client_filtered: false,
+    original_count: allJobs.length,
+    filtered_count: allJobs.length
+  };
 }
 
 /**
@@ -103,7 +109,7 @@ async function getLocationCoordinates(location: string): Promise<{lat: number, l
 /**
  * Search jobs using Adzuna API
  */
-async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSearchResponse> {
+export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSearchResponse> {
   try {
     const { query, location, radius = 25, remote_jobs_only, page = 1, num_pages = 1 } = params;
     
@@ -483,4 +489,36 @@ export function getMockJobs(): Job[] {
       },
     },
   ];
+} 
+
+export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSearchResponse> {
+  const apiKey = process.env.JSEARCH_API_KEY || process.env.RAPIDAPI_KEY;
+  if (!apiKey) throw new Error('JSearch API key not set');
+
+  const url = new URL('https://jsearch.p.rapidapi.com/search');
+  url.searchParams.set('query', params.query || '');
+  if (params.location) url.searchParams.set('location', params.location);
+  if (params.radius) url.searchParams.set('radius', params.radius.toString());
+  if (params.page) url.searchParams.set('page', params.page.toString());
+  if (params.num_pages) url.searchParams.set('num_pages', params.num_pages.toString());
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      'X-RapidAPI-Key': apiKey,
+      'X-RapidAPI-Host': 'jsearch.p.rapidapi.com',
+    },
+  });
+  if (!response.ok) throw new Error('JSearch API error');
+  const data = await response.json();
+  return {
+    status: data.status || 'success',
+    request_id: data.request_id || '',
+    parameters: params,
+    data: data.data || [],
+    original_data: data.data,
+    num_pages: data.num_pages || 1,
+    client_filtered: false,
+    original_count: data.data?.length || 0,
+    filtered_count: data.data?.length || 0,
+  };
 } 

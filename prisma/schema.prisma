@@ -3,12 +3,11 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
 // NextAuth.js required models
@@ -119,4 +118,16 @@ model UserSearchHistory {
   searchedAt DateTime @default(now())
 
   @@index([userId, searchedAt])
+}
+
+model SavedSearch {
+  id        String   @id @default(cuid())
+  userId    String
+  query     String
+  location  String?
+  radius    Int?     @default(25)
+  remoteOnly Boolean @default(false)
+  createdAt DateTime @default(now())
+  
+  @@index([userId, createdAt])
 }

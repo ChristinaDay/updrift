@@ -37,6 +37,10 @@ import {
   UserIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline'
+import Link from 'next/link';
+import ThemeToggle from '@/components/ThemeToggle';
+import { signOut } from 'next-auth/react';
+// import ThemeSelector from '@/components/ThemeSelector'
 
 type SortOption = 'relevance' | 'date' | 'salary' | 'company'
 type ViewMode = 'grid' | 'list'
@@ -451,7 +455,51 @@ function SearchPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
+        {/* Header/Nav Bar (identical to dashboard) */}
+        <header className="bg-card shadow-sm border-b border-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center space-x-4">
+                <Link href="/" className="text-2xl font-bold text-primary">
+                  UpFetch
+                </Link>
+                <nav className="hidden md:flex space-x-8">
+                  <Link href="/search" className="text-primary font-medium flex items-center space-x-1 border-b-2 border-blue-600 pb-1">
+                    <MagnifyingGlassIcon className="h-4 w-4" />
+                    <span>Search Jobs</span>
+                  </Link>
+                  <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
+                    <BookmarkIcon className="h-4 w-4" />
+                    <span>Saved Jobs</span>
+                  </Link>
+                </nav>
+              </div>
+              <div className="flex items-center space-x-4">
+                <ThemeToggle />
+                {session && (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <UserIcon className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {session.user.name || session.user.email}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => signOut()}
+                      className="text-sm text-muted-foreground hover:text-destructive"
+                    >
+                      Sign out
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </header>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
@@ -467,139 +515,145 @@ function SearchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {searchQuery ? `Jobs for "${searchQuery}"` : (location ? `Jobs in ${capitalizeLocation(location)}` : 'Explore Job Opportunities')}
-                {location && searchQuery && ` within ${radius} miles of ${capitalizeLocation(location)}`}
-              </h1>
-              {location && !searchQuery && (
-                <p className="text-sm text-gray-500 mt-1">
-                  within {radius} miles of {capitalizeLocation(location)}
-                </p>
-              )}
-              <div className="flex items-center space-x-2 mt-1">
-                <p className="text-gray-600">
-                  {filteredJobs.length} opportunities found
-                  {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
-                  {session?.user && userPreferences && ' • Personalized for you'}
-                  {!session?.user && ' • Sign in for personalized results'}
-                                      • Powered by UpFetch AI
-                </p>
-                {session?.user && userPreferences && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
-                    <SparklesIcon className="h-3 w-3 mr-1" />
-                    AI Matched
-                  </span>
-                )}
-                {dataSource === 'real' && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                    ✅ Live Data
-                  </span>
-                )}
-                {dataSource === 'mock' && (
-                  <button
-                    onClick={() => setShowApiGuide(true)}
-                    className="inline-flex items-center px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full hover:bg-yellow-200 transition-colors"
-                    title="Click to set up real job data"
-                  >
-                    🚨 Demo Data - Click to upgrade
-                  </button>
-                )}
-                {dataSource === 'error' && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-                    ⚠️ Error
-                  </span>
-                )}
-              </div>
+    <div className="min-h-screen bg-background">
+      {/* Header/Nav Bar (identical to dashboard) */}
+      <header className="bg-card shadow-sm border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="text-2xl font-bold text-primary">
+                UpFetch
+              </Link>
+              <nav className="hidden md:flex space-x-8">
+                <Link href="/search" className="text-primary font-medium flex items-center space-x-1 border-b-2 border-blue-600 pb-1">
+                  <MagnifyingGlassIcon className="h-4 w-4" />
+                  <span>Search Jobs</span>
+                </Link>
+                <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
+                  <span>Dashboard</span>
+                </Link>
+                <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
+                  <BookmarkIcon className="h-4 w-4" />
+                  <span>Saved Jobs</span>
+                </Link>
+              </nav>
             </div>
-
-            {/* Search refinement */}
-            <div className="mt-4 lg:mt-0 flex space-x-4">
-              <div className="relative">
-                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  placeholder="Refine search..."
-                  value={inputQuery}
-                  onChange={(e) => setInputQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
-                  style={{
-                    color: '#111827',
-                    backgroundColor: '#ffffff'
-                  }}
-                />
-              </div>
-              <div className="relative">
-                <MapPinIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  placeholder="Location..."
-                  value={inputLocation}
-                  onChange={(e) => setInputLocation(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
-                  onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-48"
-                  style={{
-                    color: '#111827',
-                    backgroundColor: '#ffffff'
-                  }}
-                />
-                {showLocationSuggestions && locationSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                    {locationSuggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleLocationSelect(suggestion)}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 text-sm text-gray-700 border-b border-gray-100 last:border-b-0"
-                      >
-                        <div className="flex items-center">
-                          <MapPinIcon className="h-4 w-4 text-gray-400 mr-2" />
-                          {suggestion}
-                        </div>
-                      </button>
-                    ))}
+            <div className="flex items-center space-x-4">
+              <ThemeToggle />
+              {session && (
+                <>
+                  <div className="flex items-center space-x-2">
+                    <UserIcon className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {session.user.name || session.user.email}
+                    </span>
                   </div>
-                )}
-              </div>
-              {/* Radius Selector */}
-              {inputLocation && (
-                <div className="relative">
-                  <select
-                    value={radius}
-                    onChange={(e) => setRadius(parseInt(e.target.value))}
-                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white text-gray-700"
+                  <button
+                    onClick={() => signOut()}
+                    className="text-sm text-muted-foreground hover:text-destructive"
                   >
-                    <option value={5}>Within 5 miles</option>
-                    <option value={10}>Within 10 miles</option>
-                    <option value={15}>Within 15 miles</option>
-                    <option value={25}>Within 25 miles</option>
-                    <option value={35}>Within 35 miles</option>
-                    <option value={50}>Within 50 miles</option>
-                    <option value={75}>Within 75 miles</option>
-                    <option value={100}>Within 100 miles</option>
-                  </select>
-                </div>
+                    Sign out
+                  </button>
+                </>
               )}
-              <button
-                onClick={triggerSearch}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-              >
-                <MagnifyingGlassIcon className="h-4 w-4" />
-                <span>Search</span>
-              </button>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-20">
+        {/* Always render the search/filter UI here, including the search bar */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">
+              {searchQuery ? `Jobs for "${searchQuery}"` : (location ? `Jobs in ${capitalizeLocation(location)}` : 'Explore Job Opportunities')}
+              {location && searchQuery && ` within ${radius} miles of ${capitalizeLocation(location)}`}
+            </h1>
+            {location && !searchQuery && (
+              <p className="text-sm text-muted-foreground mt-1">
+                within {radius} miles of {capitalizeLocation(location)}
+              </p>
+            )}
+            <div className="flex items-center space-x-2 mt-1">
+              <p className="text-muted-foreground">
+                {filteredJobs.length} opportunities found
+                {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
+                {session?.user && userPreferences && ' • Personalized for you'}
+                {!session?.user && ' • Sign in for personalized results'}
+                • Powered by UpFetch AI
+              </p>
+              {/* ...status badges... */}
+            </div>
+          </div>
+          {/* Search refinement bar (search bar UI) - always visible */}
+          <div className="mt-4 lg:mt-0 flex space-x-4">
+            <div className="relative">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                placeholder="Refine search..."
+                value={inputQuery}
+                onChange={(e) => setInputQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-64 bg-background text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+            <div className="relative">
+              <MapPinIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                placeholder="Location..."
+                value={inputLocation}
+                onChange={(e) => setInputLocation(e.target.value)}
+                onKeyPress={handleKeyPress}
+                onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
+                onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
+                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-48 bg-background text-foreground placeholder:text-muted-foreground"
+              />
+              {showLocationSuggestions && locationSuggestions.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-card border border-input rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {locationSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleLocationSelect(suggestion)}
+                      className="w-full px-4 py-2 text-left hover:bg-muted focus:bg-muted text-sm text-foreground border-b border-muted last:border-b-0"
+                    >
+                      <div className="flex items-center">
+                        <MapPinIcon className="h-4 w-4 text-muted-foreground mr-2" />
+                        {suggestion}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Radius Selector - always visible */}
+            <div className="relative">
+              <select
+                value={radius}
+                onChange={(e) => setRadius(parseInt(e.target.value))}
+                className="pl-3 pr-8 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm bg-background text-foreground"
+              >
+                <option value={5}>Within 5 miles</option>
+                <option value={10}>Within 10 miles</option>
+                <option value={15}>Within 15 miles</option>
+                <option value={25}>Within 25 miles</option>
+                <option value={35}>Within 35 miles</option>
+                <option value={50}>Within 50 miles</option>
+                <option value={75}>Within 75 miles</option>
+                <option value={100}>Within 100 miles</option>
+              </select>
+            </div>
+            <button
+              onClick={triggerSearch}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center space-x-2"
+            >
+              <MagnifyingGlassIcon className="h-4 w-4" />
+              <span>Search</span>
+            </button>
+          </div>
+        </div>
+
         {/* Save Message */}
         {saveMessage && (
           <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md">
@@ -658,9 +712,9 @@ function SearchPage() {
         <div className="lg:grid lg:grid-cols-4 lg:gap-8">
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-4">
+            <div className="bg-card rounded-xl shadow-sm border border-input p-6 sticky top-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+                <h3 className="text-lg font-semibold text-foreground">Filters</h3>
                 <button
                   onClick={clearFilters}
                   className="text-sm text-blue-600 hover:text-blue-700"
@@ -690,7 +744,7 @@ function SearchPage() {
                 <div className="mb-6">
                   <button
                     onClick={saveCurrentSearch}
-                    className="w-full flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-3 py-2 rounded-md text-sm hover:bg-gray-200 transition-colors"
+                    className="w-full flex items-center justify-center space-x-2 bg-muted text-foreground px-3 py-2 rounded-md text-sm hover:bg-muted/80 transition-colors"
                   >
                     <BookmarkIcon className="h-4 w-4" />
                     <span>Save Search</span>
@@ -705,36 +759,36 @@ function SearchPage() {
                     type="checkbox"
                     checked={filters.remote}
                     onChange={(e) => setFilters(prev => ({ ...prev, remote: e.target.checked }))}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-input text-primary focus:ring-primary"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Remote only</span>
+                  <span className="ml-2 text-sm text-muted-foreground">Remote only</span>
                 </label>
               </div>
 
               {/* Salary Range */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Salary Range</h4>
+                <h4 className="text-sm font-medium text-foreground mb-3">Salary Range</h4>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="number"
                     placeholder="Min"
                     value={filters.salaryMin}
                     onChange={(e) => setFilters(prev => ({ ...prev, salaryMin: e.target.value }))}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-2 border border-input rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground placeholder:text-muted-foreground"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={filters.salaryMax}
                     onChange={(e) => setFilters(prev => ({ ...prev, salaryMax: e.target.value }))}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-2 border border-input rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
               </div>
 
               {/* Employment Type */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Employment Type</h4>
+                <h4 className="text-sm font-medium text-foreground mb-3">Employment Type</h4>
                 <div className="space-y-2">
                   {['FULLTIME', 'PARTTIME', 'CONTRACT', 'INTERNSHIP'].map(type => (
                     <label key={type} className="flex items-center">
@@ -742,9 +796,9 @@ function SearchPage() {
                         type="checkbox"
                         checked={filters.employmentTypes.includes(type)}
                         onChange={(e) => handleEmploymentTypeChange(type, e.target.checked)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-input text-primary focus:ring-primary"
                       />
-                      <span className="ml-2 text-sm text-gray-700 capitalize">
+                      <span className="ml-2 text-sm text-muted-foreground capitalize">
                         {type.toLowerCase().replace('fulltime', 'Full-time').replace('parttime', 'Part-time')}
                       </span>
                     </label>
@@ -754,11 +808,11 @@ function SearchPage() {
 
               {/* Date Posted */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Date Posted</h4>
+                <h4 className="text-sm font-medium text-foreground mb-3">Date Posted</h4>
                 <select
                   value={filters.datePosted}
                   onChange={(e) => setFilters(prev => ({ ...prev, datePosted: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-input rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                 >
                   <option value="all">Any time</option>
                   <option value="day">Past 24 hours</option>
@@ -771,7 +825,7 @@ function SearchPage() {
               <div className="border-t pt-4">
                 <button
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="w-full flex items-center justify-between text-sm font-medium text-gray-700 hover:text-gray-900"
+                  className="w-full flex items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground"
                 >
                   <span>Advanced Filters</span>
                   <ChevronDownIcon className={`h-4 w-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
@@ -781,11 +835,11 @@ function SearchPage() {
                   <div className="mt-4 space-y-6">
                     {/* Experience Level */}
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Experience Level</h4>
+                      <h4 className="text-sm font-medium text-foreground mb-3">Experience Level</h4>
                       <select
                         value={filters.experience}
                         onChange={(e) => setFilters(prev => ({ ...prev, experience: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-input rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                       >
                         <option value="all">Any level</option>
                         <option value="entry">Entry Level</option>
@@ -797,7 +851,7 @@ function SearchPage() {
 
                     {/* Company Size */}
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Company Size</h4>
+                      <h4 className="text-sm font-medium text-foreground mb-3">Company Size</h4>
                       <div className="space-y-2">
                         {['Startup (1-50)', 'Small (51-200)', 'Medium (201-1000)', 'Large (1001-5000)', 'Enterprise (5000+)'].map(size => (
                           <label key={size} className="flex items-center">
@@ -810,9 +864,9 @@ function SearchPage() {
                                   : filters.companySize.filter(s => s !== size)
                                 setFilters(prev => ({ ...prev, companySize: newArray }))
                               }}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              className="rounded border-input text-primary focus:ring-primary"
                             />
-                            <span className="ml-2 text-sm text-gray-700">{size}</span>
+                            <span className="ml-2 text-sm text-muted-foreground">{size}</span>
                           </label>
                         ))}
                       </div>
@@ -820,7 +874,7 @@ function SearchPage() {
 
                     {/* Schedule Type */}
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Schedule</h4>
+                      <h4 className="text-sm font-medium text-foreground mb-3">Schedule</h4>
                       <div className="space-y-2">
                         {['Full-time', 'Part-time', 'Flexible', 'Remote', 'Hybrid', 'On-site'].map(schedule => (
                           <label key={schedule} className="flex items-center">
@@ -833,9 +887,9 @@ function SearchPage() {
                                   : filters.schedule.filter(s => s !== schedule)
                                 setFilters(prev => ({ ...prev, schedule: newArray }))
                               }}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              className="rounded border-input text-primary focus:ring-primary"
                             />
-                            <span className="ml-2 text-sm text-gray-700">{schedule}</span>
+                            <span className="ml-2 text-sm text-muted-foreground">{schedule}</span>
                           </label>
                         ))}
                       </div>
@@ -852,11 +906,11 @@ function SearchPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
-                  <label className="text-sm text-gray-700">Sort by:</label>
+                  <label className="text-sm text-muted-foreground">Sort by:</label>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as SortOption)}
-                    className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-1 border border-input rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                   >
                     <option value="relevance">Relevance</option>
                     <option value="date">Most recent</option>
@@ -869,13 +923,13 @@ function SearchPage() {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                 >
                   <Squares2X2Icon className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                 >
                   <ListBulletIcon className="w-5 h-5" />
                 </button>
@@ -891,13 +945,13 @@ function SearchPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <h3 className="text-lg font-medium text-foreground mb-2">
                     {locationFilterResults?.applied && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0
                       ? `No jobs found in ${capitalizeLocation(location)}`
                       : "No jobs found"
                     }
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-muted-foreground mb-4">
                     {locationFilterResults?.applied && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0
                       ? `We found ${locationFilterResults.originalCount} jobs for "${searchQuery}", but none were located in ${capitalizeLocation(location)}.`
                       : "Try adjusting your search criteria or filters"
@@ -911,7 +965,7 @@ function SearchPage() {
                           setLocationFilterResults(null);
                           setFilteredJobs(jobs);
                         }}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                       >
                         Show All {locationFilterResults.originalCount} Jobs
                       </button>
@@ -919,7 +973,7 @@ function SearchPage() {
                         onClick={() => {
                           router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
                         }}
-                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                        className="px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
                       >
                         Remove Location Filter
                       </button>
@@ -945,7 +999,7 @@ function SearchPage() {
             {/* Load more button */}
             {filteredJobs.length > 0 && (
               <div className="text-center mt-8">
-                <button className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium">
+                <button className="bg-card border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium">
                   Load more jobs
                 </button>
               </div>
@@ -966,13 +1020,13 @@ function SearchPage() {
 // Suspense wrapper component
 function SearchPageLoading() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow p-6">
+              <div className="bg-card rounded-lg shadow p-6">
                 <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
                 <div className="space-y-3">
                   <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -984,7 +1038,7 @@ function SearchPageLoading() {
             <div className="lg:col-span-3">
               <div className="space-y-6">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="bg-white rounded-lg shadow p-6">
+                  <div key={i} className="bg-card rounded-lg shadow p-6">
                     <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
                     <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
                     <div className="space-y-2">

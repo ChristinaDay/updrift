@@ -4,9 +4,10 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { BookmarkIcon, MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline'
+import { BookmarkIcon, MagnifyingGlassIcon, UserIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { capitalizeLocation } from '@/utils/jobUtils'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
@@ -65,24 +66,24 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
-              <Link href="/" className="text-2xl font-bold text-blue-600">
+              <Link href="/" className="text-2xl font-bold text-primary">
                 UpFetch
               </Link>
               <nav className="hidden md:flex space-x-8">
-                <Link href="/search" className="text-gray-600 hover:text-blue-600 flex items-center space-x-1">
+                <Link href="/search" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
                   <MagnifyingGlassIcon className="h-4 w-4" />
                   <span>Search Jobs</span>
                 </Link>
-                <Link href="/dashboard" className="text-blue-600 font-medium">
+                <Link href="/dashboard" className="text-primary font-medium">
                   Dashboard
                 </Link>
-                <Link href="/saved-jobs" className="text-gray-600 hover:text-blue-600 flex items-center space-x-1">
+                <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
                   <BookmarkIcon className="h-4 w-4" />
                   <span>Saved Jobs</span>
                 </Link>
@@ -90,15 +91,16 @@ export default function Dashboard() {
             </div>
             
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <div className="flex items-center space-x-2">
-                <UserIcon className="h-5 w-5 text-gray-400" />
-                <span className="text-sm text-gray-600">
+                <UserIcon className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
                   {session.user.name || session.user.email}
                 </span>
               </div>
               <button
                 onClick={() => signOut()}
-                className="text-sm text-gray-500 hover:text-red-600"
+                className="text-sm text-muted-foreground hover:text-destructive"
               >
                 Sign out
               </button>
@@ -110,89 +112,99 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-foreground">
             Welcome back, {session.user.name?.split(' ')[0] || 'there'}! 👋
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-muted-foreground mt-2">
             Here's what's happening with your job search
           </p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
             <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <BookmarkSolidIcon className="h-6 w-6 text-blue-600" />
+              <div className="p-2 bg-secondary rounded-lg">
+                <BookmarkSolidIcon className="h-6 w-6 text-primary" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Saved Jobs</p>
-                <p className="text-2xl font-bold text-gray-900">{savedJobs.length}</p>
+                <p className="text-sm font-medium text-muted-foreground">Saved Jobs</p>
+                <p className="text-2xl font-bold text-foreground">{savedJobs.length}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
             <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <MagnifyingGlassIcon className="h-6 w-6 text-green-600" />
+              <div className="p-2 bg-secondary rounded-lg">
+                <MagnifyingGlassIcon className="h-6 w-6 text-secondary" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Applications</p>
-                <p className="text-2xl font-bold text-gray-900">0</p>
+                <p className="text-sm font-medium text-muted-foreground">Applications</p>
+                <p className="text-2xl font-bold text-foreground">0</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
             <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <UserIcon className="h-6 w-6 text-purple-600" />
+              <div className="p-2 bg-secondary rounded-lg">
+                <UserIcon className="h-6 w-6 text-secondary" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Profile Views</p>
-                <p className="text-2xl font-bold text-gray-900">--</p>
+                <p className="text-sm font-medium text-muted-foreground">Profile Views</p>
+                <p className="text-2xl font-bold text-foreground">--</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Search</h3>
-            <p className="text-gray-600 mb-4">Find your next opportunity</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Quick Search</h3>
+            <p className="text-muted-foreground mb-4">Find your next opportunity</p>
             <Link 
               href="/search"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-background bg-primary hover:bg-primary/90"
             >
               <MagnifyingGlassIcon className="h-4 w-4 mr-2" />
               Search Jobs
             </Link>
           </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Settings</h3>
-            <p className="text-gray-600 mb-4">Update your preferences and skills</p>
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Profile Settings</h3>
+            <p className="text-muted-foreground mb-4">Update your preferences and skills</p>
             <Link 
               href="/profile"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              className="inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground bg-background hover:bg-muted"
             >
               <UserIcon className="h-4 w-4 mr-2" />
               Edit Profile
             </Link>
           </div>
+          <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+            <h3 className="text-lg font-semibold text-foreground mb-4">APIhub</h3>
+            <p className="text-muted-foreground mb-4">See all connected job APIs and their status</p>
+            <Link 
+              href="/apihub"
+              className="inline-flex items-center px-4 py-2 border border-accent bg-accent text-accent-foreground text-sm font-semibold rounded-md shadow hover:brightness-110 transition"
+            >
+              <SparklesIcon className="h-4 w-4 mr-2" />
+              View API Sources
+            </Link>
+          </div>
         </div>
 
         {/* Saved Jobs Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-card rounded-lg shadow-sm border border-border">
+          <div className="px-6 py-4 border-b border-border">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Saved Jobs</h3>
+              <h3 className="text-lg font-semibold text-foreground">Recent Saved Jobs</h3>
               {savedJobs.length > 0 && (
                 <Link 
                   href="/saved-jobs"
-                  className="text-sm text-blue-600 hover:text-blue-500"
+                  className="text-sm text-primary hover:text-primary/80"
                 >
                   View all saved jobs
                 </Link>
@@ -269,13 +281,13 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Search History */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="mt-8 bg-card rounded-lg shadow-sm border border-border">
+          <div className="px-6 py-4 border-b border-border">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Searches</h3>
+              <h3 className="text-lg font-semibold text-foreground">Recent Searches</h3>
               <Link 
                 href="/search"
-                className="text-sm text-blue-600 hover:text-blue-500"
+                className="text-sm text-primary hover:text-primary/80"
               >
                 Start new search
               </Link>
@@ -284,16 +296,16 @@ export default function Dashboard() {
           <div className="p-6">
             {searchHistory.length === 0 ? (
               <div className="text-center py-8">
-                <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MagnifyingGlassIcon className="h-6 w-6 text-gray-400" />
+                <div className="h-12 w-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MagnifyingGlassIcon className="h-6 w-6 text-muted-foreground" />
                 </div>
-                <h4 className="text-lg font-medium text-gray-900 mb-2">No searches yet</h4>
-                <p className="text-gray-600 mb-4">
+                <h4 className="text-lg font-medium text-foreground mb-2">No searches yet</h4>
+                <p className="text-muted-foreground mb-4">
                   Start searching for jobs to see your activity here
                 </p>
                 <Link
                   href="/search"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90"
                 >
                   Start Searching
                 </Link>
@@ -301,17 +313,17 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-4">
                 {searchHistory.map((search: any, index: number) => (
-                  <div key={search.id || index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={search.id || index} className="flex items-center justify-between p-4 bg-muted rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <MagnifyingGlassIcon className="h-4 w-4 text-blue-600" />
+                      <div className="p-2 bg-accent rounded-lg">
+                        <MagnifyingGlassIcon className="h-4 w-4 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-foreground">
                           {search.query || 'All jobs'}
                           {search.location && ` in ${capitalizeLocation(search.location)}`}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {new Date(search.searchedAt).toLocaleDateString()} at{' '}
                           {new Date(search.searchedAt).toLocaleTimeString()}
                         </p>
@@ -322,18 +334,17 @@ export default function Dashboard() {
                         ...(search.query && { q: search.query }),
                         ...(search.location && { location: search.location })
                       }).toString()}`}
-                      className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                      className="text-primary hover:text-primary/80 text-sm font-medium"
                     >
                       Search again
                     </Link>
                   </div>
                 ))}
-                
                 {searchHistory.length >= 5 && (
                   <div className="text-center pt-4">
                     <Link
                       href="/profile"
-                      className="text-sm text-gray-500 hover:text-gray-700"
+                      className="text-sm text-muted-foreground hover:text-foreground"
                     >
                       View all search history
                     </Link>
