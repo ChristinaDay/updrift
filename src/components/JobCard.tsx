@@ -124,14 +124,13 @@ export default function JobCard({
           </div>
 
           {/* Actions */}
-          <div className="flex items-center space-x-2 flex-shrink-0">
+          <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-2 flex-shrink-0 ml-4">
             {showMatchScore && (
-              <Badge variant="secondary" className="bg-green-50 text-green-700 hover:bg-green-100">
+              <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 font-medium px-2 py-1 text-xs sm:text-sm flex items-center dark:bg-green-600 dark:text-white dark:border-green-500 dark:shadow-md">
                 <SparklesIcon className="w-3 h-3 mr-1" />
-                {matchScore}% match
+                <span className="truncate max-w-[80px] sm:max-w-none">{matchScore}% match</span>
               </Badge>
             )}
-            
             <Button
               variant="ghost"
               size="sm"
@@ -167,7 +166,7 @@ export default function JobCard({
           <div className="mb-4">
             <div className="flex flex-wrap gap-2">
               {skills.slice(0, 6).map((skill, index) => (
-                <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-100">
+                <Badge key={index} variant="secondary" className="bg-accent/10 text-accent-foreground border-accent/20 dark:bg-accent/20 dark:text-accent-foreground dark:border-accent/30">
                   {skill}
                 </Badge>
               ))}
@@ -185,7 +184,7 @@ export default function JobCard({
           <div className="mb-4">
             <div className="flex flex-wrap gap-2">
               {job.job_benefits.slice(0, 3).map((benefit, index) => (
-                <Badge key={index} variant="secondary" className="bg-green-50 text-green-700 hover:bg-green-100">
+                <Badge key={index} variant="secondary" className="bg-success/10 text-success-foreground border-success/20 dark:bg-success/20 dark:text-success-foreground dark:border-success/30">
                   {benefit}
                 </Badge>
               ))}
