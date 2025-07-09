@@ -1243,7 +1243,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t text-center text-muted-foreground">
-            <p>&copy; 2024 Updrift. All rights reserved.</p>
+            <p>&copy; 2025 Updrift. All rights reserved.</p>
           </div>
         </div>
       </footer>
