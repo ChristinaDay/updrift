@@ -41,6 +41,7 @@ import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 import { signOut } from 'next-auth/react';
 // import ThemeSelector from '@/components/ThemeSelector'
+import { useTheme } from '@/contexts/ThemeContext';
 
 type SortOption = 'relevance' | 'date' | 'salary' | 'company'
 type ViewMode = 'grid' | 'list'
@@ -462,7 +463,7 @@ function SearchPage() {
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center space-x-4">
                 <Link href="/" className="text-2xl font-bold text-primary">
-                  Updrift
+                  UpDrift
                 </Link>
                 <nav className="hidden md:flex space-x-8">
                   <Link href="/search" className="text-primary font-medium flex items-center space-x-1 border-b-2 border-blue-600 pb-1">
@@ -502,10 +503,10 @@ function SearchPage() {
         </header>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+            <div className="h-8 bg-muted rounded w-1/4 mb-4"></div>
             <div className="space-y-4">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-48 bg-gray-200 rounded-xl"></div>
+                <div key={i} className="h-48 bg-muted rounded-xl"></div>
               ))}
             </div>
           </div>
@@ -522,7 +523,7 @@ function SearchPage() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-2xl font-bold text-primary">
-                Updrift
+                UpDrift
               </Link>
               <nav className="hidden md:flex space-x-8">
                 <Link href="/search" className="text-primary font-medium flex items-center space-x-1 border-b-2 border-blue-600 pb-1">
@@ -580,7 +581,7 @@ function SearchPage() {
                 {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
                 {session?.user && userPreferences && ' • Personalized for you'}
                 {!session?.user && ' • Sign in for personalized results'}
-                • Powered by Updrift AI
+                • Powered by UpDrift AI
               </p>
               {/* ...status badges... */}
             </div>
@@ -940,8 +941,8 @@ function SearchPage() {
             {filteredJobs.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-4">
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                    <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
@@ -999,7 +1000,7 @@ function SearchPage() {
             {/* Load more button */}
             {filteredJobs.length > 0 && (
               <div className="text-center mt-8">
-                <button className="bg-card border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium">
+                <button className="bg-card border border-border hover:bg-muted text-foreground px-6 py-3 rounded-lg font-medium">
                   Load more jobs
                 </button>
               </div>
@@ -1019,19 +1020,22 @@ function SearchPage() {
 
 // Suspense wrapper component
 function SearchPageLoading() {
+  const { currentTheme } = useTheme();
+  const isDark = currentTheme.name === 'cyber';
+  const skeletonBase = isDark ? 'bg-neutral-800' : 'bg-gray-200';
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+          <div className={`h-8 ${skeletonBase} rounded w-1/4 mb-6`}></div>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-1">
               <div className="bg-card rounded-lg shadow p-6">
-                <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+                <div className={`h-6 ${skeletonBase} rounded w-1/2 mb-4`}></div>
                 <div className="space-y-3">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  <div className={`h-4 ${skeletonBase} rounded w-3/4`}></div>
+                  <div className={`h-4 ${skeletonBase} rounded w-1/2`}></div>
+                  <div className={`h-4 ${skeletonBase} rounded w-2/3`}></div>
                 </div>
               </div>
             </div>
@@ -1039,11 +1043,11 @@ function SearchPageLoading() {
               <div className="space-y-6">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="bg-card rounded-lg shadow p-6">
-                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                    <div className={`h-6 ${skeletonBase} rounded w-3/4 mb-2`}></div>
+                    <div className={`h-4 ${skeletonBase} rounded w-1/2 mb-4`}></div>
                     <div className="space-y-2">
-                      <div className="h-4 bg-gray-200 rounded w-full"></div>
-                      <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                      <div className={`h-4 ${skeletonBase} rounded w-full`}></div>
+                      <div className={`h-4 ${skeletonBase} rounded w-5/6`}></div>
                     </div>
                   </div>
                 ))}
