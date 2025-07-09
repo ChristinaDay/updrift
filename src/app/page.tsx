@@ -936,7 +936,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="hero-section relative py-20 overflow-hidden z-10">
+      <section className="hero-section relative min-h-screen flex items-center overflow-hidden z-10">
         {/* Starfield Background - behind river and hero content */}
         {isClient && (
           <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
