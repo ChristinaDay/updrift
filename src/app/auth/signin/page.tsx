@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -50,7 +51,12 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full absolute left-0 right-0 top-0">
+        <div className="flex justify-end pt-6">
+          <ThemeToggle />
+        </div>
+      </div>
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-bold text-foreground">
