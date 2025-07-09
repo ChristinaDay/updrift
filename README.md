@@ -8,7 +8,9 @@
 
 ## App Summary
 
-Updrift is a next-generation job search platform designed for modern job seekers and recruiters. It unifies listings from multiple top job APIs, allowing users to search, filter, and discover opportunities with advanced controls like mile-radius filtering and smart autocomplete. With a fully theme-aware, accessible, and animated UI, Updrift delivers a futuristic, delightful experience on any device. Built for extensibility, it’s easy to add new data sources, customize the look and feel, and scale as your needs grow.
+Updrift is a next-generation job search platform designed for modern job seekers and recruiters. 
+
+It unifies listings from multiple top job APIs, allowing users to search, filter, and discover opportunities with advanced controls like mile-radius filtering and smart autocomplete. With a fully theme-aware, accessible, and animated UI, Updrift delivers a futuristic, delightful experience on any device. Built for extensibility, it’s easy to add new data sources, customize the look and feel, and scale as your needs grow.
 
 > **Technologies Used:**
 > - Next.js (App Router)
