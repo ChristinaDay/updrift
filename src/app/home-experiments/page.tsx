@@ -4464,5 +4464,3 @@ export default function HomeExperimentsPage() {
     </ThemeProvider>
   );
 }
-
-export { RiverHeroLayout }; 
