@@ -8,34 +8,34 @@ import ThemedBody from '@/components/ThemedBody';
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'UpFetch - Superior Job Search',
+  title: 'Updrift - Superior Job Search',
   description: 'The intelligent job search platform that outperforms LinkedIn. Find your dream job with AI-powered matching, multi-platform aggregation, and advanced analytics.',
   keywords: 'job search, careers, employment, job board, LinkedIn alternative, job finder, career opportunities',
-  authors: [{ name: 'UpFetch Team' }],
-  creator: 'UpFetch',
-  publisher: 'UpFetch',
+  authors: [{ name: 'Updrift Team' }],
+  creator: 'Updrift',
+  publisher: 'Updrift',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://upfetch.me'),
+  metadataBase: new URL('https://updrift.me'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://upfetch.me',
-    title: 'UpFetch - Superior Job Search',
+    url: 'https://updrift.me',
+    title: 'Updrift - Superior Job Search',
     description: 'The intelligent job search platform that outperforms LinkedIn. Find your dream job with AI-powered matching, multi-platform aggregation, and advanced analytics.',
-    siteName: 'UpFetch',
+    siteName: 'Updrift',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'UpFetch - Superior Job Search',
+    title: 'Updrift - Superior Job Search',
     description: 'The intelligent job search platform that outperforms LinkedIn. Find your dream job with AI-powered matching, multi-platform aggregation, and advanced analytics.',
-    creator: '@upfetch',
+    creator: '@updrift',
   },
 }
 

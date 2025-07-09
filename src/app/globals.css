@@ -1945,4 +1945,29 @@ body {
   body {
     @apply bg-background text-foreground;
   }
-} 
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🌃 CYBERLIGHT - Futuristic, energetic, neon-inspired light theme
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-cyberlight {
+  --background: 220 40% 98%;           /* Cool, crisp white */
+  --foreground: 240 10% 15%;           /* Deep blue-charcoal */
+  --card: 220 50% 99%;                 /* Slightly blue-tinted white */
+  --card-foreground: 240 10% 15%;
+  --popover: 220 60% 100%;
+  --popover-foreground: 240 10% 15%;
+  --primary: 315 100% 60%;             /* Neon magenta */
+  --primary-foreground: 220 40% 98%;
+  --secondary: 190 80% 92%;            /* Pale cyan */
+  --secondary-foreground: 240 10% 15%;
+  --muted: 220 30% 95%;                /* Muted blue */
+  --muted-foreground: 240 10% 45%;
+  --accent: 60 100% 60%;               /* Electric yellow */
+  --accent-foreground: 240 10% 15%;
+  --destructive: 0 100% 60%;
+  --destructive-foreground: 220 40% 98%;
+  --border: 220 30% 90%;               /* Light blue border */
+  --input: 220 30% 94%;
+  --ring: 315 100% 60%;                /* Neon magenta for focus */
+}

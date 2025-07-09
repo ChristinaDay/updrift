@@ -17,7 +17,7 @@ export default function APIhubPage() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-2xl font-bold text-primary">
-                UpFetch
+                Updrift
               </Link>
               <nav className="hidden md:flex space-x-8">
                 <Link href="/search" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
@@ -60,8 +60,14 @@ export default function APIhubPage() {
       <div className="max-w-4xl mx-auto px-4 py-12">
         <h1 className="text-4xl font-bold text-foreground mb-2">APIhub</h1>
         <p className="text-lg text-muted-foreground mb-8">
-          All connected job API sources powering your UpFetch search. More sources = better results!
+          All connected job API sources powering your Updrift search. More sources = better results!
         </p>
+        <Link
+          href="/dashboard"
+          className="inline-block mb-8 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium shadow"
+        >
+          ← Return to Dashboard
+        </Link>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {jobProviders.map((provider) => (
             <div key={provider.id} className="bg-card rounded-lg shadow border border-border p-6 flex items-center gap-4">

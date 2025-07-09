@@ -237,7 +237,7 @@ export default function ThemeSelector({ showPreview = false }: { showPreview?: b
 
   // Load saved theme on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('upfetch-theme') || 'cyber'
+    const savedTheme = localStorage.getItem('updrift-theme') || 'cyber'
     setCurrentTheme(savedTheme)
     applyTheme(savedTheme)
   }, [])
@@ -257,7 +257,7 @@ export default function ThemeSelector({ showPreview = false }: { showPreview?: b
     html.className = filteredClasses.join(' ') + ` theme-${themeId}`
     
     // Save to localStorage
-    localStorage.setItem('upfetch-theme', themeId)
+    localStorage.setItem('updrift-theme', themeId)
     setCurrentTheme(themeId)
     
     console.log('✅ Theme applied successfully!', {

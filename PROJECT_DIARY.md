@@ -1,6 +1,6 @@
-# UpFetch Project Diary
+# Updrift Project Diary
 
-Welcome to the UpFetch Project Diary! This document summarizes the progress, key decisions, and milestones of the project in a diary format. Use it to track the evolution of the product, reflect on learnings, and document important changes for future reference.
+Welcome to the Updrift Project Diary! This document summarizes the progress, key decisions, and milestones of the project in a diary format. Use it to track the evolution of the product, reflect on learnings, and document important changes for future reference.
 
 ---
 
@@ -20,7 +20,7 @@ Welcome to the UpFetch Project Diary! This document summarizes the progress, key
 ## Project Diary (from Git History)
 
 ### July 5, 2025 — Project Kickoff & Foundation
-- 🚀 Initial commit: UpFetch job search platform with Adzuna API integration.
+- �� Initial commit: Updrift job search platform with Adzuna API integration.
 - Set up TypeScript, Next.js, and Prisma for robust, modern development.
 - Implemented core job search with mile-radius filtering.
 - Switched to PostgreSQL and Neon for production-ready database.
@@ -49,7 +49,7 @@ Welcome to the UpFetch Project Diary! This document summarizes the progress, key
 
 ## July 2025 — Project Inception & Early Milestones
 
-- **Project Kickoff:** UpFetch was conceived as a next-generation job search platform, aiming to unify multiple job APIs and provide a modern, theme-aware user experience.
+- **Project Kickoff:** Updrift was conceived as a next-generation job search platform, aiming to unify multiple job APIs and provide a modern, theme-aware user experience.
 - **Core Goals:**
   - Aggregate job listings from multiple sources (Adzuna, JSearch, more to come)
   - Support advanced filtering (mile radius, smart autocomplete)

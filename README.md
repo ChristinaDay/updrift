@@ -1,14 +1,14 @@
-# UpFetch - Job Search Platform with Mile-Radius Feature
+# Updrift - Job Search Platform with Mile-Radius Feature
 
 > **Author & Branding**
 >
-> Project by **Christina Day** — [Daytime Creative](https://daytimecreative.com) | [GitHub](https://github.com/christinaday) | [Repo](https://github.com/christinaday/upfetch) © 2025
+> Project by **Christina Day** — [Daytime Creative](https://daytimecreative.com) | [GitHub](https://github.com/christinaday) | [Repo](https://github.com/christinaday/updrift) © 2025
 >
-> This README serves as a living playbook for UpFetch. In addition to documenting features and setup, it captures the most important rules, best practices, and learnings developed during the project. As a contractor or team member, you are encouraged to add your own conventions, processes, and lessons here. This ensures that every new project can benefit from accumulated experience and preferred workflows.
+> This README serves as a living playbook for Updrift. In addition to documenting features and setup, it captures the most important rules, best practices, and learnings developed during the project. As a contractor or team member, you are encouraged to add your own conventions, processes, and lessons here. This ensures that every new project can benefit from accumulated experience and preferred workflows.
 
 ## App Summary
 
-UpFetch is a next-generation job search platform designed for modern job seekers and recruiters. It unifies listings from multiple top job APIs, allowing users to search, filter, and discover opportunities with advanced controls like mile-radius filtering and smart autocomplete. With a fully theme-aware, accessible, and animated UI, UpFetch delivers a futuristic, delightful experience on any device. Built for extensibility, it’s easy to add new data sources, customize the look and feel, and scale as your needs grow.
+Updrift is a next-generation job search platform designed for modern job seekers and recruiters. It unifies listings from multiple top job APIs, allowing users to search, filter, and discover opportunities with advanced controls like mile-radius filtering and smart autocomplete. With a fully theme-aware, accessible, and animated UI, Updrift delivers a futuristic, delightful experience on any device. Built for extensibility, it’s easy to add new data sources, customize the look and feel, and scale as your needs grow.
 
 > **Technologies Used:**
 > - Next.js (App Router)

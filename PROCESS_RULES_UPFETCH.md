@@ -1,6 +1,6 @@
-# UpFetch Project Process & Architecture Rules
+# Updrift Project Process & Architecture Rules
 
-> **This file is the canonical source of truth for process, architecture, and integration rules for the UpFetch project.**
+> **This file is the canonical source of truth for process, architecture, and integration rules for the Updrift project.**
 
 ---
 

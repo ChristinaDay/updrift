@@ -12,15 +12,15 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Only two themes: 'dawn' (light) and 'cyber' (dark)
-  const lightTheme = themes.find(t => t.name === 'dawn');
+  // Only two themes: 'cyberlight' (light) and 'cyber' (dark)
+  const lightTheme = themes.find(t => t.name === 'cyberlight');
   const darkTheme = themes.find(t => t.name === 'cyber');
   const [currentTheme, setCurrentTheme] = useState<Theme>(darkTheme!);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Load saved mode from localStorage
-    const savedMode = localStorage.getItem('upfetch-mode') || 'dark';
+    const savedMode = localStorage.getItem('updrift-mode') || 'dark';
     const theme = savedMode === 'dark' ? darkTheme : lightTheme;
     setCurrentTheme(theme!);
     applyTheme(theme!.name);
@@ -32,10 +32,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     let theme: Theme | undefined;
     if (themeName === 'dark') {
       theme = darkTheme;
-      localStorage.setItem('upfetch-mode', 'dark');
+      localStorage.setItem('updrift-mode', 'dark');
     } else {
       theme = lightTheme;
-      localStorage.setItem('upfetch-mode', 'light');
+      localStorage.setItem('updrift-mode', 'light');
     }
     if (!theme) return;
     setCurrentTheme(theme);
