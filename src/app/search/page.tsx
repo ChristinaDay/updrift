@@ -41,6 +41,7 @@ import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 import { signOut } from 'next-auth/react';
 // import ThemeSelector from '@/components/ThemeSelector'
+import Header from '@/components/Header'
 
 type SortOption = 'relevance' | 'date' | 'salary' | 'company'
 type ViewMode = 'grid' | 'list'
@@ -456,50 +457,7 @@ function SearchPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        {/* Header/Nav Bar (identical to dashboard) */}
-        <header className="bg-card shadow-sm border-b border-border">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <div className="flex items-center space-x-4">
-                <Link href="/" className="text-2xl font-bold text-primary">
-                  Updrift
-                </Link>
-                <nav className="hidden md:flex space-x-8">
-                  <Link href="/search" className="text-primary font-medium flex items-center space-x-1 border-b-2 border-blue-600 pb-1">
-                    <MagnifyingGlassIcon className="h-4 w-4" />
-                    <span>Search Jobs</span>
-                  </Link>
-                  <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
-                    <span>Dashboard</span>
-                  </Link>
-                  <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
-                    <BookmarkIcon className="h-4 w-4" />
-                    <span>Saved Jobs</span>
-                  </Link>
-                </nav>
-              </div>
-              <div className="flex items-center space-x-4">
-                <ThemeToggle />
-                {session && (
-                  <>
-                    <div className="flex items-center space-x-2">
-                      <UserIcon className="h-5 w-5 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        {session.user.name || session.user.email}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => signOut()}
-                      className="text-sm text-muted-foreground hover:text-destructive"
-                    >
-                      Sign out
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
+        <Header />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
@@ -516,50 +474,7 @@ function SearchPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header/Nav Bar (identical to dashboard) */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-2xl font-bold text-primary">
-                Updrift
-              </Link>
-              <nav className="hidden md:flex space-x-8">
-                <Link href="/search" className="text-primary font-medium flex items-center space-x-1 border-b-2 border-blue-600 pb-1">
-                  <MagnifyingGlassIcon className="h-4 w-4" />
-                  <span>Search Jobs</span>
-                </Link>
-                <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
-                  <span>Dashboard</span>
-                </Link>
-                <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
-                  <BookmarkIcon className="h-4 w-4" />
-                  <span>Saved Jobs</span>
-                </Link>
-              </nav>
-            </div>
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              {session && (
-                <>
-                  <div className="flex items-center space-x-2">
-                    <UserIcon className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      {session.user.name || session.user.email}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => signOut()}
-                    className="text-sm text-muted-foreground hover:text-destructive"
-                  >
-                    Sign out
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-20">
         {/* Always render the search/filter UI here, including the search bar */}
@@ -580,7 +495,7 @@ function SearchPage() {
                 {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
                 {session?.user && userPreferences && ' • Personalized for you'}
                 {!session?.user && ' • Sign in for personalized results'}
-                • Powered by Updrift AI
+                • Powered by UpDrift AI
               </p>
               {/* ...status badges... */}
             </div>

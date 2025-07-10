@@ -3053,10 +3053,10 @@ export default function StyleGuidePage() {
         {/* Introduction */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            Updrift Design System
+            UpDrift Design System
           </h1>
           <p className="text-lg text-muted-foreground mb-6">
-            A comprehensive collection of themes, components, and design tokens for the Updrift platform.
+            A comprehensive collection of themes, components, and design tokens for the UpDrift platform.
             This page is for internal design and development reference.
           </p>
           
@@ -3113,7 +3113,7 @@ export default function StyleGuidePage() {
                          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                            <div className="flex justify-between items-center h-16">
                              <div className="flex items-center">
-                               <h1 className="text-2xl font-bold gradient-text">Updrift</h1>
+                               <h1 className="text-2xl font-bold gradient-text">UpDrift</h1>
                              </div>
                              <div className="flex items-center space-x-4">
                                <ThemeToggle />
@@ -3227,7 +3227,7 @@ export default function StyleGuidePage() {
                          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                            <div className="text-center mb-16">
                              <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl">
-                               Why Updrift Beats LinkedIn
+                               Why UpDrift Beats LinkedIn
                              </h2>
                              <p className="mt-4 text-xl text-muted-foreground">
                                Experience the future of job searching with features that actually work for you

@@ -8,12 +8,12 @@ import ThemedBody from '@/components/ThemedBody';
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Updrift - Superior Job Search',
+  title: 'UpDrift - Superior Job Search',
   description: 'The intelligent job search platform that outperforms LinkedIn. Find your dream job with AI-powered matching, multi-platform aggregation, and advanced analytics.',
   keywords: 'job search, careers, employment, job board, LinkedIn alternative, job finder, career opportunities',
-  authors: [{ name: 'Updrift Team' }],
-  creator: 'Updrift',
-  publisher: 'Updrift',
+  authors: [{ name: 'UpDrift Team' }],
+  creator: 'UpDrift',
+  publisher: 'UpDrift',
   formatDetection: {
     email: false,
     address: false,
@@ -27,13 +27,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://updrift.me',
-    title: 'Updrift - Superior Job Search',
+    title: 'UpDrift - Superior Job Search',
     description: 'The intelligent job search platform that outperforms LinkedIn. Find your dream job with AI-powered matching, multi-platform aggregation, and advanced analytics.',
-    siteName: 'Updrift',
+    siteName: 'UpDrift',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Updrift - Superior Job Search',
+    title: 'UpDrift - Superior Job Search',
     description: 'The intelligent job search platform that outperforms LinkedIn. Find your dream job with AI-powered matching, multi-platform aggregation, and advanced analytics.',
     creator: '@updrift',
   },

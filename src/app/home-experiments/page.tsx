@@ -43,7 +43,7 @@ const RiverHeroLayout = () => (
               </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
-              Updrift finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
+              UpDrift finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
             </p>
           </div>
           {/* Flowing Search Form */}
@@ -453,7 +453,7 @@ function HomeExperiments() {
         <div className="py-24 bg-card/30 backdrop-blur-xl">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-foreground mb-4">Why Choose Updrift?</h2>
+              <h2 className="text-3xl font-bold text-foreground mb-4">Why Choose UpDrift?</h2>
               <p className="text-xl text-muted-foreground">Experience the future of job searching</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -3645,7 +3645,7 @@ function HomeExperiments() {
                   company: 'Stripe',
                   salary: '$180k',
                   increase: '+$45k',
-                  story: "I was stuck in a junior role for 3 years. Updrift's AI matching showed me I was ready for senior positions. Within 2 weeks, I had 5 interviews and landed my dream job at Stripe!",
+                  story: "I was stuck in a junior role for 3 years. UpDrift's AI matching showed me I was ready for senior positions. Within 2 weeks, I had 5 interviews and landed my dream job at Stripe!",
                   avatar: '👩‍💻',
                   skills: ['React', 'TypeScript', 'Node.js'],
                   timeToHire: '12 days'
@@ -4238,7 +4238,7 @@ function HomeExperiments() {
                   </span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
-                  Updrift finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
+                  UpDrift finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
                 </p>
               </div>
               

@@ -16,6 +16,7 @@ import {
   CheckIcon
 } from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
+import Header from '@/components/Header'
 
 interface SavedJob {
   id: string
@@ -207,38 +208,7 @@ export default function SavedJobsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-2xl font-bold text-blue-600">
-                Updrift
-              </Link>
-              <nav className="hidden md:flex space-x-8">
-                <Link href="/search" className="text-gray-600 hover:text-blue-600">
-                  Search Jobs
-                </Link>
-                <Link href="/dashboard" className="text-gray-600 hover:text-blue-600">
-                  Dashboard
-                </Link>
-                <Link href="/saved-jobs" className="text-blue-600 font-medium">
-                  Saved Jobs
-                </Link>
-              </nav>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <UserIcon className="h-5 w-5 text-gray-400" />
-                <span className="text-sm text-gray-600">
-                  {session.user.name || session.user.email}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

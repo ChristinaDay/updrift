@@ -16,6 +16,7 @@ import {
   ClockIcon
 } from '@heroicons/react/24/outline'
 import ThemeToggle from '@/components/ThemeToggle'
+import Header from '@/components/Header'
 
 interface UserPreferences {
   location: string
@@ -183,42 +184,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-2xl font-bold text-primary">
-                Updrift
-              </Link>
-              <nav className="hidden md:flex space-x-8">
-                <Link href="/search" className="text-muted-foreground hover:text-primary">
-                  Search Jobs
-                </Link>
-                <Link href="/dashboard" className="text-muted-foreground hover:text-primary">
-                  Dashboard
-                </Link>
-                <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary">
-                  Saved Jobs
-                </Link>
-                <Link href="/profile" className="text-primary font-medium">
-                  Profile
-                </Link>
-              </nav>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              <div className="flex items-center space-x-2">
-                <UserIcon className="h-5 w-5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  {session.user.name || session.user.email}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

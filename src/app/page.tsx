@@ -898,7 +898,9 @@ export default function Home() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold gradient-text">Updrift</h1>
+                <Link href="/" className="text-2xl font-bold gradient-text" aria-label="Go to home page">
+                  UpDrift
+                </Link>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -971,7 +973,7 @@ export default function Home() {
                   </span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
-                  Updrift finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
+                  UpDrift finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
                 </p>
               </div>
               {/* Flowing Search Form */}
@@ -1137,7 +1139,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl">
-              Why Updrift Beats LinkedIn
+              Why UpDrift Beats LinkedIn
             </h2>
             <p className="mt-4 text-xl text-muted-foreground">
               Experience the future of job searching with features that actually work for you
@@ -1209,7 +1211,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-foreground">Updrift</h3>
+              <h3 className="text-lg font-semibold mb-4 text-foreground">UpDrift</h3>
               <p className="text-muted-foreground">
                 The intelligent job search platform that outperforms traditional job boards.
               </p>
@@ -1243,7 +1245,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t text-center text-muted-foreground">
-            <p>&copy; 2025 Updrift. All rights reserved.</p>
+            <p>&copy; 2025 UpDrift. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -8,6 +8,7 @@ import { BookmarkIcon, MagnifyingGlassIcon, UserIcon, SparklesIcon } from '@hero
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { capitalizeLocation } from '@/utils/jobUtils'
 import ThemeToggle from '@/components/ThemeToggle'
+import Header from '@/components/Header'
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
@@ -67,47 +68,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-2xl font-bold text-primary">
-                Updrift
-              </Link>
-              <nav className="hidden md:flex space-x-8">
-                <Link href="/search" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
-                  <MagnifyingGlassIcon className="h-4 w-4" />
-                  <span>Search Jobs</span>
-                </Link>
-                <Link href="/dashboard" className="text-primary font-medium">
-                  Dashboard
-                </Link>
-                <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
-                  <BookmarkIcon className="h-4 w-4" />
-                  <span>Saved Jobs</span>
-                </Link>
-              </nav>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              <div className="flex items-center space-x-2">
-                <UserIcon className="h-5 w-5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  {session.user.name || session.user.email}
-                </span>
-              </div>
-              <button
-                onClick={() => signOut()}
-                className="text-sm text-muted-foreground hover:text-destructive"
-              >
-                Sign out
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
