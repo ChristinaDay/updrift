@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import ThemeToggle from "@/components/ThemeToggle";
-import { UserIcon } from "@heroicons/react/24/outline";
+import { UserIcon, MagnifyingGlassIcon, BookmarkIcon } from "@heroicons/react/24/outline";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const { data: session, status } = useSession();
+  const pathname = usePathname();
 
   return (
     <header className="bg-card shadow-sm border-b border-border">
@@ -18,19 +20,42 @@ export default function Header() {
             <Link href="/" className="text-2xl font-bold text-primary" aria-label="Go to home page">
               UpDrift
             </Link>
+          </div>
+          <div className="flex items-center space-x-4">
             <nav className="hidden md:flex space-x-8">
-              <Link href="/search" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
+              <Link
+                href="/search"
+                className={`flex items-center space-x-1 px-1.5 border-b-2 transition-colors duration-200 ${
+                  pathname.startsWith("/search")
+                    ? "text-primary border-primary"
+                    : "text-muted-foreground border-transparent hover:text-primary"
+                }`}
+              >
+                <MagnifyingGlassIcon className="h-4 w-4" />
                 <span>Search Jobs</span>
               </Link>
-              <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
+              <Link
+                href="/dashboard"
+                className={`flex items-center space-x-1 px-1.5 border-b-2 transition-colors duration-200 ${
+                  pathname === "/dashboard"
+                    ? "text-primary border-primary"
+                    : "text-muted-foreground border-transparent hover:text-primary"
+                }`}
+              >
                 <span>Dashboard</span>
               </Link>
-              <Link href="/saved-jobs" className="text-muted-foreground hover:text-primary flex items-center space-x-1">
+              <Link
+                href="/saved-jobs"
+                className={`flex items-center space-x-1 px-1.5 border-b-2 transition-colors duration-200 ${
+                  pathname.startsWith("/saved-jobs")
+                    ? "text-primary border-primary"
+                    : "text-muted-foreground border-transparent hover:text-primary"
+                }`}
+              >
+                <BookmarkIcon className="h-4 w-4" />
                 <span>Saved Jobs</span>
               </Link>
             </nav>
-          </div>
-          <div className="flex items-center space-x-4">
             <ThemeToggle />
             {status === "loading" ? (
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
