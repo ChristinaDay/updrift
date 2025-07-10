@@ -207,51 +207,51 @@ export default function SavedJobsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-            <BookmarkSolidIcon className="h-8 w-8 text-blue-600 mr-3" />
+          <h1 className="text-3xl font-bold text-foreground flex items-center">
+            <BookmarkSolidIcon className="h-8 w-8 text-primary mr-3" />
             Saved Jobs ({savedJobs.length})
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-muted-foreground mt-2">
             Manage your saved job opportunities and track your applications
           </p>
         </div>
 
         {/* Message */}
         {message && (
-          <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md">
+          <div className="mb-6 bg-accent border border-accent text-accent-foreground px-4 py-3 rounded-md">
             {message}
           </div>
         )}
 
         {/* Controls */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
             {/* Search */}
             <div className="relative flex-1 max-w-lg">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
+              <MagnifyingGlassIcon className="h-5 w-5 text-muted-foreground absolute left-3 top-3" />
               <input
                 type="text"
                 placeholder="Search saved jobs..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
               />
             </div>
 
             <div className="flex items-center space-x-4">
               {/* Sort */}
               <div className="flex items-center space-x-2">
-                <label className="text-sm text-gray-700">Sort by:</label>
+                <label className="text-sm text-muted-foreground">Sort by:</label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-3 py-1 border border-input rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                 >
                   <option value="newest">Newest First</option>
                   <option value="oldest">Oldest First</option>
@@ -264,7 +264,7 @@ export default function SavedJobsPage() {
               {savedJobs.length > 0 && (
                 <button
                   onClick={selectAllJobs}
-                  className="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="flex items-center px-3 py-2 text-sm text-muted-foreground hover:text-foreground border border-input rounded-lg hover:bg-accent"
                 >
                   <CheckIcon className="h-4 w-4 mr-1" />
                   {selectedJobs.size === filteredJobs.length ? 'Deselect All' : 'Select All'}
@@ -275,14 +275,14 @@ export default function SavedJobsPage() {
 
           {/* Bulk Actions Bar */}
           {showBulkActions && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-border">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-muted-foreground">
                   {selectedJobs.size} job{selectedJobs.size !== 1 ? 's' : ''} selected
                 </span>
                 <button
                   onClick={handleBulkDelete}
-                  className="flex items-center px-3 py-2 text-sm text-red-600 hover:text-red-700 border border-red-300 rounded-lg hover:bg-red-50"
+                  className="flex items-center px-3 py-2 text-sm text-destructive hover:text-destructive-foreground border border-destructive rounded-lg hover:bg-destructive/10"
                 >
                   <TrashIcon className="h-4 w-4 mr-1" />
                   Delete Selected
@@ -295,11 +295,11 @@ export default function SavedJobsPage() {
         {/* Job List */}
         {filteredJobs.length === 0 ? (
           <div className="text-center py-12">
-            <BookmarkIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <BookmarkIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
               {savedJobs.length === 0 ? 'No saved jobs yet' : 'No jobs match your search'}
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               {savedJobs.length === 0 
                 ? 'Start saving interesting job opportunities to keep track of them'
                 : 'Try adjusting your search terms'
@@ -308,7 +308,7 @@ export default function SavedJobsPage() {
             {savedJobs.length === 0 && (
               <Link
                 href="/search"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90"
               >
                 Browse Jobs
               </Link>
@@ -324,7 +324,7 @@ export default function SavedJobsPage() {
                     type="checkbox"
                     checked={selectedJobs.has(savedJob.id)}
                     onChange={() => toggleJobSelection(savedJob.id)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-primary focus:ring-primary border-input rounded"
                   />
                 </div>
 
@@ -339,15 +339,15 @@ export default function SavedJobsPage() {
                 </div>
 
                 {/* Notes Section */}
-                <div className="ml-8 mt-4 bg-gray-50 rounded-lg p-4">
+                <div className="ml-8 mt-4 bg-muted rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium text-gray-700">Notes</h4>
+                    <h4 className="text-sm font-medium text-muted-foreground">Notes</h4>
                     <button
                       onClick={() => {
                         setEditingNotes(savedJob.id)
                         setNotesText(savedJob.notes || '')
                       }}
-                      className="text-blue-600 hover:text-blue-700 text-sm"
+                      className="text-primary hover:text-primary/80 text-sm"
                     >
                       <PencilIcon className="h-4 w-4" />
                     </button>
@@ -358,14 +358,14 @@ export default function SavedJobsPage() {
                       <textarea
                         value={notesText}
                         onChange={(e) => setNotesText(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                         rows={3}
                         placeholder="Add your notes about this job..."
                       />
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleUpdateNotes(savedJob.id, notesText)}
-                          className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+                          className="px-3 py-1 bg-primary text-primary-foreground text-sm rounded-md hover:bg-primary/90"
                         >
                           Save
                         </button>
@@ -374,19 +374,19 @@ export default function SavedJobsPage() {
                             setEditingNotes(null)
                             setNotesText('')
                           }}
-                          className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-400"
+                          className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-md hover:bg-muted/80"
                         >
                           Cancel
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       {savedJob.notes || 'No notes added yet. Click the edit icon to add notes.'}
                     </p>
                   )}
 
-                  <div className="mt-2 flex items-center text-xs text-gray-500">
+                  <div className="mt-2 flex items-center text-xs text-muted-foreground">
                     <CalendarIcon className="h-4 w-4 mr-1" />
                     Saved {new Date(savedJob.savedAt).toLocaleDateString()} at{' '}
                     {new Date(savedJob.savedAt).toLocaleTimeString()}
