@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { BookmarkIcon, MagnifyingGlassIcon, UserIcon, SparklesIcon } from '@heroicons/react/24/outline'
+import { BookmarkIcon, MagnifyingGlassIcon, UserIcon, SparklesIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { capitalizeLocation } from '@/utils/jobUtils'
 import ThemeToggle from '@/components/ThemeToggle'
@@ -83,17 +83,20 @@ export default function Dashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+          <Link href="/saved-jobs" className="group bg-card p-6 rounded-lg shadow-sm border border-border transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex flex-col h-full justify-between">
             <div className="flex items-center">
               <div className="p-2 bg-secondary rounded-lg">
                 <BookmarkSolidIcon className="h-6 w-6 text-primary" />
               </div>
-              <div className="ml-4">
+              <div className="ml-4 flex-1">
                 <p className="text-sm font-medium text-muted-foreground">Saved Jobs</p>
                 <p className="text-2xl font-bold text-foreground">{savedJobs.length}</p>
               </div>
             </div>
-          </div>
+            <div className="flex items-center justify-end mt-6">
+              <span className="text-primary text-sm font-medium">View</span>
+            </div>
+          </Link>
           
           <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
             <div className="flex items-center">
