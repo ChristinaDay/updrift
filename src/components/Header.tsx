@@ -7,6 +7,10 @@ import { UserIcon, MagnifyingGlassIcon, BookmarkIcon, ChevronDownIcon } from "@h
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Bars3Icon } from "@heroicons/react/24/outline";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -22,6 +26,7 @@ export default function Header() {
             </Link>
           </div>
           <div className="flex items-center space-x-4">
+            {/* Desktop Nav */}
             <nav className="hidden md:flex space-x-8">
               <Link
                 href="/search"
@@ -60,6 +65,75 @@ export default function Header() {
                 </>
               )}
             </nav>
+            {/* Mobile Hamburger Button */}
+            <div className="md:hidden">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Open menu">
+                    <Bars3Icon className="h-6 w-6" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent variant="side-drawer">
+                  <DialogTitle asChild>
+                    <VisuallyHidden>Mobile Navigation Menu</VisuallyHidden>
+                  </DialogTitle>
+                  <div className="flex items-center justify-between px-4 py-4 border-b border-border">
+                    <Link href="/" className="text-2xl font-bold text-primary" aria-label="Go to home page">
+                      UpDrift
+                    </Link>
+                  </div>
+                  <nav className="flex flex-col gap-2 px-4 py-6">
+                    <Link
+                      href="/search"
+                      className={`flex items-center space-x-2 px-2 py-2 rounded-md ${pathname.startsWith("/search") ? "text-primary bg-accent" : "text-foreground hover:bg-accent/50"}`}
+                    >
+                      <MagnifyingGlassIcon className="h-5 w-5" />
+                      <span>Search Jobs</span>
+                    </Link>
+                    {session && (
+                      <>
+                        <Link
+                          href="/dashboard"
+                          className={`flex items-center space-x-2 px-2 py-2 rounded-md ${pathname === "/dashboard" ? "text-primary bg-accent" : "text-foreground hover:bg-accent/50"}`}
+                        >
+                          <span>Dashboard</span>
+                        </Link>
+                        <Link
+                          href="/saved-jobs"
+                          className={`flex items-center space-x-2 px-2 py-2 rounded-md ${pathname.startsWith("/saved-jobs") ? "text-primary bg-accent" : "text-foreground hover:bg-accent/50"}`}
+                        >
+                          <BookmarkIcon className="h-5 w-5" />
+                          <span>Saved Jobs</span>
+                        </Link>
+                      </>
+                    )}
+                  </nav>
+                  <div className="flex flex-col gap-2 px-4 pb-6 mt-auto">
+                    {status === "loading" ? (
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                    ) : session ? (
+                      <>
+                        <Link href="/profile" className="flex items-center gap-2 px-2 py-2 rounded-md text-foreground hover:bg-accent/50">
+                          <UserIcon className="h-5 w-5" />
+                          <span>Profile</span>
+                        </Link>
+                        <Button variant="outline" onClick={() => signOut()}>Sign out</Button>
+                      </>
+                    ) : (
+                      <>
+                        <Link href="/auth/signin">
+                          <Button variant="outline" className="w-full mb-2">Sign In</Button>
+                        </Link>
+                        <Link href="/auth/signup">
+                          <Button className="w-full">Get Started</Button>
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            {/* Desktop ThemeToggle and session actions */}
             <ThemeToggle />
             {status === "loading" ? (
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
