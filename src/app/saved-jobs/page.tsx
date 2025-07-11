@@ -317,7 +317,7 @@ export default function SavedJobsPage() {
         ) : (
           <div className="space-y-6">
             {filteredJobs.map(savedJob => (
-              <div key={savedJob.id} className="relative">
+              <div key={savedJob.id} className="relative pl-12">
                 {/* Selection Checkbox */}
                 <div className="absolute top-4 left-4 z-10">
                   <input
@@ -327,69 +327,65 @@ export default function SavedJobsPage() {
                     className="h-4 w-4 text-primary focus:ring-primary border-input rounded"
                   />
                 </div>
-
-                {/* Job Card */}
-                <div className="ml-8">
+                {/* Card and Notes Container */}
+                <div>
                   <JobCard
                     job={savedJob.jobData}
                     isSaved={true}
                     onSave={() => handleUnsaveJob(savedJob.jobId)}
                     showMatchScore={true}
                   />
-                </div>
-
-                {/* Notes Section */}
-                <div className="ml-8 mt-4 bg-muted rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium text-muted-foreground">Notes</h4>
-                    <button
-                      onClick={() => {
-                        setEditingNotes(savedJob.id)
-                        setNotesText(savedJob.notes || '')
-                      }}
-                      className="text-primary hover:text-primary/80 text-sm"
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-
-                  {editingNotes === savedJob.id ? (
-                    <div className="space-y-2">
-                      <textarea
-                        value={notesText}
-                        onChange={(e) => setNotesText(e.target.value)}
-                        className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                        rows={3}
-                        placeholder="Add your notes about this job..."
-                      />
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleUpdateNotes(savedJob.id, notesText)}
-                          className="px-3 py-1 bg-primary text-primary-foreground text-sm rounded-md hover:bg-primary/90"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => {
-                            setEditingNotes(null)
-                            setNotesText('')
-                          }}
-                          className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-md hover:bg-muted/80"
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                  {/* Notes Section */}
+                  <div className="mt-4 bg-muted rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium text-muted-foreground">Notes</h4>
+                      <button
+                        onClick={() => {
+                          setEditingNotes(savedJob.id)
+                          setNotesText(savedJob.notes || '')
+                        }}
+                        className="text-primary hover:text-primary/80 text-sm"
+                      >
+                        <PencilIcon className="h-4 w-4" />
+                      </button>
                     </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      {savedJob.notes || 'No notes added yet. Click the edit icon to add notes.'}
-                    </p>
-                  )}
-
-                  <div className="mt-2 flex items-center text-xs text-muted-foreground">
-                    <CalendarIcon className="h-4 w-4 mr-1" />
-                    Saved {new Date(savedJob.savedAt).toLocaleDateString()} at{' '}
-                    {new Date(savedJob.savedAt).toLocaleTimeString()}
+                    {editingNotes === savedJob.id ? (
+                      <div className="space-y-2">
+                        <textarea
+                          value={notesText}
+                          onChange={(e) => setNotesText(e.target.value)}
+                          className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                          rows={3}
+                          placeholder="Add your notes about this job..."
+                        />
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleUpdateNotes(savedJob.id, notesText)}
+                            className="px-3 py-1 bg-primary text-primary-foreground text-sm rounded-md hover:bg-primary/90"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingNotes(null)
+                              setNotesText('')
+                            }}
+                            className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-md hover:bg-muted/80"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {savedJob.notes || 'No notes added yet. Click the edit icon to add notes.'}
+                      </p>
+                    )}
+                    <div className="mt-2 flex items-center text-xs text-muted-foreground">
+                      <CalendarIcon className="h-4 w-4 mr-1" />
+                      Saved {new Date(savedJob.savedAt).toLocaleDateString()} at{' '}
+                      {new Date(savedJob.savedAt).toLocaleTimeString()}
+                    </div>
                   </div>
                 </div>
               </div>

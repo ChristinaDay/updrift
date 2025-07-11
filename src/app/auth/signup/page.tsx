@@ -104,7 +104,7 @@ export default function SignUpPage() {
               )}
 
               <div className="mb-5">
-                <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-black mb-2 label-dark-foreground">
                   Full Name
                 </label>
                 <input
@@ -112,13 +112,13 @@ export default function SignUpPage() {
                   name="name"
                   type="text"
                   required
-                  className="w-full px-3 py-2 border border-border rounded-md text-base text-foreground bg-background focus:bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                  className="w-full px-3 py-2 border border-border rounded-md text-base bg-white text-[#0f172a] focus:bg-white focus:text-[#0f172a] placeholder:text-[#64748b] focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Enter your full name"
                 />
               </div>
 
               <div className="mb-5">
-                <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-black mb-2 label-dark-foreground">
                   Email address
                 </label>
                 <input
@@ -126,13 +126,13 @@ export default function SignUpPage() {
                   name="email"
                   type="email"
                   required
-                  className="w-full px-3 py-2 border border-border rounded-md text-base text-foreground bg-background focus:bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-foreground dark:bg-white dark:text-black dark:focus:bg-white dark:focus:text-black"
+                  className="w-full px-3 py-2 border border-border rounded-md text-base bg-white text-[#0f172a] focus:bg-white focus:text-[#0f172a] placeholder:text-[#64748b] focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Enter your email"
                 />
               </div>
 
               <div className="mb-5">
-                <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-black mb-2 label-dark-foreground">
                   Password
                 </label>
                 <input
@@ -142,7 +142,7 @@ export default function SignUpPage() {
                   type="password"
                   required
                   minLength={6}
-                  className="w-full px-3 py-2 border border-border rounded-md text-base text-foreground bg-background focus:bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                  className="w-full px-3 py-2 border border-border rounded-md text-base bg-white text-[#0f172a] focus:bg-white focus:text-[#0f172a] placeholder:text-[#64748b] focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Create a password (min 6 characters)"
                 />
               </div>

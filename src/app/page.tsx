@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import ThemeToggle from '@/components/ThemeToggle'
+import Header from '@/components/Header';
 
 // Dynamic Wave Component
 function DynamicWaves() {
@@ -893,49 +894,7 @@ export default function Home() {
       `}</style>
 
       {/* Header */}
-      <header className="bg-background/80 backdrop-blur-md border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Link href="/" className="text-2xl font-bold gradient-text" aria-label="Go to home page">
-                  UpDrift
-                </Link>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              {status === 'loading' ? (
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-              ) : session ? (
-                <>
-                  <div className="flex items-center space-x-2">
-                    <UserIcon className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      {session.user.name?.split(' ')[0] || 'User'}
-                    </span>
-                  </div>
-                  <Button variant="ghost" asChild>
-                    <Link href="/dashboard">Dashboard</Link>
-                  </Button>
-                  <Button variant="ghost" onClick={() => signOut()}>
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="ghost" onClick={() => signIn()}>
-                    Sign In
-                  </Button>
-                  <Button asChild>
-                    <Link href="/auth/signup">Get Started</Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero Section */}
       <section className="hero-section relative min-h-screen flex items-center overflow-hidden z-10">

@@ -1984,3 +1984,10 @@ input:-webkit-autofill:active {
   color: hsl(var(--foreground)) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+/* Custom label color for dark mode */
+@media (prefers-color-scheme: dark) {
+  .label-dark-foreground {
+    color: hsl(var(--foreground)) !important;
+  }
+}

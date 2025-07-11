@@ -190,19 +190,19 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-4">
                 {savedJobs.map((savedJob: any, index: number) => (
-                  <div key={savedJob.id || index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={savedJob.id || index} className="flex items-center justify-between p-4 bg-card rounded-lg border border-border">
                     <div className="flex items-center space-x-3 flex-1">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <BookmarkSolidIcon className="h-4 w-4 text-blue-600" />
+                      <div className="p-2 bg-secondary rounded-lg">
+                        <BookmarkSolidIcon className="h-4 w-4 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {savedJob.jobData.job_title}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           {savedJob.jobData.employer_name}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-muted">
                           Saved {new Date(savedJob.savedAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -210,7 +210,7 @@ export default function Dashboard() {
                     <div className="flex items-center space-x-2">
                       <Link
                         href={`/saved-jobs`}
-                        className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                        className="text-primary hover:text-primary/80 text-sm font-medium"
                       >
                         View
                       </Link>
@@ -218,7 +218,7 @@ export default function Dashboard() {
                         href={savedJob.jobData.job_apply_link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-green-600 hover:text-green-500 text-sm font-medium"
+                        className="text-success hover:text-success/80 text-sm font-medium"
                       >
                         Apply
                       </Link>
