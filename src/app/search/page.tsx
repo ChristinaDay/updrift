@@ -493,7 +493,8 @@ function SearchPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-20">
         {/* Always render the search/filter UI here, including the search bar */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
+        <div className="space-y-6 mb-8">
+          {/* Title and Summary Section */}
           <div>
             <h1 className="text-2xl font-bold text-foreground">
               {searchQuery ? `Jobs for "${searchQuery}"` : (location ? `Jobs in ${capitalizeLocation(location)}` : 'Explore Job Opportunities')}
@@ -504,8 +505,8 @@ function SearchPage() {
                 within {radius} miles of {capitalizeLocation(location)}
               </p>
             )}
-            <div className="flex items-center space-x-2 mt-1">
-              <p className="text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <p className="text-muted-foreground text-sm">
                 {filteredJobs.length} opportunities found
                 {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
                 {session?.user && userPreferences && ' • Personalized for you'}
@@ -526,9 +527,10 @@ function SearchPage() {
               )}
             </div>
           </div>
+          
           {/* Search refinement bar (search bar UI) - always visible */}
-          <div className="mt-4 lg:mt-0 flex space-x-4">
-            <div className="relative">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1 sm:flex-none">
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
               <input
                 type="text"
@@ -536,10 +538,10 @@ function SearchPage() {
                 value={inputQuery}
                 onChange={(e) => setInputQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-64 bg-background text-foreground placeholder:text-muted-foreground"
+                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-64 bg-background text-foreground placeholder:text-muted-foreground"
               />
             </div>
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-none">
               <MapPinIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
               <input
                 type="text"
@@ -549,7 +551,7 @@ function SearchPage() {
                 onKeyPress={handleKeyPress}
                 onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
                 onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
-                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-48 bg-background text-foreground placeholder:text-muted-foreground"
+                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-48 bg-background text-foreground placeholder:text-muted-foreground"
               />
               {showLocationSuggestions && locationSuggestions.length > 0 && (
                 <div className="absolute z-10 w-full mt-1 bg-card border border-input rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -569,11 +571,11 @@ function SearchPage() {
               )}
             </div>
             {/* Radius Selector - always visible */}
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-none">
               <select
                 value={radius}
                 onChange={(e) => setRadius(parseInt(e.target.value))}
-                className="pl-3 pr-8 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm bg-background text-foreground"
+                className="pl-3 pr-8 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm bg-background text-foreground w-full"
               >
                 <option value={5}>Within 5 miles</option>
                 <option value={10}>Within 10 miles</option>
@@ -587,7 +589,7 @@ function SearchPage() {
             </div>
             <button
               onClick={triggerSearch}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
             >
               <MagnifyingGlassIcon className="h-4 w-4" />
               <span>Search</span>
