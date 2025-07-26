@@ -484,125 +484,113 @@ function SearchPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-20">
-        {/* Always render the search/filter UI here, including the search bar */}
-        <div className="space-y-4 mb-8">
-          {/* Title Section */}
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {searchQuery ? `Jobs for "${searchQuery}"` : (location ? `Jobs in ${capitalizeLocation(location)}` : 'Explore Job Opportunities')}
-              {location && searchQuery && ` within ${radius} miles of ${capitalizeLocation(location)}`}
-            </h1>
-            {location && !searchQuery && (
-              <p className="text-sm text-muted-foreground mt-1">
-                within {radius} miles of {capitalizeLocation(location)}
+        <h1 className="text-2xl font-bold text-foreground mb-6">
+          {searchQuery ? `Jobs for "${searchQuery}"` : (location ? `Jobs in ${capitalizeLocation(location)}` : 'Explore Job Opportunities')}
+        </h1>
+        
+        {/* Search and Summary Row */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+          {/* Summary Text */}
+          <div className="flex-1 min-w-0">
+            <div className="bg-card rounded-xl shadow-sm border border-input p-6">
+              <p className="text-muted-foreground text-sm">
+                {filteredJobs.length} opportunities found
+                {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
+                {session?.user && userPreferences && ' • Personalized for you'}
+                {!session?.user && ' • Sign in for personalized results'}
+                • Powered by UpDrift AI
+                {cacheStats.size > 0 && ` • ${cacheStats.size} cached searches (24h)`}
+                {isUserIdle && ' • Idle mode (API calls disabled)'}
               </p>
-            )}
+              {/* Cache management */}
+              {cacheStats.size > 0 && (
+                <button
+                  onClick={clearCache}
+                  className="text-xs text-blue-600 hover:text-blue-700 underline mt-2"
+                  title="Clear search cache"
+                >
+                  Clear Cache
+                </button>
+              )}
+            </div>
           </div>
           
-          {/* Search and Summary Row */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            {/* Summary Text */}
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="text-muted-foreground text-sm">
-                  {filteredJobs.length} opportunities found
-                  {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
-                  {session?.user && userPreferences && ' • Personalized for you'}
-                  {!session?.user && ' • Sign in for personalized results'}
-                  • Powered by UpDrift AI
-                  {cacheStats.size > 0 && ` • ${cacheStats.size} cached searches (24h)`}
-                  {isUserIdle && ' • Idle mode (API calls disabled)'}
-                </p>
-                {/* Cache management */}
-                {cacheStats.size > 0 && (
-                  <button
-                    onClick={clearCache}
-                    className="text-xs text-blue-600 hover:text-blue-700 underline"
-                    title="Clear search cache"
-                  >
-                    Clear Cache
-                  </button>
-                )}
-              </div>
+          {/* Search inputs */}
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-end lg:flex-shrink-0">
+            <div className="relative flex-1 sm:flex-none">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                placeholder="Refine search..."
+                value={inputQuery}
+                onChange={(e) => setInputQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-56 lg:w-64 bg-background text-foreground placeholder:text-muted-foreground"
+              />
             </div>
-            
-            {/* Search refinement bar (search bar UI) - always visible */}
-            <div className="flex flex-col sm:flex-row gap-4 lg:flex-shrink-0">
-              <div className="relative flex-1 sm:flex-none">
-                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  placeholder="Refine search..."
-                  value={inputQuery}
-                  onChange={(e) => setInputQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-56 lg:w-64 bg-background text-foreground placeholder:text-muted-foreground"
-                />
-              </div>
-              <div className="relative flex-1 sm:flex-none">
-                <MapPinIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  placeholder="Location..."
-                  value={inputLocation}
-                  onChange={(e) => setInputLocation(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
-                  onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
-                  className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-44 lg:w-48 bg-background text-foreground placeholder:text-muted-foreground"
-                />
-                {showLocationSuggestions && locationSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-card border border-input rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                    {locationSuggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleLocationSelect(suggestion)}
-                        className="w-full px-4 py-2 text-left hover:bg-muted focus:bg-muted text-sm text-foreground border-b border-muted last:border-b-0"
-                      >
-                        <div className="flex items-center">
-                          <MapPinIcon className="h-4 w-4 text-muted-foreground mr-2" />
-                          {suggestion}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              {/* Radius Selector - always visible */}
-              <div className="relative flex-1 sm:flex-none">
-                <select
-                  value={radius}
-                  onChange={(e) => setRadius(parseInt(e.target.value))}
-                  className="pl-3 pr-8 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm bg-background text-foreground w-full sm:w-32 lg:w-36"
-                >
-                  <option value={5}>Within 5 miles</option>
-                  <option value={10}>Within 10 miles</option>
-                  <option value={15}>Within 15 miles</option>
-                  <option value={25}>Within 25 miles</option>
-                  <option value={35}>Within 35 miles</option>
-                  <option value={50}>Within 50 miles</option>
-                  <option value={75}>Within 75 miles</option>
-                  <option value={100}>Within 100 miles</option>
-                </select>
-              </div>
-              <button
-                onClick={triggerSearch}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
+            <div className="relative flex-1 sm:flex-none">
+              <MapPinIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
+              <input
+                type="text"
+                placeholder="Location..."
+                value={inputLocation}
+                onChange={(e) => setInputLocation(e.target.value)}
+                onKeyPress={handleKeyPress}
+                onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
+                onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
+                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-44 lg:w-48 bg-background text-foreground placeholder:text-muted-foreground"
+              />
+              {showLocationSuggestions && locationSuggestions.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-card border border-input rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {locationSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleLocationSelect(suggestion)}
+                      className="w-full px-4 py-2 text-left hover:bg-muted focus:bg-muted text-sm text-foreground border-b border-muted last:border-b-0"
+                    >
+                      <div className="flex items-center">
+                        <MapPinIcon className="h-4 w-4 text-muted-foreground mr-2" />
+                        {suggestion}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Radius Selector */}
+            <div className="relative flex-1 sm:flex-none">
+              <select
+                value={radius}
+                onChange={(e) => setRadius(parseInt(e.target.value))}
+                className="pl-3 pr-8 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm bg-background text-foreground w-full sm:w-32 lg:w-36"
               >
-                <MagnifyingGlassIcon className="h-4 w-4" />
-                <span>Search</span>
-              </button>
+                <option value={5}>Within 5 miles</option>
+                <option value={10}>Within 10 miles</option>
+                <option value={15}>Within 15 miles</option>
+                <option value={25}>Within 25 miles</option>
+                <option value={35}>Within 35 miles</option>
+                <option value={50}>Within 50 miles</option>
+                <option value={75}>Within 75 miles</option>
+                <option value={100}>Within 100 miles</option>
+              </select>
             </div>
+            <button
+              onClick={triggerSearch}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
+            >
+              <MagnifyingGlassIcon className="h-4 w-4" />
+              <span>Search</span>
+            </button>
           </div>
-
+        </div>
+        
         {/* Save Message */}
         {saveMessage && (
           <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md">
@@ -671,6 +659,19 @@ function SearchPage() {
                 </button>
               </div>
 
+              {/* Remote Work */}
+              <div className="mb-6">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={filters.remote}
+                    onChange={(e) => setFilters(prev => ({ ...prev, remote: e.target.checked }))}
+                    className="rounded border-input text-primary focus:ring-primary"
+                  />
+                  <span className="ml-2 text-sm text-muted-foreground">Remote only</span>
+                </label>
+              </div>
+
               {/* User Preferences Quick Apply */}
               {session?.user && userPreferences && (
                 <div className="mb-6 p-4 bg-blue-50 rounded-lg">
@@ -700,19 +701,6 @@ function SearchPage() {
                 </div>
               )}
 
-              {/* Remote Work */}
-              <div className="mb-6">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={filters.remote}
-                    onChange={(e) => setFilters(prev => ({ ...prev, remote: e.target.checked }))}
-                    className="rounded border-input text-primary focus:ring-primary"
-                  />
-                  <span className="ml-2 text-sm text-muted-foreground">Remote only</span>
-                </label>
-              </div>
-
               {/* Salary Range */}
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-foreground mb-3">Salary Range</h4>
@@ -734,6 +722,21 @@ function SearchPage() {
                 </div>
               </div>
 
+              {/* Date Posted */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-foreground mb-3">Date Posted</h4>
+                <select
+                  value={filters.datePosted}
+                  onChange={(e) => setFilters(prev => ({ ...prev, datePosted: e.target.value }))}
+                  className="w-full px-3 py-2 border border-input rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                >
+                  <option value="all">Any time</option>
+                  <option value="day">Past 24 hours</option>
+                  <option value="week">Past week</option>
+                  <option value="month">Past month</option>
+                </select>
+              </div>
+
               {/* Employment Type */}
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-foreground mb-3">Employment Type</h4>
@@ -752,21 +755,6 @@ function SearchPage() {
                     </label>
                   ))}
                 </div>
-              </div>
-
-              {/* Date Posted */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-foreground mb-3">Date Posted</h4>
-                <select
-                  value={filters.datePosted}
-                  onChange={(e) => setFilters(prev => ({ ...prev, datePosted: e.target.value }))}
-                  className="w-full px-3 py-2 border border-input rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                >
-                  <option value="all">Any time</option>
-                  <option value="day">Past 24 hours</option>
-                  <option value="week">Past week</option>
-                  <option value="month">Past month</option>
-                </select>
               </div>
 
               {/* Advanced Filters Toggle */}
@@ -819,29 +807,6 @@ function SearchPage() {
                         ))}
                       </div>
                     </div>
-
-                    {/* Schedule Type */}
-                    <div>
-                      <h4 className="text-sm font-medium text-foreground mb-3">Schedule</h4>
-                      <div className="space-y-2">
-                        {['Full-time', 'Part-time', 'Flexible', 'Remote', 'Hybrid', 'On-site'].map(schedule => (
-                          <label key={schedule} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={filters.schedule.includes(schedule)}
-                              onChange={(e) => {
-                                const newArray = e.target.checked
-                                  ? [...filters.schedule, schedule]
-                                  : filters.schedule.filter(s => s !== schedule)
-                                setFilters(prev => ({ ...prev, schedule: newArray }))
-                              }}
-                              className="rounded border-input text-primary focus:ring-primary"
-                            />
-                            <span className="ml-2 text-sm text-muted-foreground">{schedule}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>
@@ -884,87 +849,87 @@ function SearchPage() {
               </div>
             </div>
 
-            {/* Job listings */}
-            {filteredJobs.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 px-4">
-                <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+            {/* Results content */}
+            <div className="min-h-[400px]">
+              {filteredJobs.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-medium text-foreground mb-2">
+                      {locationFilterResults?.applied && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0
+                        ? `No jobs found in ${capitalizeLocation(location)}`
+                        : "No jobs found"
+                      }
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      {locationFilterResults?.applied && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0
+                        ? `We found ${locationFilterResults.originalCount} jobs for "${searchQuery}", but none were located in ${capitalizeLocation(location)}.`
+                        : "Try adjusting your search criteria or filters"
+                      }
+                    </p>
+                    
+                    {locationFilterResults?.applied && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0 && (
+                      <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                        <button
+                          onClick={() => {
+                            setFilteredJobs(jobs);
+                          }}
+                          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                        >
+                          Show All {locationFilterResults.originalCount} Jobs
+                        </button>
+                        <button
+                          onClick={() => {
+                            router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
+                          }}
+                          className="px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
+                        >
+                          Remove Location Filter
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <h3 className="text-lg font-medium text-foreground mb-2">
-                    {locationFilterResults?.applied && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0
-                      ? `No jobs found in ${capitalizeLocation(location)}`
-                      : "No jobs found"
-                    }
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    {locationFilterResults?.applied && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0
-                      ? `We found ${locationFilterResults.originalCount} jobs for "${searchQuery}", but none were located in ${capitalizeLocation(location)}.`
-                      : "Try adjusting your search criteria or filters"
-                    }
-                  </p>
+                </div>
+              ) : (
+                <div className={viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 gap-6' : 'space-y-4'}>
+                  {filteredJobs.map(job => (
+                    <JobCard
+                      key={job.job_id}
+                      job={job}
+                      isSaved={savedJobs.has(job.job_id)}
+                      onSave={handleSaveJob}
+                      onApply={handleApplyToJob}
+                      applicationStatus={getApplicationStatus(job.job_id)}
+                      onUpdateApplicationStatus={handleUpdateApplicationStatus}
+                      showMatchScore={true}
+                      className={viewMode === 'list' ? 'lg:flex lg:space-x-6' : ''}
+                    />
+                  ))}
                   
-                  {locationFilterResults?.applied && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0 && (
-                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                      <button
-                        onClick={() => {
-                          setFilteredJobs(jobs);
-                        }}
-                        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-                      >
-                        Show All {locationFilterResults.originalCount} Jobs
-                      </button>
-                      <button
-                        onClick={() => {
-                          router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
-                        }}
-                        className="px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
-                      >
-                        Remove Location Filter
+                  {/* Load more button */}
+                  {filteredJobs.length > 0 && (
+                    <div className="text-center mt-8">
+                      <button className="bg-card border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium">
+                        Load more jobs
                       </button>
                     </div>
                   )}
                 </div>
-              </div>
-            ) : (
-              <div className={viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 gap-6' : 'space-y-4'}>
-                {filteredJobs.map(job => (
-                  <JobCard
-                    key={job.job_id}
-                    job={job}
-                    isSaved={savedJobs.has(job.job_id)}
-                    onSave={handleSaveJob}
-                    onApply={handleApplyToJob}
-                    applicationStatus={getApplicationStatus(job.job_id)}
-                    onUpdateApplicationStatus={handleUpdateApplicationStatus}
-                    showMatchScore={true}
-                    className={viewMode === 'list' ? 'lg:flex lg:space-x-6' : ''}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Load more button */}
-            {filteredJobs.length > 0 && (
-              <div className="text-center mt-8">
-                <button className="bg-card border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-medium">
-                  Load more jobs
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
-
-      {/* API Setup Guide Modal */}
       <ApiSetupGuide
         isVisible={showApiGuide}
         onClose={() => setShowApiGuide(false)}
       />
     </div>
-  )
+  );
 }
 
 // Suspense wrapper component
@@ -1003,7 +968,7 @@ function SearchPageLoading() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function SearchPageWithSuspense() {
@@ -1011,5 +976,5 @@ export default function SearchPageWithSuspense() {
     <Suspense fallback={<SearchPageLoading />}>
       <SearchPage />
     </Suspense>
-  )
+  );
 }
