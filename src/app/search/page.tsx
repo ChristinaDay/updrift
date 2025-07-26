@@ -32,6 +32,7 @@ import { useSession } from 'next-auth/react'
 import { Job } from '@/types/job'
 import { filterJobs, sortJobs, capitalizeLocation } from '@/utils/jobUtils'
 import { useSearchJobs } from '@/lib/useSearchJobs'
+import { useJobApplications } from '@/lib/useJobApplications'
 import JobCard from '@/components/JobCard'
 import ApiSetupGuide from '@/components/ApiSetupGuide'
 import {
@@ -78,6 +79,14 @@ function SearchPage() {
     cacheStats,
     isUserIdle
   } = useSearchJobs()
+
+  // Use job applications hook
+  const {
+    applications,
+    applyToJob,
+    updateApplicationStatus,
+    loading: applicationsLoading
+  } = useJobApplications()
 
   // Enhanced filter states
   const [filters, setFilters] = useState({
@@ -391,6 +400,50 @@ function SearchPage() {
     }
 
     setTimeout(() => setSaveMessage(''), 3000)
+  }
+
+  const handleApplyToJob = async (job: any) => {
+    if (!session?.user) {
+      setSaveMessage('Please sign in to apply to jobs')
+      setTimeout(() => setSaveMessage(''), 3000)
+      return
+    }
+
+    try {
+      await applyToJob(job.job_id, job, job.job_apply_link)
+      setSaveMessage('Application tracked successfully!')
+      
+      // Open the application link in a new tab
+      if (job.job_apply_link) {
+        window.open(job.job_apply_link, '_blank')
+      }
+    } catch (error) {
+      console.error('Error applying to job:', error)
+      setSaveMessage(error instanceof Error ? error.message : 'Error applying to job')
+    }
+
+    setTimeout(() => setSaveMessage(''), 3000)
+  }
+
+  const handleUpdateApplicationStatus = async (jobId: string, status: string) => {
+    try {
+      const application = applications.find(app => app.jobId === jobId)
+      if (application) {
+        await updateApplicationStatus(application.id, status as any)
+        setSaveMessage('Application status updated!')
+      }
+    } catch (error) {
+      console.error('Error updating application status:', error)
+      setSaveMessage('Error updating application status')
+    }
+
+    setTimeout(() => setSaveMessage(''), 3000)
+  }
+
+  // Get application status for a job
+  const getApplicationStatus = (jobId: string) => {
+    const application = applications.find(app => app.jobId === jobId)
+    return application?.status
   }
 
   const handleEmploymentTypeChange = (type: string, checked: boolean) => {
@@ -875,6 +928,9 @@ function SearchPage() {
                     job={job}
                     isSaved={savedJobs.has(job.job_id)}
                     onSave={handleSaveJob}
+                    onApply={handleApplyToJob}
+                    applicationStatus={getApplicationStatus(job.job_id)}
+                    onUpdateApplicationStatus={handleUpdateApplicationStatus}
                     showMatchScore={true}
                     className={viewMode === 'list' ? 'lg:flex lg:space-x-6' : ''}
                   />

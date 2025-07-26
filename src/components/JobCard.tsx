@@ -20,7 +20,12 @@ import {
   ArrowTopRightOnSquareIcon,
   SparklesIcon,
   ComputerDesktopIcon,
-  BriefcaseIcon
+  BriefcaseIcon,
+  CheckCircleIcon,
+  EyeIcon,
+  UserGroupIcon,
+  XCircleIcon,
+  TrophyIcon
 } from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { useState } from 'react'
@@ -36,6 +41,8 @@ interface JobCardProps {
   onApply?: (job: Job) => void
   showMatchScore?: boolean
   className?: string
+  applicationStatus?: 'APPLIED' | 'VIEWED' | 'INTERVIEWING' | 'REJECTED' | 'HIRED'
+  onUpdateApplicationStatus?: (jobId: string, status: string) => void
 }
 
 export default function JobCard({ 
@@ -44,7 +51,9 @@ export default function JobCard({
   onSave, 
   onApply,
   showMatchScore = true,
-  className = '' 
+  className = '',
+  applicationStatus,
+  onUpdateApplicationStatus
 }: JobCardProps) {
   const [imageError, setImageError] = useState(false)
   
@@ -66,6 +75,40 @@ export default function JobCard({
     }
   }
 
+  const getApplicationStatusIcon = (status: string) => {
+    switch (status) {
+      case 'APPLIED':
+        return <CheckCircleIcon className="w-4 h-4 text-blue-600" />
+      case 'VIEWED':
+        return <EyeIcon className="w-4 h-4 text-yellow-600" />
+      case 'INTERVIEWING':
+        return <UserGroupIcon className="w-4 h-4 text-purple-600" />
+      case 'REJECTED':
+        return <XCircleIcon className="w-4 h-4 text-red-600" />
+      case 'HIRED':
+        return <TrophyIcon className="w-4 h-4 text-green-600" />
+      default:
+        return null
+    }
+  }
+
+  const getApplicationStatusColor = (status: string) => {
+    switch (status) {
+      case 'APPLIED':
+        return 'bg-blue-100 text-blue-700 border-blue-200'
+      case 'VIEWED':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-200'
+      case 'INTERVIEWING':
+        return 'bg-purple-100 text-purple-700 border-purple-200'
+      case 'REJECTED':
+        return 'bg-red-100 text-red-700 border-red-200'
+      case 'HIRED':
+        return 'bg-green-100 text-green-700 border-green-200'
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-200'
+    }
+  }
+
   return (
     <Card className={`rounded-2xl border-4 border-primary shadow-xl overflow-hidden bg-card h-full flex flex-col ${className}`}>
       {/* Top Holo Bar */}
@@ -77,6 +120,16 @@ export default function JobCard({
             {matchScore}% Match
           </Badge>
         ) : <div />}
+        {/* Application Status Badge */}
+        {applicationStatus && (
+          <Badge 
+            variant="secondary" 
+            className={`${getApplicationStatusColor(applicationStatus)} border font-medium px-3 py-1 text-sm shadow-sm flex items-center gap-1`}
+          >
+            {getApplicationStatusIcon(applicationStatus)}
+            {applicationStatus}
+          </Badge>
+        )}
         {/* Save Button (star/ribbon style) */}
         <Button
           variant="ghost"
@@ -184,9 +237,29 @@ export default function JobCard({
             )}
           </div>
         )}
-        <Button onClick={handleApply} className="w-full font-bold text-lg flex items-center justify-center gap-2 bg-primary/90 hover:bg-primary">
-          Apply Now
-          <ArrowTopRightOnSquareIcon className="w-5 h-5" />
+        <Button 
+          onClick={handleApply} 
+          className={`w-full font-bold text-lg flex items-center justify-center gap-2 ${
+            applicationStatus 
+              ? 'bg-muted text-muted-foreground hover:bg-muted/80' 
+              : 'bg-primary/90 hover:bg-primary'
+          }`}
+          disabled={!!applicationStatus}
+        >
+          {applicationStatus ? (
+            <>
+              {applicationStatus === 'APPLIED' && 'Applied'}
+              {applicationStatus === 'VIEWED' && 'Viewed'}
+              {applicationStatus === 'INTERVIEWING' && 'Interviewing'}
+              {applicationStatus === 'REJECTED' && 'Rejected'}
+              {applicationStatus === 'HIRED' && 'Hired'}
+            </>
+          ) : (
+            <>
+              Apply Now
+              <ArrowTopRightOnSquareIcon className="w-5 h-5" />
+            </>
+          )}
         </Button>
         <div className="text-xs text-muted-foreground text-center mt-2">
           <ClockIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" />
