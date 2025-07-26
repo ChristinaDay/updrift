@@ -67,7 +67,8 @@ function SearchPage() {
     locationFilterResults,
     searchJobs,
     clearCache,
-    cacheStats
+    cacheStats,
+    isUserIdle
   } = useSearchJobs()
 
   // Enhanced filter states
@@ -450,6 +451,7 @@ function SearchPage() {
                 {!session?.user && ' • Sign in for personalized results'}
                 • Powered by UpDrift AI
                 {cacheStats.size > 0 && ` • ${cacheStats.size} cached searches`}
+                {isUserIdle && ' • Idle mode (API calls disabled)'}
               </p>
               {/* Cache management */}
               {cacheStats.size > 0 && (

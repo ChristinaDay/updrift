@@ -16,6 +16,8 @@ const DEBOUNCE_DELAY = 300; // 300ms - delay before triggering search after user
 class SearchCacheManager {
   private cache: SearchCache = {};
   private lastCallTime: number = 0;
+  private lastUserActivity: number = Date.now();
+  private idleTimeout: number = 10 * 60 * 1000; // 10 minutes of inactivity
 
   private getCacheKey(searchQuery: string, location: string, radius: number): string {
     return `${searchQuery}:${location}:${radius}`;
@@ -27,6 +29,14 @@ class SearchCacheManager {
 
   private canMakeApiCall(): boolean {
     return Date.now() - this.lastCallTime >= MIN_INTERVAL_BETWEEN_CALLS;
+  }
+
+  private isUserActive(): boolean {
+    return Date.now() - this.lastUserActivity < this.idleTimeout;
+  }
+
+  recordUserActivity(): void {
+    this.lastUserActivity = Date.now();
   }
 
   getCachedResult(searchQuery: string, location: string, radius: number): any | null {
@@ -57,6 +67,12 @@ class SearchCacheManager {
       return false;
     }
 
+    // Check if user is active (not idle)
+    if (!this.isUserActive()) {
+      console.log('😴 API call blocked - user is idle (inactive for 10+ minutes)');
+      return false;
+    }
+
     // Check if enough time has passed since last API call
     if (!this.canMakeApiCall()) {
       console.log('⏰ API call throttled - waiting for 5-minute cooldown period');
@@ -80,6 +96,14 @@ class SearchCacheManager {
       size: Object.keys(this.cache).length,
       keys: Object.keys(this.cache)
     };
+  }
+
+  isUserIdle(): boolean {
+    return !this.isUserActive();
+  }
+
+  getLastActivityTime(): number {
+    return this.lastUserActivity;
   }
 }
 

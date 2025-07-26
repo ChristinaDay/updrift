@@ -15,6 +15,7 @@ interface UseSearchJobsReturn {
   searchJobs: (query: string, location: string, radius: number) => void;
   clearCache: () => void;
   cacheStats: { size: number; keys: string[] };
+  isUserIdle: boolean;
 }
 
 export function useSearchJobs(): UseSearchJobsReturn {
@@ -27,6 +28,29 @@ export function useSearchJobs(): UseSearchJobsReturn {
     originalCount: number;
     filteredCount: number;
   } | null>(null);
+
+  // Track user activity
+  useEffect(() => {
+    const handleUserActivity = () => {
+      searchCache.recordUserActivity();
+    };
+
+    // Track various user activities
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    events.forEach(event => {
+      document.addEventListener(event, handleUserActivity, { passive: true });
+    });
+
+    // Record initial activity
+    handleUserActivity();
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserActivity);
+      });
+    };
+  }, []);
 
   const searchJobs = useCallback(async (query: string, location: string, radius: number) => {
     // Don't search if both query and location are empty
@@ -136,6 +160,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
     locationFilterResults,
     searchJobs: debouncedSearch,
     clearCache,
-    cacheStats
+    cacheStats,
+    isUserIdle: searchCache.isUserIdle()
   };
 } 
