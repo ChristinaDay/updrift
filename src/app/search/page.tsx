@@ -623,6 +623,9 @@ function SearchPage() {
             <button
               onClick={() => setShowSearchHistory(!showSearchHistory)}
               className="w-full bg-card rounded-xl shadow-sm border border-input p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+              aria-expanded={showSearchHistory}
+              aria-haspopup="listbox"
+              aria-label="Search history dropdown"
             >
               <div className="flex items-center gap-2">
                 <ClockIcon className="w-4 h-4" />
@@ -642,10 +645,14 @@ function SearchPage() {
             </button>
             
             {showSearchHistory && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-card rounded-xl shadow-lg border border-input z-10 max-h-64 overflow-y-auto">
+              <div 
+                className="absolute top-full left-0 right-0 mt-1 bg-card rounded-xl shadow-lg border border-input z-10 max-h-64 overflow-y-auto"
+                role="listbox"
+                aria-label="Search history list"
+              >
                 <div className="p-2">
                   {allCacheEntries.length > 0 ? (
-                    <div className="space-y-1">
+                    <ul className="space-y-1" role="list">
                       {allCacheEntries.map((entry, index) => {
                         const now = Date.now();
                         const ageMs = now - entry.timestamp;
@@ -666,7 +673,7 @@ function SearchPage() {
                         const isCurrent = currentCacheEntry && currentCacheEntry.searchParams === entry.searchParams;
                         
                         return (
-                          <div key={entry.searchParams} className={`p-2 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${isCurrent ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-muted'}`}>
+                          <li key={entry.searchParams} className={`p-2 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${isCurrent ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-muted'}`} role="listitem">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="font-medium text-foreground text-sm">
@@ -682,10 +689,10 @@ function SearchPage() {
                                 </div>
                               )}
                             </div>
-                          </div>
+                          </li>
                         );
                       })}
-                    </div>
+                    </ul>
                   ) : (
                     <div className="p-3 rounded-lg bg-muted/30 border border-muted">
                       <div className="font-medium text-foreground text-sm">
