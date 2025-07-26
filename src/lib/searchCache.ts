@@ -9,8 +9,8 @@ interface SearchCache {
 }
 
 // Cache and throttling configuration
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes - how long to keep cached results
-const MIN_INTERVAL_BETWEEN_CALLS = 5 * 60 * 1000; // 5 minutes - minimum time between API calls
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours - how long to keep cached results
+const MIN_INTERVAL_BETWEEN_CALLS = 24 * 60 * 60 * 1000; // 24 hours - minimum time between API calls for same search
 const DEBOUNCE_DELAY = 300; // 300ms - delay before triggering search after user input
 
 class SearchCacheManager {
@@ -75,7 +75,7 @@ class SearchCacheManager {
 
     // Check if enough time has passed since last API call
     if (!this.canMakeApiCall()) {
-      console.log('⏰ API call throttled - waiting for 5-minute cooldown period');
+      console.log('⏰ API call throttled - waiting for 24-hour cooldown period');
       return false;
     }
 

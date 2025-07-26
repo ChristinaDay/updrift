@@ -28,6 +28,11 @@ export function useSearchJobs(): UseSearchJobsReturn {
     originalCount: number;
     filteredCount: number;
   } | null>(null);
+  const [lastSearchParams, setLastSearchParams] = useState<{
+    query: string;
+    location: string;
+    radius: number;
+  } | null>(null);
 
   // Track user activity
   useEffect(() => {
@@ -58,8 +63,15 @@ export function useSearchJobs(): UseSearchJobsReturn {
       setJobs([]);
       setFilteredJobs([]);
       setLoading(false);
+      setLastSearchParams(null);
       return;
     }
+
+    // Check if this is the same search as before
+    const isSameSearch = lastSearchParams && 
+      lastSearchParams.query === query && 
+      lastSearchParams.location === location && 
+      lastSearchParams.radius === radius;
 
     // Check cache first
     const cachedResult = searchCache.getCachedResult(query, location, radius);
@@ -73,6 +85,13 @@ export function useSearchJobs(): UseSearchJobsReturn {
         filteredCount: cachedResult.filtered_count || 0
       } : null);
       setLoading(false);
+      setLastSearchParams({ query, location, radius });
+      return;
+    }
+
+    // Only make API call for new searches, not when user becomes active again
+    if (isSameSearch) {
+      console.log('🔄 Same search detected - using cached results without API call');
       return;
     }
 
@@ -102,6 +121,9 @@ export function useSearchJobs(): UseSearchJobsReturn {
       
       // Cache the result
       searchCache.setCachedResult(query, location, radius, data);
+      
+      // Record the search parameters
+      setLastSearchParams({ query, location, radius });
       
       if (data.status === 'mock') {
         console.log('🚨 Using mock data - configure RAPIDAPI_KEY for real jobs');

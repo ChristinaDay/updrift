@@ -16,6 +16,14 @@
  * 4. Show users filtering statistics to maintain transparency
  * 
  * This ensures users only see jobs actually relevant to their location search.
+ * 
+ * API THROTTLING & CACHING
+ * ========================
+ * - 24-hour cache duration for search results
+ * - Only one API call per unique search per 24 hours
+ * - Idle detection prevents API calls when user is inactive (10+ minutes)
+ * - No automatic refresh when user becomes active again
+ * - Manual search triggers required for new API calls
  */
 
 import { useState, useEffect, Suspense } from 'react'
@@ -450,7 +458,7 @@ function SearchPage() {
                 {session?.user && userPreferences && ' • Personalized for you'}
                 {!session?.user && ' • Sign in for personalized results'}
                 • Powered by UpDrift AI
-                {cacheStats.size > 0 && ` • ${cacheStats.size} cached searches`}
+                {cacheStats.size > 0 && ` • ${cacheStats.size} cached searches (24h)`}
                 {isUserIdle && ' • Idle mode (API calls disabled)'}
               </p>
               {/* Cache management */}
