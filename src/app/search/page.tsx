@@ -821,14 +821,14 @@ function SearchPage() {
 
               {/* User Preferences Quick Apply */}
               {session?.user && userPreferences && (
-                <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+                <div className="mb-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
                   <div className="flex items-center space-x-2 mb-3">
-                    <UserIcon className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-900">Your Preferences</span>
+                    <UserIcon className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">Your Preferences</span>
                   </div>
                   <button
                     onClick={applyUserPreferences}
-                    className="w-full bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors"
+                    className="w-full bg-primary text-primary-foreground px-3 py-2 rounded-md text-sm hover:bg-primary/90 transition-colors"
                   >
                     Apply My Preferences
                   </button>
