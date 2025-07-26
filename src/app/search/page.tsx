@@ -146,6 +146,14 @@ function SearchPage() {
     }
   }, [searchParams])
 
+  // Debug cache entries
+  useEffect(() => {
+    console.log('🔍 Search History - allCacheEntries:', allCacheEntries.length, 'entries')
+    allCacheEntries.forEach((entry, index) => {
+      console.log(`  ${index + 1}. ${entry.searchParams} (${Math.floor((Date.now() - entry.timestamp) / 1000)}s old)`)
+    })
+  }, [allCacheEntries])
+
   // Manual search trigger function
   const triggerSearch = () => {
     console.log('🔍 Triggering search with:', { inputQuery, inputLocation, radius })

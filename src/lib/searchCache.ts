@@ -111,9 +111,16 @@ class SearchCacheManager {
 
   getAllCacheEntries(): CacheEntry[] {
     const now = Date.now();
-    return Object.values(this.cache)
+    const entries = Object.values(this.cache)
       .filter(entry => now - entry.timestamp < CACHE_DURATION)
       .sort((a, b) => b.timestamp - a.timestamp); // Most recent first
+    
+    console.log('📋 All cache entries:', entries.length, 'entries');
+    entries.forEach((entry, index) => {
+      console.log(`  ${index + 1}. ${entry.searchParams} (${Math.floor((now - entry.timestamp) / 1000)}s old)`);
+    });
+    
+    return entries;
   }
 
   isUserIdle(): boolean {
