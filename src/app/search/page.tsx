@@ -117,6 +117,18 @@ function SearchPage() {
   // Local filtered jobs state (for client-side filtering)
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
 
+  // Format search parameters from cache key
+  const formatSearchParams = (searchParamsKey: string) => {
+    const [query, location, radius] = searchParamsKey.split(':');
+    const parts = [];
+    
+    if (query) parts.push(`"${query}"`);
+    if (location) parts.push(`in ${location}`);
+    if (radius && radius !== '25') parts.push(`(${radius}mi radius)`);
+    
+    return parts.length > 0 ? parts.join(' ') : 'No search parameters';
+  };
+
   // Format cache timestamp for display
   const formatCacheInfo = () => {
     if (currentCacheEntry) {
@@ -136,10 +148,30 @@ function SearchPage() {
       const refreshTime = new Date(currentCacheEntry.timestamp + (24 * 60 * 60 * 1000));
       const refreshText = refreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       
-      return `Cached ${ageText} • Refreshes at ${refreshText}`;
+      const searchParamsText = formatSearchParams(currentCacheEntry.searchParams);
+      
+      return (
+        <div className="space-y-2">
+          <div className="font-medium text-foreground">
+            {searchParamsText}
+          </div>
+          <div className="text-muted-foreground">
+            Cached {ageText} • Refreshes at {refreshText}
+          </div>
+        </div>
+      );
     } else {
       // Show zeros when no cached results
-      return `Cached 0h 0m old • Refreshes at --:--`;
+      return (
+        <div className="space-y-2">
+          <div className="font-medium text-foreground">
+            No cached search
+          </div>
+          <div className="text-muted-foreground">
+            Cached 0h 0m old • Refreshes at --:--
+          </div>
+        </div>
+      );
     }
   };
 
@@ -628,7 +660,7 @@ function SearchPage() {
               </button>
             )}
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm">
             {formatCacheInfo()}
             {isUserIdle && (
               <div className="mt-2 text-amber-600 flex items-center gap-1">
