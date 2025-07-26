@@ -45,7 +45,8 @@ import {
   AdjustmentsHorizontalIcon,
   BookmarkIcon,
   UserIcon,
-  SparklesIcon
+  SparklesIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline'
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -78,7 +79,8 @@ function SearchPage() {
     clearCache,
     cacheStats,
     isUserIdle,
-    currentCacheEntry
+    currentCacheEntry,
+    allCacheEntries
   } = useSearchJobs()
 
   // Use job applications hook
@@ -112,35 +114,24 @@ function SearchPage() {
   const [saveMessage, setSaveMessage] = useState('')
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([])
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false)
+  const [showSearchHistory, setShowSearchHistory] = useState(false)
 
   // Local filtered jobs state (for client-side filtering)
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
 
-  // Format cache timestamp for display
-  const formatCacheInfo = () => {
-    if (currentCacheEntry) {
-      const now = Date.now();
-      const ageMs = now - currentCacheEntry.timestamp;
-      const ageHours = Math.floor(ageMs / (1000 * 60 * 60));
-      const ageMinutes = Math.floor((ageMs % (1000 * 60 * 60)) / (1000 * 60));
-      
-      let ageText = '';
-      if (ageHours > 0) {
-        ageText = `${ageHours}h ${ageMinutes}m old`;
-      } else {
-        ageText = `${ageMinutes}m old`;
-      }
-      
-      // Calculate when it will refresh (24 hours from timestamp)
-      const refreshTime = new Date(currentCacheEntry.timestamp + (24 * 60 * 60 * 1000));
-      const refreshText = refreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-      return `Cached ${ageText} • Refreshes at ${refreshText}`;
-    } else {
-      // Show zeros when no cached results
-      return `Cached 0h 0m old • Refreshes at --:--`;
-    }
+  // Format search parameters from cache key
+  const formatSearchParams = (searchParamsKey: string) => {
+    const [query, location, radius] = searchParamsKey.split(':');
+    const parts = [];
+    
+    if (query) parts.push(`"${query}"`);
+    if (location) parts.push(`in ${location}`);
+    if (radius && radius !== '25') parts.push(`(${radius}mi radius)`);
+    
+    return parts.length > 0 ? parts.join(' ') : 'No search parameters';
   };
+
+
 
   // Get search parameters from URL
   useEffect(() => {
@@ -156,8 +147,21 @@ function SearchPage() {
     }
   }, [searchParams])
 
+  // Debug cache entries
+  useEffect(() => {
+    console.log('🔍 Search History - allCacheEntries:', allCacheEntries.length, 'entries')
+    allCacheEntries.forEach((entry, index) => {
+      console.log(`  ${index + 1}. ${entry.searchParams} (${Math.floor((Date.now() - entry.timestamp) / 1000)}s old)`)
+    })
+  }, [allCacheEntries])
+
+
+
   // Manual search trigger function
   const triggerSearch = () => {
+    console.log('🔍 Triggering search with:', { inputQuery, inputLocation, radius })
+    
+    // Update state first
     setSearchQuery(inputQuery)
     setLocation(inputLocation)
     
@@ -168,6 +172,11 @@ function SearchPage() {
     if (inputLocation && radius) params.append('radius', radius.toString())
     
     router.push(`/search?${params.toString()}`)
+    
+    // Also trigger search directly to ensure it works
+    if (inputQuery || inputLocation) {
+      searchJobs(inputQuery, inputLocation, radius)
+    }
   }
 
   // Handle Enter key press to trigger search
@@ -227,6 +236,24 @@ function SearchPage() {
     // Trigger search when location is selected
     setTimeout(() => triggerSearch(), 100)
   }
+
+  // Close location suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (!target.closest('.location-input-container')) {
+        setShowLocationSuggestions(false)
+      }
+    }
+
+    if (showLocationSuggestions) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showLocationSuggestions])
 
   // Load user's saved jobs if authenticated
   useEffect(() => {
@@ -529,24 +556,13 @@ function SearchPage() {
             <div className="bg-card rounded-xl shadow-sm border border-input p-6">
               <p className="text-muted-foreground text-sm">
                 {filteredJobs.length} opportunities found
-                {` • ${formatCacheInfo()}`}
                 {isUserIdle && ' • Idle mode (API calls disabled)'}
               </p>
-              {/* Cache management */}
-              {cacheStats.size > 0 && (
-                <button
-                  onClick={clearCache}
-                  className="text-xs text-blue-600 hover:text-blue-700 underline mt-2"
-                  title="Clear search cache"
-                >
-                  Clear Cache
-                </button>
-              )}
             </div>
           </div>
           
           {/* Search inputs */}
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-end lg:flex-shrink-0">
+          <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-end lg:flex-shrink-0">
             <div className="relative flex-1 sm:flex-none">
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
               <input
@@ -558,7 +574,7 @@ function SearchPage() {
                 className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-56 lg:w-64 bg-background text-foreground placeholder:text-muted-foreground"
               />
             </div>
-            <div className="relative flex-1 sm:flex-none">
+            <div className="relative flex-1 sm:flex-none location-input-container">
               <MapPinIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
               <input
                 type="text"
@@ -567,7 +583,6 @@ function SearchPage() {
                 onChange={(e) => setInputLocation(e.target.value)}
                 onKeyPress={handleKeyPress}
                 onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
-                onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
                 className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-44 lg:w-48 bg-background text-foreground placeholder:text-muted-foreground"
               />
               {showLocationSuggestions && locationSuggestions.length > 0 && (
@@ -621,6 +636,132 @@ function SearchPage() {
           </div>
         )}
 
+        {/* Search History Dropdown */}
+        <div className="mb-6">
+          <div className="relative">
+            <button
+              onClick={() => setShowSearchHistory(!showSearchHistory)}
+              className="w-full bg-card rounded-xl shadow-sm border border-input p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+              aria-expanded={showSearchHistory}
+              aria-haspopup="listbox"
+              aria-label="Search history dropdown"
+            >
+              <div className="flex items-center gap-2">
+                <ClockIcon className="w-4 h-4" />
+                <span className="text-sm font-semibold text-foreground">
+                  Search History ({allCacheEntries.length})
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {isUserIdle && (
+                  <div className="flex items-center gap-1 text-amber-600">
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs">Idle</span>
+                  </div>
+                )}
+                <ChevronDownIcon className={`w-4 h-4 transition-transform ${showSearchHistory ? 'rotate-180' : ''}`} />
+              </div>
+            </button>
+            
+            {showSearchHistory && (
+              <div 
+                className="absolute top-full left-0 right-0 mt-1 bg-card rounded-xl shadow-lg border border-input z-10 max-h-64 overflow-y-auto"
+                role="listbox"
+                aria-label="Search history list"
+              >
+                <div className="p-2">
+                  {allCacheEntries.length > 0 ? (
+                    <ul className="space-y-1" role="list">
+                      {allCacheEntries.map((entry, index) => {
+                        const now = Date.now();
+                        const ageMs = now - entry.timestamp;
+                        const ageHours = Math.floor(ageMs / (1000 * 60 * 60));
+                        const ageMinutes = Math.floor((ageMs % (1000 * 60 * 60)) / (1000 * 60));
+                        
+                        let ageText = '';
+                        if (ageHours > 0) {
+                          ageText = `${ageHours}h ${ageMinutes}m old`;
+                        } else {
+                          ageText = `${ageMinutes}m old`;
+                        }
+                        
+                        const refreshTime = new Date(entry.timestamp + (24 * 60 * 60 * 1000));
+                        const refreshText = refreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        
+                        const searchParamsText = formatSearchParams(entry.searchParams);
+                        const isCurrent = currentCacheEntry && currentCacheEntry.searchParams === entry.searchParams;
+                        
+                        return (
+                          <li 
+                            key={entry.searchParams} 
+                            className={`p-2 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${isCurrent ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-muted'}`} 
+                            role="listitem"
+                            onClick={() => {
+                              // Parse search parameters from cache entry
+                              const [query, location, radiusStr] = entry.searchParams.split(':');
+                              const radius = parseInt(radiusStr);
+                              
+                              // Update form fields
+                              setInputQuery(query);
+                              setInputLocation(location);
+                              setRadius(radius);
+                              setSearchQuery(query);
+                              setLocation(location);
+                              
+                              // Load cached results directly
+                              searchJobs(query, location, radius);
+                              
+                              // Close dropdown
+                              setShowSearchHistory(false);
+                            }}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="font-medium text-foreground text-sm">
+                                  {searchParamsText}
+                                </div>
+                                <div className="text-muted-foreground text-xs">
+                                  Cached {ageText} • Refreshes at {refreshText}
+                                </div>
+                              </div>
+                              {isCurrent && (
+                                <div className="ml-2 text-xs text-primary font-medium">
+                                  Current
+                                </div>
+                              )}
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <div className="p-3 rounded-lg bg-muted/30 border border-muted">
+                      <div className="font-medium text-foreground text-sm">
+                        No cached searches
+                      </div>
+                      <div className="text-muted-foreground text-xs">
+                        Cached 0h 0m old • Refreshes at --:--
+                      </div>
+                    </div>
+                  )}
+                  
+                  {cacheStats.size > 0 && (
+                    <div className="mt-2 pt-2 border-t border-muted">
+                      <button
+                        onClick={clearCache}
+                        className="w-full text-xs text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors"
+                        title="Clear search cache"
+                      >
+                        Clear All Cache
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Location Filtering Notification */}
         {locationFilterResults?.applied && location && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0 && (
           <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -668,10 +809,24 @@ function SearchPage() {
           </div>
         )}
 
+        {/* Mobile Filter Toggle */}
+        <div className="lg:hidden mb-4">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="w-full flex items-center justify-between bg-card rounded-xl shadow-sm border border-input p-4 hover:bg-muted/50 transition-colors"
+          >
+            <div className="flex items-center space-x-2">
+              <FunnelIcon className="h-5 w-5" />
+              <span className="font-medium text-foreground">Filters</span>
+            </div>
+            <ChevronDownIcon className={`h-5 w-5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+
         <div className="lg:grid lg:grid-cols-4 lg:gap-8">
           {/* Filters Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-card rounded-xl shadow-sm border border-input p-6 sticky top-4">
+          <div className={`lg:col-span-1 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+            <div className="bg-card rounded-xl shadow-sm border border-input p-6 lg:sticky lg:top-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-foreground">Filters</h3>
                 <button
@@ -697,14 +852,14 @@ function SearchPage() {
 
               {/* User Preferences Quick Apply */}
               {session?.user && userPreferences && (
-                <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+                <div className="mb-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
                   <div className="flex items-center space-x-2 mb-3">
-                    <UserIcon className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-900">Your Preferences</span>
+                    <UserIcon className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">Your Preferences</span>
                   </div>
                   <button
                     onClick={applyUserPreferences}
-                    className="w-full bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors"
+                    className="w-full bg-primary text-primary-foreground px-3 py-2 rounded-md text-sm hover:bg-primary/90 transition-colors"
                   >
                     Apply My Preferences
                   </button>
@@ -839,7 +994,7 @@ function SearchPage() {
           {/* Results */}
           <div className="lg:col-span-3 mt-6 lg:mt-0">
             {/* Results header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <label className="text-sm text-muted-foreground">Sort by:</label>

@@ -65,4 +65,36 @@ Welcome to the Updrift Project Diary! This document summarizes the progress, key
 
 ---
 
+### July 9, 2025 — Search Experience Refinement & Cache Management
+- **Enhanced Search History System:**
+  - Replaced generic summary text with dynamic cache timestamps showing age and refresh times
+  - Created dedicated "Search History" container with clock icon and organized layout
+  - Added support for multiple cache entries with current search highlighting
+  - Implemented smart search parameter formatting (e.g., "React Developer" in San Francisco, CA)
+  - Added "Current" indicator for active search with primary color highlighting
+
+- **Logo Thumbnail Optimization:**
+  - Completely removed logo thumbnails when no company logo is available
+  - Eliminated fallback briefcase icons for cleaner, uncluttered appearance
+  - Improved layout flow when logos are absent (title/company name expands to full width)
+
+- **Idle Mode Enhancement:**
+  - Added animated pulsing dot indicator for idle mode
+  - Implemented visual feedback when API calls are disabled due to user inactivity
+  - Created amber-colored idle indicator with clear messaging
+
+- **Technical Improvements:**
+  - Enhanced search cache system with `getAllCacheEntries()` method
+  - Updated `useSearchJobs` hook to expose all cache entries
+  - Improved cache entry display with proper sorting (most recent first)
+  - Added comprehensive search parameter parsing and formatting
+
+- **User Experience Enhancements:**
+  - Search history now shows complete context of cached searches
+  - Clear visual hierarchy with search parameters prominently displayed
+  - Better organization of cache information in dedicated container
+  - Improved feedback for system states (idle mode, cache status)
+
+---
+
 ## [Add your next entry here] 

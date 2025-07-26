@@ -10,12 +10,12 @@ interface SearchCache {
 
 // Cache and throttling configuration
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours - how long to keep cached results
-const MIN_INTERVAL_BETWEEN_CALLS = 24 * 60 * 60 * 1000; // 24 hours - minimum time between API calls for same search
+const MIN_INTERVAL_BETWEEN_CALLS = 5 * 60 * 1000; // 5 minutes - minimum time between API calls for same search (reduced for development)
 const DEBOUNCE_DELAY = 300; // 300ms - delay before triggering search after user input
 
 class SearchCacheManager {
   private cache: SearchCache = {};
-  private lastCallTime: number = 0;
+  private lastCallTimes: { [key: string]: number } = {}; // Track last call time per search parameter
   private lastUserActivity: number = Date.now();
   private idleTimeout: number = 10 * 60 * 1000; // 10 minutes of inactivity
 
@@ -27,8 +27,10 @@ class SearchCacheManager {
     return Date.now() - entry.timestamp < CACHE_DURATION;
   }
 
-  private canMakeApiCall(): boolean {
-    return Date.now() - this.lastCallTime >= MIN_INTERVAL_BETWEEN_CALLS;
+  private canMakeApiCall(searchQuery: string, location: string, radius: number): boolean {
+    const key = this.getCacheKey(searchQuery, location, radius);
+    const lastCallTime = this.lastCallTimes[key] || 0;
+    return Date.now() - lastCallTime >= MIN_INTERVAL_BETWEEN_CALLS;
   }
 
   private isUserActive(): boolean {
@@ -84,22 +86,24 @@ class SearchCacheManager {
       return false;
     }
 
-    // Check if enough time has passed since last API call
-    if (!this.canMakeApiCall()) {
-      console.log('⏰ API call throttled - waiting for 24-hour cooldown period');
+    // Check if enough time has passed since last API call for this specific search
+    if (!this.canMakeApiCall(searchQuery, location, radius)) {
+      console.log('⏰ API call throttled - waiting for cooldown period for this search');
       return false;
     }
 
     return true;
   }
 
-  recordApiCall(): void {
-    this.lastCallTime = Date.now();
+  recordApiCall(searchQuery: string, location: string, radius: number): void {
+    const key = this.getCacheKey(searchQuery, location, radius);
+    this.lastCallTimes[key] = Date.now();
   }
 
   clearCache(): void {
     this.cache = {};
-    console.log('🗑️ Search cache cleared');
+    this.lastCallTimes = {}; // Reset throttling when cache is cleared
+    console.log('🗑️ Search cache cleared and throttling reset');
   }
 
   getCacheStats(): { size: number; keys: string[] } {
@@ -109,12 +113,36 @@ class SearchCacheManager {
     };
   }
 
+  getAllCacheEntries(): CacheEntry[] {
+    const now = Date.now();
+    const entries = Object.values(this.cache)
+      .filter(entry => now - entry.timestamp < CACHE_DURATION)
+      .sort((a, b) => b.timestamp - a.timestamp); // Most recent first
+    
+    console.log('📋 All cache entries:', entries.length, 'entries');
+    entries.forEach((entry, index) => {
+      console.log(`  ${index + 1}. ${entry.searchParams} (${Math.floor((now - entry.timestamp) / 1000)}s old)`);
+    });
+    
+    return entries;
+  }
+
   isUserIdle(): boolean {
     return !this.isUserActive();
   }
 
   getLastActivityTime(): number {
     return this.lastUserActivity;
+  }
+
+  getThrottlingStatus(searchQuery: string, location: string, radius: number): { canMakeCall: boolean; timeRemaining: number } {
+    const key = this.getCacheKey(searchQuery, location, radius);
+    const lastCallTime = this.lastCallTimes[key] || 0;
+    const timeSinceLastCall = Date.now() - lastCallTime;
+    const timeRemaining = Math.max(0, MIN_INTERVAL_BETWEEN_CALLS - timeSinceLastCall);
+    const canMakeCall = timeRemaining === 0;
+    
+    return { canMakeCall, timeRemaining };
   }
 }
 
