@@ -675,7 +675,29 @@ function SearchPage() {
                         const isCurrent = currentCacheEntry && currentCacheEntry.searchParams === entry.searchParams;
                         
                         return (
-                          <li key={entry.searchParams} className={`p-2 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${isCurrent ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-muted'}`} role="listitem">
+                          <li 
+                            key={entry.searchParams} 
+                            className={`p-2 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${isCurrent ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-muted'}`} 
+                            role="listitem"
+                            onClick={() => {
+                              // Parse search parameters from cache entry
+                              const [query, location, radiusStr] = entry.searchParams.split(':');
+                              const radius = parseInt(radiusStr);
+                              
+                              // Update form fields
+                              setInputQuery(query);
+                              setInputLocation(location);
+                              setRadius(radius);
+                              setSearchQuery(query);
+                              setLocation(location);
+                              
+                              // Load cached results directly
+                              searchJobs(query, location, radius);
+                              
+                              // Close dropdown
+                              setShowSearchHistory(false);
+                            }}
+                          >
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="font-medium text-foreground text-sm">

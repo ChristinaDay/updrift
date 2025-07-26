@@ -125,7 +125,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
       console.log('📊 API Response:', data.status, data.data?.length || 0, 'jobs');
       
       // Record the API call
-      searchCache.recordApiCall();
+      searchCache.recordApiCall(query, location, radius);
       
       // Cache the result
       searchCache.setCachedResult(query, location, radius, data);
