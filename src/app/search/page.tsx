@@ -79,7 +79,8 @@ function SearchPage() {
     clearCache,
     cacheStats,
     isUserIdle,
-    currentCacheEntry
+    currentCacheEntry,
+    allCacheEntries
   } = useSearchJobs()
 
   // Use job applications hook
@@ -129,51 +130,7 @@ function SearchPage() {
     return parts.length > 0 ? parts.join(' ') : 'No search parameters';
   };
 
-  // Format cache timestamp for display
-  const formatCacheInfo = () => {
-    if (currentCacheEntry) {
-      const now = Date.now();
-      const ageMs = now - currentCacheEntry.timestamp;
-      const ageHours = Math.floor(ageMs / (1000 * 60 * 60));
-      const ageMinutes = Math.floor((ageMs % (1000 * 60 * 60)) / (1000 * 60));
-      
-      let ageText = '';
-      if (ageHours > 0) {
-        ageText = `${ageHours}h ${ageMinutes}m old`;
-      } else {
-        ageText = `${ageMinutes}m old`;
-      }
-      
-      // Calculate when it will refresh (24 hours from timestamp)
-      const refreshTime = new Date(currentCacheEntry.timestamp + (24 * 60 * 60 * 1000));
-      const refreshText = refreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-      const searchParamsText = formatSearchParams(currentCacheEntry.searchParams);
-      
-      return (
-        <div className="space-y-2">
-          <div className="font-medium text-foreground">
-            {searchParamsText}
-          </div>
-          <div className="text-muted-foreground">
-            Cached {ageText} • Refreshes at {refreshText}
-          </div>
-        </div>
-      );
-    } else {
-      // Show zeros when no cached results
-      return (
-        <div className="space-y-2">
-          <div className="font-medium text-foreground">
-            No cached search
-          </div>
-          <div className="text-muted-foreground">
-            Cached 0h 0m old • Refreshes at --:--
-          </div>
-        </div>
-      );
-    }
-  };
+
 
   // Get search parameters from URL
   useEffect(() => {
@@ -660,8 +617,57 @@ function SearchPage() {
               </button>
             )}
           </div>
-          <div className="text-sm">
-            {formatCacheInfo()}
+          <div className="text-sm space-y-3">
+            {allCacheEntries.length > 0 ? (
+              allCacheEntries.map((entry, index) => {
+                const now = Date.now();
+                const ageMs = now - entry.timestamp;
+                const ageHours = Math.floor(ageMs / (1000 * 60 * 60));
+                const ageMinutes = Math.floor((ageMs % (1000 * 60 * 60)) / (1000 * 60));
+                
+                let ageText = '';
+                if (ageHours > 0) {
+                  ageText = `${ageHours}h ${ageMinutes}m old`;
+                } else {
+                  ageText = `${ageMinutes}m old`;
+                }
+                
+                const refreshTime = new Date(entry.timestamp + (24 * 60 * 60 * 1000));
+                const refreshText = refreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                const searchParamsText = formatSearchParams(entry.searchParams);
+                const isCurrent = currentCacheEntry && currentCacheEntry.searchParams === entry.searchParams;
+                
+                return (
+                  <div key={entry.searchParams} className={`p-3 rounded-lg border ${isCurrent ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-muted'}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="font-medium text-foreground">
+                          {searchParamsText}
+                        </div>
+                        <div className="text-muted-foreground text-xs">
+                          Cached {ageText} • Refreshes at {refreshText}
+                        </div>
+                      </div>
+                      {isCurrent && (
+                        <div className="ml-2 text-xs text-primary font-medium">
+                          Current
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="p-3 rounded-lg bg-muted/30 border border-muted">
+                <div className="font-medium text-foreground">
+                  No cached searches
+                </div>
+                <div className="text-muted-foreground text-xs">
+                  Cached 0h 0m old • Refreshes at --:--
+                </div>
+              </div>
+            )}
             {isUserIdle && (
               <div className="mt-2 text-amber-600 flex items-center gap-1">
                 <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>

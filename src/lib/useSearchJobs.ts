@@ -18,6 +18,7 @@ interface UseSearchJobsReturn {
   cacheStats: { size: number; keys: string[] };
   isUserIdle: boolean;
   currentCacheEntry: { timestamp: number; searchParams: string } | null;
+  allCacheEntries: { timestamp: number; searchParams: string }[];
 }
 
 export function useSearchJobs(): UseSearchJobsReturn {
@@ -193,6 +194,11 @@ export function useSearchJobs(): UseSearchJobsReturn {
 
   const cacheStats = searchCache.getCacheStats();
 
+  const allCacheEntries = searchCache.getAllCacheEntries().map(entry => ({
+    timestamp: entry.timestamp,
+    searchParams: entry.searchParams
+  }));
+
   return {
     jobs,
     filteredJobs,
@@ -203,6 +209,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
     clearCache,
     cacheStats,
     isUserIdle: searchCache.isUserIdle(),
-    currentCacheEntry
+    currentCacheEntry,
+    allCacheEntries
   };
 } 

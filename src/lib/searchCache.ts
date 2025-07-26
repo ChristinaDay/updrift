@@ -109,6 +109,13 @@ class SearchCacheManager {
     };
   }
 
+  getAllCacheEntries(): CacheEntry[] {
+    const now = Date.now();
+    return Object.values(this.cache)
+      .filter(entry => now - entry.timestamp < CACHE_DURATION)
+      .sort((a, b) => b.timestamp - a.timestamp); // Most recent first
+  }
+
   isUserIdle(): boolean {
     return !this.isUserActive();
   }
