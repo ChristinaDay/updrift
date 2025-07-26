@@ -17,6 +17,7 @@ interface UseSearchJobsReturn {
   clearCache: () => void;
   cacheStats: { size: number; keys: string[] };
   isUserIdle: boolean;
+  currentCacheEntry: { timestamp: number; searchParams: string } | null;
 }
 
 export function useSearchJobs(): UseSearchJobsReturn {
@@ -34,6 +35,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
     location: string;
     radius: number;
   } | null>(null);
+  const [currentCacheEntry, setCurrentCacheEntry] = useState<{ timestamp: number; searchParams: string } | null>(null);
 
   // Track user activity
   useEffect(() => {
@@ -76,6 +78,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
 
     // Check cache first
     const cachedResult = searchCache.getCachedResult(query, location, radius);
+    const cacheEntry = searchCache.getCacheEntry(query, location, radius);
     if (cachedResult) {
       setJobs(cachedResult.original_data || cachedResult.data || []);
       setFilteredJobs(cachedResult.data || []);
@@ -85,9 +88,12 @@ export function useSearchJobs(): UseSearchJobsReturn {
         originalCount: cachedResult.original_count || 0,
         filteredCount: cachedResult.filtered_count || 0
       } : null);
+      setCurrentCacheEntry(cacheEntry ? { timestamp: cacheEntry.timestamp, searchParams: cacheEntry.searchParams } : null);
       setLoading(false);
       setLastSearchParams({ query, location, radius });
       return;
+    } else {
+      setCurrentCacheEntry(null);
     }
 
     // Only make API call for new searches, not when user becomes active again
@@ -122,6 +128,10 @@ export function useSearchJobs(): UseSearchJobsReturn {
       
       // Cache the result
       searchCache.setCachedResult(query, location, radius, data);
+      
+      // Set current cache entry for the newly cached result
+      const newCacheEntry = searchCache.getCacheEntry(query, location, radius);
+      setCurrentCacheEntry(newCacheEntry ? { timestamp: newCacheEntry.timestamp, searchParams: newCacheEntry.searchParams } : null);
       
       // Record the search parameters
       setLastSearchParams({ query, location, radius });
@@ -178,6 +188,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
 
   const clearCache = useCallback(() => {
     searchCache.clearCache();
+    setCurrentCacheEntry(null);
   }, []);
 
   const cacheStats = searchCache.getCacheStats();
@@ -191,6 +202,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
     searchJobs: debouncedSearch,
     clearCache,
     cacheStats,
-    isUserIdle: searchCache.isUserIdle()
+    isUserIdle: searchCache.isUserIdle(),
+    currentCacheEntry
   };
 } 

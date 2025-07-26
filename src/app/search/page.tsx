@@ -77,7 +77,8 @@ function SearchPage() {
     searchJobs,
     clearCache,
     cacheStats,
-    isUserIdle
+    isUserIdle,
+    currentCacheEntry
   } = useSearchJobs()
 
   // Use job applications hook
@@ -114,6 +115,29 @@ function SearchPage() {
 
   // Local filtered jobs state (for client-side filtering)
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
+
+  // Format cache timestamp for display
+  const formatCacheInfo = () => {
+    if (!currentCacheEntry) return null;
+    
+    const now = Date.now();
+    const ageMs = now - currentCacheEntry.timestamp;
+    const ageHours = Math.floor(ageMs / (1000 * 60 * 60));
+    const ageMinutes = Math.floor((ageMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    let ageText = '';
+    if (ageHours > 0) {
+      ageText = `${ageHours}h ${ageMinutes}m old`;
+    } else {
+      ageText = `${ageMinutes}m old`;
+    }
+    
+    // Calculate when it will refresh (24 hours from timestamp)
+    const refreshTime = new Date(currentCacheEntry.timestamp + (24 * 60 * 60 * 1000));
+    const refreshText = refreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    return `Cached ${ageText} • Refreshes at ${refreshText}`;
+  };
 
   // Get search parameters from URL
   useEffect(() => {
@@ -506,7 +530,8 @@ function SearchPage() {
                 {session?.user && userPreferences && ' • Personalized for you'}
                 {!session?.user && ' • Sign in for personalized results'}
                 • Powered by UpDrift AI
-                {cacheStats.size > 0 && ` • ${cacheStats.size} cached searches (24h)`}
+                {currentCacheEntry && formatCacheInfo() && ` • ${formatCacheInfo()}`}
+                {!currentCacheEntry && cacheStats.size > 0 && ` • ${cacheStats.size} cached searches (24h)`}
                 {isUserIdle && ' • Idle mode (API calls disabled)'}
               </p>
               {/* Cache management */}

@@ -51,6 +51,17 @@ class SearchCacheManager {
     return null;
   }
 
+  getCacheEntry(searchQuery: string, location: string, radius: number): CacheEntry | null {
+    const key = this.getCacheKey(searchQuery, location, radius);
+    const entry = this.cache[key];
+    
+    if (entry && this.isCacheValid(entry)) {
+      return entry;
+    }
+    
+    return null;
+  }
+
   setCachedResult(searchQuery: string, location: string, radius: number, data: any): void {
     const key = this.getCacheKey(searchQuery, location, radius);
     this.cache[key] = {
