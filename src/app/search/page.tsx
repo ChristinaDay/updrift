@@ -118,25 +118,28 @@ function SearchPage() {
 
   // Format cache timestamp for display
   const formatCacheInfo = () => {
-    if (!currentCacheEntry) return null;
-    
-    const now = Date.now();
-    const ageMs = now - currentCacheEntry.timestamp;
-    const ageHours = Math.floor(ageMs / (1000 * 60 * 60));
-    const ageMinutes = Math.floor((ageMs % (1000 * 60 * 60)) / (1000 * 60));
-    
-    let ageText = '';
-    if (ageHours > 0) {
-      ageText = `${ageHours}h ${ageMinutes}m old`;
+    if (currentCacheEntry) {
+      const now = Date.now();
+      const ageMs = now - currentCacheEntry.timestamp;
+      const ageHours = Math.floor(ageMs / (1000 * 60 * 60));
+      const ageMinutes = Math.floor((ageMs % (1000 * 60 * 60)) / (1000 * 60));
+      
+      let ageText = '';
+      if (ageHours > 0) {
+        ageText = `${ageHours}h ${ageMinutes}m old`;
+      } else {
+        ageText = `${ageMinutes}m old`;
+      }
+      
+      // Calculate when it will refresh (24 hours from timestamp)
+      const refreshTime = new Date(currentCacheEntry.timestamp + (24 * 60 * 60 * 1000));
+      const refreshText = refreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      return `Cached ${ageText} • Refreshes at ${refreshText}`;
     } else {
-      ageText = `${ageMinutes}m old`;
+      // Show zeros when no cached results
+      return `Cached 0h 0m old • Refreshes at --:--`;
     }
-    
-    // Calculate when it will refresh (24 hours from timestamp)
-    const refreshTime = new Date(currentCacheEntry.timestamp + (24 * 60 * 60 * 1000));
-    const refreshText = refreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
-    return `Cached ${ageText} • Refreshes at ${refreshText}`;
   };
 
   // Get search parameters from URL
@@ -526,12 +529,7 @@ function SearchPage() {
             <div className="bg-card rounded-xl shadow-sm border border-input p-6">
               <p className="text-muted-foreground text-sm">
                 {filteredJobs.length} opportunities found
-                {currentCacheEntry && formatCacheInfo() && ` • ${formatCacheInfo()}`}
-                {!currentCacheEntry && !searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
-                {!currentCacheEntry && session?.user && userPreferences && ' • Personalized for you'}
-                {!currentCacheEntry && !session?.user && ' • Sign in for personalized results'}
-                {!currentCacheEntry && ' • Powered by UpDrift AI'}
-                {!currentCacheEntry && cacheStats.size > 0 && ` • ${cacheStats.size} cached searches (24h)`}
+                {` • ${formatCacheInfo()}`}
                 {isUserIdle && ' • Idle mode (API calls disabled)'}
               </p>
               {/* Cache management */}
