@@ -493,9 +493,9 @@ function SearchPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-20">
         {/* Always render the search/filter UI here, including the search bar */}
-        <div className="space-y-6 mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">
           {/* Title and Summary Section */}
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-2xl font-bold text-foreground">
               {searchQuery ? `Jobs for "${searchQuery}"` : (location ? `Jobs in ${capitalizeLocation(location)}` : 'Explore Job Opportunities')}
               {location && searchQuery && ` within ${radius} miles of ${capitalizeLocation(location)}`}
@@ -529,7 +529,7 @@ function SearchPage() {
           </div>
           
           {/* Search refinement bar (search bar UI) - always visible */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 lg:flex-shrink-0">
             <div className="relative flex-1 sm:flex-none">
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
               <input
@@ -538,7 +538,7 @@ function SearchPage() {
                 value={inputQuery}
                 onChange={(e) => setInputQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-64 bg-background text-foreground placeholder:text-muted-foreground"
+                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-56 lg:w-64 bg-background text-foreground placeholder:text-muted-foreground"
               />
             </div>
             <div className="relative flex-1 sm:flex-none">
@@ -551,7 +551,7 @@ function SearchPage() {
                 onKeyPress={handleKeyPress}
                 onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
                 onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
-                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-48 bg-background text-foreground placeholder:text-muted-foreground"
+                className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-44 lg:w-48 bg-background text-foreground placeholder:text-muted-foreground"
               />
               {showLocationSuggestions && locationSuggestions.length > 0 && (
                 <div className="absolute z-10 w-full mt-1 bg-card border border-input rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -575,7 +575,7 @@ function SearchPage() {
               <select
                 value={radius}
                 onChange={(e) => setRadius(parseInt(e.target.value))}
-                className="pl-3 pr-8 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm bg-background text-foreground w-full"
+                className="pl-3 pr-8 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm bg-background text-foreground w-full sm:w-32 lg:w-36"
               >
                 <option value={5}>Within 5 miles</option>
                 <option value={10}>Within 10 miles</option>
