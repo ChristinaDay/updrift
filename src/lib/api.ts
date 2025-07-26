@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Job, JobSearchParams, JobSearchResponse } from '@/types/job';
 import { searchAllProviders } from './apihub';
+import { errorHandler, errorUtils, ErrorType } from './errorHandling';
 
 // Adzuna API Configuration (much better than JSearch!)
 const ADZUNA_BASE_URL = 'https://api.adzuna.com/v1/api/jobs';
@@ -110,118 +111,115 @@ async function getLocationCoordinates(location: string): Promise<{lat: number, l
  * Search jobs using Adzuna API
  */
 export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSearchResponse> {
-  try {
-    const { query, location, radius = 25, remote_jobs_only, page = 1, num_pages = 1 } = params;
-    
-    // Build Adzuna API URL - US jobs
-    const country = 'us'; // Can be made configurable later
-    const searchUrl = `/${country}/search/${page}`;
-    
-    // Build query parameters
-    const queryParams: any = {
-      app_id: ADZUNA_APP_ID,
-      app_key: ADZUNA_APP_KEY,
-      results_per_page: 20, // Reduced from 50 to 20 - API might have limits
-      'content-type': 'application/json'
-    };
-    
-    // Add search query if provided
-    if (query?.trim()) {
-      queryParams.what = query.trim();
-    }
-    
-    // Add location with radius-based search approach
-    if (location?.trim()) {
-      let searchLocation = location.trim();
+  return errorUtils.withFallback(
+    async () => {
+      const { query, location, radius = 25, remote_jobs_only, page = 1, num_pages = 1 } = params;
       
-      // Clean location string to just get the city name
-      const cleanLocation = searchLocation
-        .replace(/,\s*California$/i, '')
-        .replace(/,\s*CA$/i, '')
-        .replace(/,\s*United States$/i, '')
-        .replace(/,\s*US$/i, '')
-        .replace(/,\s*[A-Z]{2}$/i, '') // Remove any state abbreviation
-        .replace(/\s+Bay\s+Area$/i, '') // Remove "Bay Area"
-        .replace(/^Greater\s+/i, '') // Remove "Greater"
-        .trim();
+      // Build Adzuna API URL - US jobs
+      const country = 'us'; // Can be made configurable later
+      const searchUrl = `/${country}/search/${page}`;
       
-      queryParams.where = cleanLocation;
+      // Build query parameters
+      const queryParams: any = {
+        app_id: ADZUNA_APP_ID,
+        app_key: ADZUNA_APP_KEY,
+        results_per_page: 20, // Reduced from 50 to 20 - API might have limits
+        'content-type': 'application/json'
+      };
       
-        console.log(`🎯 Location search: "${searchLocation}" → "${cleanLocation}" (will apply ${radius} mile radius filter client-side)`);
-    }
-    
-    // Add remote jobs filter
-    if (remote_jobs_only) {
-      queryParams.what = queryParams.what ? `${queryParams.what} remote` : 'remote';
-    }
-    
-    console.log('🔍 Searching jobs with Adzuna API:', searchUrl, queryParams);
-    
-    const response = await adzunaClient.get(searchUrl, { params: queryParams });
-    
-    if (response.data?.results) {
-      const originalJobs = response.data.results.map(convertAdzunaJob);
-      let filteredJobs = originalJobs;
-      let radiusFiltered = false;
-      
-      // Apply radius filtering if location is provided
-      if (location?.trim()) {
-        const searchCoords = await getLocationCoordinates(location.trim());
-        if (searchCoords) {
-          const RADIUS_MILES = radius; // Dynamic radius from user selection
-          
-          filteredJobs = originalJobs.filter((job: Job) => {
-            // Check if job has coordinates (from adzunaJob.latitude and adzunaJob.longitude)
-            const jobData = response.data.results.find((r: any) => r.id?.toString() === job.job_id);
-            if (jobData && jobData.latitude && jobData.longitude) {
-              const distance = calculateDistance(
-                searchCoords.lat, 
-                searchCoords.lng, 
-                jobData.latitude, 
-                jobData.longitude
-              );
-              return distance <= RADIUS_MILES;
-            }
-            // Include jobs without coordinates (better to include than exclude)
-            return true;
-          });
-          
-          radiusFiltered = filteredJobs.length < originalJobs.length;
-          console.log(`🎯 Radius filter applied: ${originalJobs.length} → ${filteredJobs.length} jobs (within ${RADIUS_MILES} miles)`);
-        }
+      // Add search query if provided
+      if (query?.trim()) {
+        queryParams.what = query.trim();
       }
       
-      console.log('✅ Adzuna API success:', filteredJobs.length, 'jobs found');
+      // Add location with radius-based search approach
+      if (location?.trim()) {
+        let searchLocation = location.trim();
+        
+        // Clean location string to just get the city name
+        const cleanLocation = searchLocation
+          .replace(/,\s*California$/i, '')
+          .replace(/,\s*CA$/i, '')
+          .replace(/,\s*United States$/i, '')
+          .replace(/,\s*US$/i, '')
+          .replace(/,\s*[A-Z]{2}$/i, '') // Remove any state abbreviation
+          .replace(/\s+Bay\s+Area$/i, '') // Remove "Bay Area"
+          .replace(/^Greater\s+/i, '') // Remove "Greater"
+          .trim();
+        
+        queryParams.where = cleanLocation;
+        
+        console.log(`🎯 Location search: "${searchLocation}" → "${cleanLocation}" (will apply ${radius} mile radius filter client-side)`);
+      }
       
-      return {
-        status: 'success',
-        request_id: 'adzuna-' + Date.now(),
-        parameters: params,
-        data: filteredJobs,
-        original_data: originalJobs,
-        num_pages: Math.ceil(response.data.count / 20),
-        client_filtered: radiusFiltered,
-        original_count: originalJobs.length,
-        filtered_count: filteredJobs.length
-      };
-    } else {
-      throw new Error('No results from Adzuna API');
+      // Add remote jobs filter
+      if (remote_jobs_only) {
+        queryParams.what = queryParams.what ? `${queryParams.what} remote` : 'remote';
+      }
+      
+      console.log('🔍 Searching jobs with Adzuna API:', searchUrl, queryParams);
+      
+      const response = await adzunaClient.get(searchUrl, { params: queryParams });
+      
+      if (response.data?.results) {
+        const originalJobs = response.data.results.map(convertAdzunaJob);
+        let filteredJobs = originalJobs;
+        let radiusFiltered = false;
+        
+        // Apply radius filtering if location is provided
+        if (location?.trim()) {
+          const searchCoords = await getLocationCoordinates(location.trim());
+          if (searchCoords) {
+            const RADIUS_MILES = radius; // Dynamic radius from user selection
+            
+            filteredJobs = originalJobs.filter((job: Job) => {
+              // Check if job has coordinates (from adzunaJob.latitude and adzunaJob.longitude)
+              const jobData = response.data.results.find((r: any) => r.id?.toString() === job.job_id);
+              if (jobData && jobData.latitude && jobData.longitude) {
+                const distance = calculateDistance(
+                  searchCoords.lat, 
+                  searchCoords.lng, 
+                  jobData.latitude, 
+                  jobData.longitude
+                );
+                return distance <= RADIUS_MILES;
+              }
+              // Include jobs without coordinates (better to include than exclude)
+              return true;
+            });
+            
+            radiusFiltered = filteredJobs.length < originalJobs.length;
+            console.log(`🎯 Radius filter applied: ${originalJobs.length} → ${filteredJobs.length} jobs (within ${RADIUS_MILES} miles)`);
+          }
+        }
+        
+        console.log('✅ Adzuna API success:', filteredJobs.length, 'jobs found');
+        
+        return {
+          status: 'success',
+          request_id: 'adzuna-' + Date.now(),
+          parameters: params,
+          data: filteredJobs,
+          original_data: originalJobs,
+          num_pages: Math.ceil(response.data.count / 20),
+          client_filtered: radiusFiltered,
+          original_count: originalJobs.length,
+          filtered_count: filteredJobs.length
+        } as JobSearchResponse;
+      } else {
+        throw new Error('No results from Adzuna API');
+      }
+    },
+    async () => {
+      // Fallback to mock data
+      console.log('🔄 Falling back to mock data due to Adzuna API error');
+      return searchMockJobs(params);
+    },
+    {
+      endpoint: 'adzuna-search',
+      params: params
     }
-    
-  } catch (error: any) {
-    console.error('❌ Adzuna API error:', error);
-    
-    // Log more detailed error information
-    if (error.response) {
-      console.error('🔍 Response status:', error.response.status);
-      console.error('🔍 Response data:', error.response.data);
-      console.error('🔍 Request URL:', error.config?.url);
-      console.error('🔍 Request params:', error.config?.params);
-    }
-    
-    // Fallback to mock data
-    return searchMockJobs(params);
-  }
+  );
 }
 
 /**

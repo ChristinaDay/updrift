@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Job } from '@/types/job';
 import { searchCache, debounce } from './searchCache';
+import { errorHandler } from './errorHandling';
 
 interface UseSearchJobsReturn {
   jobs: Job[];
@@ -151,7 +152,14 @@ export function useSearchJobs(): UseSearchJobsReturn {
         setLocationFilterResults(null);
       }
     } catch (error) {
-      console.error('❌ Error loading jobs:', error);
+      const errorResponse = errorHandler.parseError(error, {
+        endpoint: 'useSearchJobs',
+        params: { query, location, radius }
+      });
+      
+      errorHandler.logError(errorResponse);
+      
+      console.error('❌ Error loading jobs:', errorResponse.userMessage);
       setDataSource('error');
       setJobs([]);
       setFilteredJobs([]);
