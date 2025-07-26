@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchJobs } from '@/lib/api';
 import { errorHandler, errorUtils } from '@/lib/errorHandling';
+import { withRateLimit } from '@/lib/rateLimiter';
 
-export async function GET(request: NextRequest) {
+const searchHandler = async (request: NextRequest) => {
   return errorUtils.withRetry(
     async () => {
       const { searchParams } = new URL(request.url);
@@ -57,4 +58,7 @@ export async function GET(request: NextRequest) {
       { status: errorResponse.type === 'AUTHENTICATION_ERROR' ? 401 : 500 }
     );
   });
-} 
+};
+
+// Export the rate-limited handler
+export const GET = withRateLimit('jobs-search')(searchHandler); 
