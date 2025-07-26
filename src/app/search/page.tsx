@@ -23,6 +23,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Job } from '@/types/job'
 import { filterJobs, sortJobs, capitalizeLocation } from '@/utils/jobUtils'
+import { useSearchJobs } from '@/lib/useSearchJobs'
 import JobCard from '@/components/JobCard'
 import ApiSetupGuide from '@/components/ApiSetupGuide'
 import {
@@ -50,16 +51,24 @@ function SearchPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { data: session } = useSession()
-  const [jobs, setJobs] = useState<Job[]>([])
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
-  const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<SortOption>('relevance')
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [showFilters, setShowFilters] = useState(false)
   const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set())
-  const [dataSource, setDataSource] = useState<'loading' | 'real' | 'mock' | 'error'>('loading')
   const [showApiGuide, setShowApiGuide] = useState(false)
   const [userPreferences, setUserPreferences] = useState<any>(null)
+
+  // Use the new search hook
+  const {
+    jobs,
+    filteredJobs: initialFilteredJobs,
+    loading,
+    dataSource,
+    locationFilterResults,
+    searchJobs,
+    clearCache,
+    cacheStats
+  } = useSearchJobs()
 
   // Enhanced filter states
   const [filters, setFilters] = useState({
@@ -85,12 +94,8 @@ function SearchPage() {
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([])
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false)
 
-  // Location filtering results
-  const [locationFilterResults, setLocationFilterResults] = useState<{
-    applied: boolean,
-    originalCount: number,
-    filteredCount: number
-  } | null>(null)
+  // Local filtered jobs state (for client-side filtering)
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
 
   // Get search parameters from URL
   useEffect(() => {
@@ -269,73 +274,21 @@ function SearchPage() {
     }
   }
 
-  // Load jobs from API
+  // Load jobs using the new search hook
   useEffect(() => {
     // Only search if we have actual search parameters (not just empty strings from initial state)
     if (!searchQuery && !location) {
-      setLoading(false)
       return
     }
 
-    const loadJobs = async () => {
-      setLoading(true)
-      try {
-        // Build API URL with parameters
-        const params = new URLSearchParams()
-        if (searchQuery) params.append('query', searchQuery)
-        if (location) params.append('location', location)
-        if (location && radius) params.append('radius', radius.toString())
-        
-        console.log('🔍 Fetching jobs with params:', params.toString())
-        
-        const response = await fetch(`/api/jobs/search?${params.toString()}`)
-        const data = await response.json()
-        
-        console.log('📊 API Response:', data.status, data.data?.length || 0, 'jobs')
-        
-        if (data.status === 'mock') {
-          console.log('🚨 Using mock data - configure RAPIDAPI_KEY for real jobs')
-          setDataSource('mock')
-        } else if (data.status === 'success') {
-          console.log('✅ Using real job data from JSearch API')
-          setDataSource('real')
-        } else {
-          console.log('⚠️ API error, using fallback data')
-          setDataSource('error')
-        }
-        
-        // Store original and filtered jobs
-        setJobs(data.original_data || data.data || []) // Original unfiltered jobs
-        setFilteredJobs(data.data || []) // Filtered jobs (may be same as original if no filtering)
+    // Use the new search hook to load jobs
+    searchJobs(searchQuery, location, radius)
 
-        // Track location filtering results
-        if (data.client_filtered) {
-          setLocationFilterResults({
-            applied: true,
-            originalCount: data.original_count || 0,
-            filteredCount: data.filtered_count || 0
-          })
-        } else {
-          setLocationFilterResults(null)
-        }
-
-        // Track search in history if user is authenticated and search has content
-        if (session?.user && (searchQuery || location)) {
-          trackSearch()
-        }
-      } catch (error) {
-        console.error('❌ Error loading jobs:', error)
-        setDataSource('error')
-        // Fallback to empty array on error
-        setJobs([])
-        setFilteredJobs([])
-      } finally {
-        setLoading(false)
-      }
+    // Track search in history if user is authenticated and search has content
+    if (session?.user && (searchQuery || location)) {
+      trackSearch()
     }
-
-    loadJobs()
-  }, [searchQuery, location, session])
+  }, [searchQuery, location, radius, searchJobs, session])
 
   const trackSearch = async () => {
     try {
@@ -356,7 +309,7 @@ function SearchPage() {
 
   // Apply filters and sorting
   useEffect(() => {
-    let filtered = filterJobs(jobs, {
+    let filtered = filterJobs(initialFilteredJobs, {
       remote: filters.remote || undefined,
       salaryMin: filters.salaryMin ? parseInt(filters.salaryMin) : undefined,
       salaryMax: filters.salaryMax ? parseInt(filters.salaryMax) : undefined,
@@ -367,7 +320,7 @@ function SearchPage() {
 
     filtered = sortJobs(filtered, sortBy)
     setFilteredJobs(filtered)
-  }, [jobs, filters, sortBy])
+  }, [initialFilteredJobs, filters, sortBy])
 
   const handleSaveJob = async (jobId: string) => {
     if (!session?.user) {
@@ -496,8 +449,18 @@ function SearchPage() {
                 {session?.user && userPreferences && ' • Personalized for you'}
                 {!session?.user && ' • Sign in for personalized results'}
                 • Powered by UpDrift AI
+                {cacheStats.size > 0 && ` • ${cacheStats.size} cached searches`}
               </p>
-              {/* ...status badges... */}
+              {/* Cache management */}
+              {cacheStats.size > 0 && (
+                <button
+                  onClick={clearCache}
+                  className="text-xs text-blue-600 hover:text-blue-700 underline"
+                  title="Clear search cache"
+                >
+                  Clear Cache
+                </button>
+              )}
             </div>
           </div>
           {/* Search refinement bar (search bar UI) - always visible */}
@@ -596,7 +559,6 @@ function SearchPage() {
                     <button
                       onClick={() => {
                         setFilteredJobs(jobs);
-                        setLocationFilterResults(null);
                       }}
                       className="text-amber-800 hover:text-amber-900 font-medium underline"
                     >
@@ -877,7 +839,6 @@ function SearchPage() {
                     <div className="flex flex-col sm:flex-row gap-2 justify-center">
                       <button
                         onClick={() => {
-                          setLocationFilterResults(null);
                           setFilteredJobs(jobs);
                         }}
                         className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
