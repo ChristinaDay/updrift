@@ -60,6 +60,9 @@ export default function JobCard({
   const skills = extractSkills(job)
   const matchScore = calculateJobMatchScore(job)
   const companyLogoUrl = job.employer_logo || getCompanyLogoUrl(job.employer_name, job.employer_website)
+  
+  // Check if we're using the fallback initials URL (ui-avatars.com)
+  const isUsingFallbackLogo = companyLogoUrl.includes('ui-avatars.com')
 
   const handleSave = () => {
     if (onSave) {
@@ -148,8 +151,8 @@ export default function JobCard({
       <CardContent className="pt-0 pb-4 px-6 flex flex-col flex-1 mt-8">
         {/* Logo + Title Row */}
         <div className="flex items-center gap-4 mb-2">
-          {/* Employer Logo (square thumbnail) - only show if logo loads successfully */}
-          {!imageError && (
+          {/* Employer Logo (square thumbnail) - only show if logo loads successfully and is not a fallback */}
+          {!imageError && !isUsingFallbackLogo && (
             <div className="w-14 h-14 rounded-lg bg-white shadow border flex items-center justify-center overflow-hidden flex-shrink-0">
               <Image
                 src={companyLogoUrl}
@@ -172,7 +175,7 @@ export default function JobCard({
           </div>
         </div>
         {/* Meta Row (stat boxes) */}
-        <div className="flex flex-wrap justify-center gap-2 mb-3">
+        <div className="flex flex-wrap justify-start gap-2 mb-3">
           <div className="flex items-center gap-1 bg-muted/70 rounded-full px-3 py-1 text-sm">
             <MapPinIcon className="h-4 w-4" />
             <span className="font-medium">
@@ -195,7 +198,7 @@ export default function JobCard({
           )}
         </div>
         {/* Description (flavor text) */}
-        <div className="bg-muted/60 rounded-lg p-3 italic text-center text-sm mb-3 w-full">
+        <div className="bg-muted/60 rounded-lg p-3 italic text-left text-sm mb-3 w-full">
           {truncateDescription(job.job_description, 200)}
         </div>
       </CardContent>
@@ -259,7 +262,7 @@ export default function JobCard({
             </>
           )}
         </Button>
-        <div className="text-xs text-muted-foreground text-center mt-2">
+        <div className="text-xs text-muted-foreground text-left mt-2">
           <ClockIcon className="inline-block w-4 h-4 mr-1 align-text-bottom" />
           {formatJobPostedDate(job.job_posted_at_datetime_utc)}
           <span className="mx-1">•</span>
