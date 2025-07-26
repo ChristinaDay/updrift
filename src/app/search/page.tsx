@@ -526,11 +526,11 @@ function SearchPage() {
             <div className="bg-card rounded-xl shadow-sm border border-input p-6">
               <p className="text-muted-foreground text-sm">
                 {filteredJobs.length} opportunities found
-                {!searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
-                {session?.user && userPreferences && ' • Personalized for you'}
-                {!session?.user && ' • Sign in for personalized results'}
-                • Powered by UpDrift AI
                 {currentCacheEntry && formatCacheInfo() && ` • ${formatCacheInfo()}`}
+                {!currentCacheEntry && !searchQuery && !location && ' • Browse sample jobs or search for specific roles'}
+                {!currentCacheEntry && session?.user && userPreferences && ' • Personalized for you'}
+                {!currentCacheEntry && !session?.user && ' • Sign in for personalized results'}
+                {!currentCacheEntry && ' • Powered by UpDrift AI'}
                 {!currentCacheEntry && cacheStats.size > 0 && ` • ${cacheStats.size} cached searches (24h)`}
                 {isUserIdle && ' • Idle mode (API calls disabled)'}
               </p>
