@@ -10,7 +10,7 @@ interface SearchCache {
 
 // Cache and throttling configuration
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours - how long to keep cached results
-const MIN_INTERVAL_BETWEEN_CALLS = 24 * 60 * 60 * 1000; // 24 hours - minimum time between API calls for same search
+const MIN_INTERVAL_BETWEEN_CALLS = 5 * 60 * 1000; // 5 minutes - minimum time between API calls for same search (reduced for development)
 const DEBOUNCE_DELAY = 300; // 300ms - delay before triggering search after user input
 
 class SearchCacheManager {
@@ -99,7 +99,8 @@ class SearchCacheManager {
 
   clearCache(): void {
     this.cache = {};
-    console.log('🗑️ Search cache cleared');
+    this.lastCallTime = 0; // Reset throttling when cache is cleared
+    console.log('🗑️ Search cache cleared and throttling reset');
   }
 
   getCacheStats(): { size: number; keys: string[] } {
@@ -129,6 +130,14 @@ class SearchCacheManager {
 
   getLastActivityTime(): number {
     return this.lastUserActivity;
+  }
+
+  getThrottlingStatus(): { canMakeCall: boolean; timeRemaining: number } {
+    const timeSinceLastCall = Date.now() - this.lastCallTime;
+    const timeRemaining = Math.max(0, MIN_INTERVAL_BETWEEN_CALLS - timeSinceLastCall);
+    const canMakeCall = timeRemaining === 0;
+    
+    return { canMakeCall, timeRemaining };
   }
 }
 
