@@ -114,6 +114,7 @@ function SearchPage() {
   const [saveMessage, setSaveMessage] = useState('')
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([])
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false)
+  const [showSearchHistory, setShowSearchHistory] = useState(false)
 
   // Local filtered jobs state (for client-side filtering)
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
@@ -616,78 +617,98 @@ function SearchPage() {
           </div>
         )}
 
-        {/* Search History Container */}
-        <div className="mb-6 bg-card rounded-xl shadow-sm border border-input p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <ClockIcon className="w-4 h-4" />
-              Search History
-            </h3>
-            {cacheStats.size > 0 && (
-              <button
-                onClick={clearCache}
-                className="text-xs text-blue-600 hover:text-blue-700 underline"
-                title="Clear search cache"
-              >
-                Clear Cache
-              </button>
-            )}
-          </div>
-          <div className="text-sm space-y-3">
-            {allCacheEntries.length > 0 ? (
-              allCacheEntries.map((entry, index) => {
-                const now = Date.now();
-                const ageMs = now - entry.timestamp;
-                const ageHours = Math.floor(ageMs / (1000 * 60 * 60));
-                const ageMinutes = Math.floor((ageMs % (1000 * 60 * 60)) / (1000 * 60));
-                
-                let ageText = '';
-                if (ageHours > 0) {
-                  ageText = `${ageHours}h ${ageMinutes}m old`;
-                } else {
-                  ageText = `${ageMinutes}m old`;
-                }
-                
-                const refreshTime = new Date(entry.timestamp + (24 * 60 * 60 * 1000));
-                const refreshText = refreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                
-                const searchParamsText = formatSearchParams(entry.searchParams);
-                const isCurrent = currentCacheEntry && currentCacheEntry.searchParams === entry.searchParams;
-                
-                return (
-                  <div key={entry.searchParams} className={`p-3 rounded-lg border ${isCurrent ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-muted'}`}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="font-medium text-foreground">
-                          {searchParamsText}
-                        </div>
-                        <div className="text-muted-foreground text-xs">
-                          Cached {ageText} • Refreshes at {refreshText}
-                        </div>
-                      </div>
-                      {isCurrent && (
-                        <div className="ml-2 text-xs text-primary font-medium">
-                          Current
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="p-3 rounded-lg bg-muted/30 border border-muted">
-                <div className="font-medium text-foreground">
-                  No cached searches
-                </div>
-                <div className="text-muted-foreground text-xs">
-                  Cached 0h 0m old • Refreshes at --:--
-                </div>
+        {/* Search History Dropdown */}
+        <div className="mb-6">
+          <div className="relative">
+            <button
+              onClick={() => setShowSearchHistory(!showSearchHistory)}
+              className="w-full bg-card rounded-xl shadow-sm border border-input p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <ClockIcon className="w-4 h-4" />
+                <span className="text-sm font-semibold text-foreground">
+                  Search History ({allCacheEntries.length})
+                </span>
               </div>
-            )}
-            {isUserIdle && (
-              <div className="mt-2 text-amber-600 flex items-center gap-1">
-                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
-                Idle mode (API calls disabled)
+              <div className="flex items-center gap-2">
+                {isUserIdle && (
+                  <div className="flex items-center gap-1 text-amber-600">
+                    <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs">Idle</span>
+                  </div>
+                )}
+                <ChevronDownIcon className={`w-4 h-4 transition-transform ${showSearchHistory ? 'rotate-180' : ''}`} />
+              </div>
+            </button>
+            
+            {showSearchHistory && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-card rounded-xl shadow-lg border border-input z-10 max-h-64 overflow-y-auto">
+                <div className="p-2">
+                  {allCacheEntries.length > 0 ? (
+                    <div className="space-y-1">
+                      {allCacheEntries.map((entry, index) => {
+                        const now = Date.now();
+                        const ageMs = now - entry.timestamp;
+                        const ageHours = Math.floor(ageMs / (1000 * 60 * 60));
+                        const ageMinutes = Math.floor((ageMs % (1000 * 60 * 60)) / (1000 * 60));
+                        
+                        let ageText = '';
+                        if (ageHours > 0) {
+                          ageText = `${ageHours}h ${ageMinutes}m old`;
+                        } else {
+                          ageText = `${ageMinutes}m old`;
+                        }
+                        
+                        const refreshTime = new Date(entry.timestamp + (24 * 60 * 60 * 1000));
+                        const refreshText = refreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        
+                        const searchParamsText = formatSearchParams(entry.searchParams);
+                        const isCurrent = currentCacheEntry && currentCacheEntry.searchParams === entry.searchParams;
+                        
+                        return (
+                          <div key={entry.searchParams} className={`p-2 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${isCurrent ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-muted'}`}>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="font-medium text-foreground text-sm">
+                                  {searchParamsText}
+                                </div>
+                                <div className="text-muted-foreground text-xs">
+                                  Cached {ageText} • Refreshes at {refreshText}
+                                </div>
+                              </div>
+                              {isCurrent && (
+                                <div className="ml-2 text-xs text-primary font-medium">
+                                  Current
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-lg bg-muted/30 border border-muted">
+                      <div className="font-medium text-foreground text-sm">
+                        No cached searches
+                      </div>
+                      <div className="text-muted-foreground text-xs">
+                        Cached 0h 0m old • Refreshes at --:--
+                      </div>
+                    </div>
+                  )}
+                  
+                  {cacheStats.size > 0 && (
+                    <div className="mt-2 pt-2 border-t border-muted">
+                      <button
+                        onClick={clearCache}
+                        className="w-full text-xs text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors"
+                        title="Clear search cache"
+                      >
+                        Clear All Cache
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
