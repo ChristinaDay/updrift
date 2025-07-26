@@ -59,10 +59,19 @@ export default function JobCard({
   
   const skills = extractSkills(job)
   const matchScore = calculateJobMatchScore(job)
-  const companyLogoUrl = job.employer_logo || getCompanyLogoUrl(job.employer_name, job.employer_website)
-  
-  // Check if we're using the fallback initials URL (ui-avatars.com)
-  const isUsingFallbackLogo = companyLogoUrl.includes('ui-avatars.com')
+  // Only use the real employer_logo, no fallback
+  const companyLogoUrl = job.employer_logo || ''
+  const hasRealLogo = !!job.employer_logo
+
+  // Debug logging
+  console.log('JobCard Debug:', {
+    jobId: job.job_id,
+    employerName: job.employer_name,
+    employerLogo: job.employer_logo,
+    hasRealLogo,
+    imageError,
+    companyLogoUrl
+  })
 
   const handleSave = () => {
     if (onSave) {
@@ -151,8 +160,8 @@ export default function JobCard({
       <CardContent className="pt-0 pb-4 px-6 flex flex-col flex-1 mt-8">
         {/* Logo + Title Row */}
         <div className="flex items-center gap-4 mb-2">
-          {/* Employer Logo (square thumbnail) - only show if logo loads successfully and is not a fallback */}
-          {!imageError && !isUsingFallbackLogo && (
+          {/* Employer Logo (square thumbnail) - only show if real logo exists and loads successfully */}
+          {hasRealLogo && (
             <div className="w-14 h-14 rounded-lg bg-white shadow border flex items-center justify-center overflow-hidden flex-shrink-0">
               <Image
                 src={companyLogoUrl}
@@ -160,7 +169,13 @@ export default function JobCard({
                 width={56}
                 height={56}
                 className="w-full h-full object-contain"
-                onError={() => setImageError(true)}
+                onError={() => {
+                  console.log('Image failed to load:', companyLogoUrl)
+                  setImageError(true)
+                }}
+                onLoad={() => {
+                  console.log('Image loaded successfully:', companyLogoUrl)
+                }}
               />
             </div>
           )}

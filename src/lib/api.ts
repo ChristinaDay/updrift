@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Job, JobSearchParams, JobSearchResponse } from '@/types/job';
 import { searchAllProviders } from './apihub';
 import { errorHandler, errorUtils, ErrorType } from './errorHandling';
+import { getCompanyLogoUrl } from '@/utils/jobUtils';
 
 // Adzuna API Configuration (much better than JSearch!)
 const ADZUNA_BASE_URL = 'https://api.adzuna.com/v1/api/jobs';
@@ -18,6 +19,33 @@ const adzunaClient = axios.create({
  * Convert Adzuna job format to our Job interface
  */
 function convertAdzunaJob(adzunaJob: any): Job {
+  const employerName = adzunaJob.company?.display_name || '';
+  const employerWebsite = adzunaJob.company?.url || undefined;
+  // Only use a real logo if present in the Adzuna API response
+  // Check multiple possible logo field names that job APIs commonly use
+  // Adzuna API might store logo in different locations - let's check the actual response structure
+  const employerLogo = adzunaJob.company?.logo || 
+                      adzunaJob.company?.logo_url || 
+                      adzunaJob.company?.image || 
+                      adzunaJob.company?.image_url ||
+                      adzunaJob.company?.icon ||
+                      adzunaJob.company?.icon_url ||
+                      adzunaJob.logo ||
+                      adzunaJob.logo_url ||
+                      adzunaJob.image ||
+                      adzunaJob.image_url ||
+                      adzunaJob.icon ||
+                      adzunaJob.icon_url ||
+                      undefined;
+  
+  // Debug: Log logo detection
+  console.log('🏢 Logo detection for job:', {
+    jobId: adzunaJob.id,
+    companyName: employerName,
+    companyData: adzunaJob.company,
+    logoFound: !!employerLogo,
+    logoUrl: employerLogo
+  });
   return {
     job_id: adzunaJob.id?.toString() || '',
     job_title: adzunaJob.title || '',
@@ -34,12 +62,12 @@ function convertAdzunaJob(adzunaJob: any): Job {
     job_max_salary: adzunaJob.salary_max || undefined,
     job_salary_currency: 'USD',
     job_salary_period: 'YEAR',
-    employer_name: adzunaJob.company?.display_name || '',
+    employer_name: employerName,
+    ...(employerLogo ? { employer_logo: employerLogo } : {}),
+    employer_website: employerWebsite,
     job_publisher: 'Adzuna',
     job_apply_is_direct: false,
     // Optional properties
-    employer_logo: undefined,
-    employer_website: undefined,
     job_offer_expiration_datetime_utc: undefined,
     job_offer_expiration_timestamp: undefined,
     job_required_experience: undefined,
@@ -162,6 +190,21 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
       const response = await adzunaClient.get(searchUrl, { params: queryParams });
       
       if (response.data?.results) {
+        // Debug: Log the first job to see what fields are available
+        if (response.data.results.length > 0) {
+          const firstJob = response.data.results[0];
+          console.log('🔍 Adzuna API job structure:', {
+            id: firstJob.id,
+            company: firstJob.company,
+            title: firstJob.title,
+            // Log all available fields
+            allFields: Object.keys(firstJob),
+            // Log company object structure if it exists
+            companyFields: firstJob.company ? Object.keys(firstJob.company) : 'No company object',
+            // Log the entire first job for detailed inspection
+            fullJob: firstJob
+          });
+        }
         const originalJobs = response.data.results.map(convertAdzunaJob);
         let filteredJobs = originalJobs;
         let radiusFiltered = false;
@@ -250,6 +293,8 @@ async function searchMockJobs(params: JobSearchParams): Promise<JobSearchRespons
       job_salary_currency: 'USD',
       job_salary_period: 'YEAR',
       employer_name: 'TechCorp Innovation',
+      // employer_logo: 'https://example.com/logo1.png', // Uncomment if you want a real logo for this mock job
+      employer_website: 'https://techcorp.com',
       job_publisher: 'Mock Data',
       job_apply_is_direct: false,
     },
@@ -270,6 +315,8 @@ async function searchMockJobs(params: JobSearchParams): Promise<JobSearchRespons
       job_salary_currency: 'USD',
       job_salary_period: 'YEAR',
       employer_name: 'CloudTech Solutions',
+      employer_logo: 'https://example.com/logo2.png', // This mock job has a real logo
+      employer_website: 'https://cloudtech.com',
       job_publisher: 'Mock Data',
       job_apply_is_direct: false,
     },
@@ -290,6 +337,8 @@ async function searchMockJobs(params: JobSearchParams): Promise<JobSearchRespons
       job_salary_currency: 'USD',
       job_salary_period: 'YEAR',
       employer_name: 'DataFlow Analytics',
+      // employer_logo: 'https://example.com/logo3.png', // Uncomment if you want a real logo for this mock job
+      employer_website: 'https://dataflow.com',
       job_publisher: 'Mock Data',
       job_apply_is_direct: false,
     }
@@ -489,6 +538,55 @@ export function getMockJobs(): Job[] {
   ];
 } 
 
+/**
+ * Convert JSearch job format to our Job interface
+ */
+function convertJSearchJob(jsearchJob: any): Job {
+  const employerName = jsearchJob.employer_name || '';
+  const employerWebsite = jsearchJob.employer_website || undefined;
+  // JSearch API might provide logo in different fields
+  const employerLogo = jsearchJob.employer_logo || 
+                      jsearchJob.employer_logo_url || 
+                      jsearchJob.company_logo ||
+                      jsearchJob.company_logo_url ||
+                      undefined;
+  
+  return {
+    job_id: jsearchJob.job_id?.toString() || '',
+    job_title: jsearchJob.job_title || '',
+    job_description: jsearchJob.job_description || '',
+    job_apply_link: jsearchJob.job_apply_link || '',
+    job_city: jsearchJob.job_city || '',
+    job_state: jsearchJob.job_state || '',
+    job_country: jsearchJob.job_country || 'US',
+    job_employment_type: jsearchJob.job_employment_type || 'FULLTIME',
+    job_is_remote: jsearchJob.job_is_remote || false,
+    job_posted_at_timestamp: jsearchJob.job_posted_at_timestamp || 0,
+    job_posted_at_datetime_utc: jsearchJob.job_posted_at_datetime_utc || '',
+    job_min_salary: jsearchJob.job_min_salary || undefined,
+    job_max_salary: jsearchJob.job_max_salary || undefined,
+    job_salary_currency: jsearchJob.job_salary_currency || 'USD',
+    job_salary_period: jsearchJob.job_salary_period || 'YEAR',
+    employer_name: employerName,
+    ...(employerLogo ? { employer_logo: employerLogo } : {}),
+    employer_website: employerWebsite,
+    job_publisher: 'JSearch',
+    job_apply_is_direct: jsearchJob.job_apply_is_direct || false,
+    // Optional properties
+    job_offer_expiration_datetime_utc: jsearchJob.job_offer_expiration_datetime_utc || undefined,
+    job_offer_expiration_timestamp: jsearchJob.job_offer_expiration_timestamp || undefined,
+    job_required_experience: jsearchJob.job_required_experience || undefined,
+    job_required_skills: jsearchJob.job_required_skills || undefined,
+    job_required_education: jsearchJob.job_required_education || undefined,
+    job_benefits: jsearchJob.job_benefits || undefined,
+    job_google_link: jsearchJob.job_google_link || undefined,
+    job_naics_code: jsearchJob.job_naics_code || undefined,
+    job_naics_name: jsearchJob.job_naics_name || undefined,
+    job_occupational_categories: jsearchJob.job_occupational_categories || undefined,
+    job_highlights: jsearchJob.job_highlights || undefined,
+  };
+}
+
 export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSearchResponse> {
   const apiKey = process.env.JSEARCH_API_KEY || process.env.RAPIDAPI_KEY;
   if (!apiKey) throw new Error('JSearch API key not set');
@@ -508,15 +606,33 @@ export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSea
   });
   if (!response.ok) throw new Error('JSearch API error');
   const data = await response.json();
+  
+  // Debug: Log JSearch API response structure
+  if (data.data && data.data.length > 0) {
+    const firstJob = data.data[0];
+    console.log('🔍 JSearch API job structure:', {
+      id: firstJob.job_id,
+      employer_name: firstJob.employer_name,
+      title: firstJob.job_title,
+      // Log all available fields
+      allFields: Object.keys(firstJob),
+      // Log the entire first job for detailed inspection
+      fullJob: firstJob
+    });
+  }
+  
+  // Convert JSearch jobs to our format
+  const convertedJobs = (data.data || []).map(convertJSearchJob);
+  
   return {
     status: data.status || 'success',
     request_id: data.request_id || '',
     parameters: params,
-    data: data.data || [],
-    original_data: data.data,
+    data: convertedJobs,
+    original_data: convertedJobs,
     num_pages: data.num_pages || 1,
     client_filtered: false,
-    original_count: data.data?.length || 0,
-    filtered_count: data.data?.length || 0,
+    original_count: convertedJobs.length,
+    filtered_count: convertedJobs.length,
   };
 } 

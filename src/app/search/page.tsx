@@ -182,7 +182,24 @@ function SearchPage() {
   // Handle Enter key press to trigger search
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      triggerSearch()
+      // Only do this for the location input
+      if (e.currentTarget === document.activeElement && e.currentTarget instanceof HTMLInputElement && e.currentTarget.placeholder === 'Location...') {
+        // Try to match the input to a suggestion (case-insensitive, partial or full)
+        const match = locationSuggestions.find(suggestion =>
+          suggestion.toLowerCase() === inputLocation.toLowerCase() ||
+          suggestion.toLowerCase().startsWith(inputLocation.toLowerCase())
+        )
+        if (match) {
+          setInputLocation(match)
+          setLocation(match)
+        } else {
+          setLocation(inputLocation)
+        }
+        setShowLocationSuggestions(false)
+        setTimeout(() => triggerSearch(), 100)
+      } else {
+        triggerSearch()
+      }
     }
   }
 

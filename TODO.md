@@ -8,6 +8,7 @@
 - [ ] **Add API rate limiting** on the server side
 - [ ] **Set up webhook notifications** for new job matches
 - [ ] **Create API documentation** for internal use
+- [ ] **Finish fixing job logo issue** - Ensure real company logos are displayed for all job providers (Adzuna, JSearch, etc.) and only use fallback/generation when explicitly desired
 
 ### User Experience
 - [ ] **Add job application tracking** - Let users track applications
