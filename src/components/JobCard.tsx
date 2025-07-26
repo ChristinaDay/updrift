@@ -148,9 +148,9 @@ export default function JobCard({
       <CardContent className="pt-0 pb-4 px-6 flex flex-col flex-1 mt-8">
         {/* Logo + Title Row */}
         <div className="flex items-center gap-4 mb-2">
-          {/* Employer Logo (square thumbnail) */}
-          <div className="w-14 h-14 rounded-lg bg-white shadow border flex items-center justify-center overflow-hidden flex-shrink-0">
-            {!imageError ? (
+          {/* Employer Logo (square thumbnail) - only show if logo loads successfully */}
+          {!imageError && (
+            <div className="w-14 h-14 rounded-lg bg-white shadow border flex items-center justify-center overflow-hidden flex-shrink-0">
               <Image
                 src={companyLogoUrl}
                 alt={`${job.employer_name} logo`}
@@ -159,10 +159,8 @@ export default function JobCard({
                 className="w-full h-full object-contain"
                 onError={() => setImageError(true)}
               />
-            ) : (
-              <BriefcaseIcon className="w-8 h-8 text-muted-foreground" />
-            )}
-          </div>
+            </div>
+          )}
           {/* Title & Employer */}
           <div className="flex-1 min-w-0">
             <h3 className="text-xl font-extrabold text-foreground mb-1 line-clamp-2">
