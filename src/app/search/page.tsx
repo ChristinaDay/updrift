@@ -237,6 +237,24 @@ function SearchPage() {
     setTimeout(() => triggerSearch(), 100)
   }
 
+  // Close location suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (!target.closest('.location-input-container')) {
+        setShowLocationSuggestions(false)
+      }
+    }
+
+    if (showLocationSuggestions) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showLocationSuggestions])
+
   // Load user's saved jobs if authenticated
   useEffect(() => {
     if (session?.user) {
@@ -544,7 +562,7 @@ function SearchPage() {
           </div>
           
           {/* Search inputs */}
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-end lg:flex-shrink-0">
+          <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-end lg:flex-shrink-0">
             <div className="relative flex-1 sm:flex-none">
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
               <input
@@ -556,7 +574,7 @@ function SearchPage() {
                 className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-56 lg:w-64 bg-background text-foreground placeholder:text-muted-foreground"
               />
             </div>
-            <div className="relative flex-1 sm:flex-none">
+            <div className="relative flex-1 sm:flex-none location-input-container">
               <MapPinIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
               <input
                 type="text"
@@ -565,7 +583,6 @@ function SearchPage() {
                 onChange={(e) => setInputLocation(e.target.value)}
                 onKeyPress={handleKeyPress}
                 onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
-                onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
                 className="pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-44 lg:w-48 bg-background text-foreground placeholder:text-muted-foreground"
               />
               {showLocationSuggestions && locationSuggestions.length > 0 && (
@@ -792,10 +809,24 @@ function SearchPage() {
           </div>
         )}
 
+        {/* Mobile Filter Toggle */}
+        <div className="lg:hidden mb-4">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="w-full flex items-center justify-between bg-card rounded-xl shadow-sm border border-input p-4 hover:bg-muted/50 transition-colors"
+          >
+            <div className="flex items-center space-x-2">
+              <FunnelIcon className="h-5 w-5" />
+              <span className="font-medium text-foreground">Filters</span>
+            </div>
+            <ChevronDownIcon className={`h-5 w-5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+
         <div className="lg:grid lg:grid-cols-4 lg:gap-8">
           {/* Filters Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-card rounded-xl shadow-sm border border-input p-6 sticky top-4">
+          <div className={`lg:col-span-1 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+            <div className="bg-card rounded-xl shadow-sm border border-input p-6 lg:sticky lg:top-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-foreground">Filters</h3>
                 <button
@@ -963,7 +994,7 @@ function SearchPage() {
           {/* Results */}
           <div className="lg:col-span-3 mt-6 lg:mt-0">
             {/* Results header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <label className="text-sm text-muted-foreground">Sort by:</label>
