@@ -155,6 +155,8 @@ function SearchPage() {
     })
   }, [allCacheEntries])
 
+
+
   // Manual search trigger function
   const triggerSearch = () => {
     console.log('🔍 Triggering search with:', { inputQuery, inputLocation, radius })
