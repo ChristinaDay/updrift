@@ -148,6 +148,9 @@ function SearchPage() {
 
   // Manual search trigger function
   const triggerSearch = () => {
+    console.log('🔍 Triggering search with:', { inputQuery, inputLocation, radius })
+    
+    // Update state first
     setSearchQuery(inputQuery)
     setLocation(inputLocation)
     
@@ -158,6 +161,11 @@ function SearchPage() {
     if (inputLocation && radius) params.append('radius', radius.toString())
     
     router.push(`/search?${params.toString()}`)
+    
+    // Also trigger search directly to ensure it works
+    if (inputQuery || inputLocation) {
+      searchJobs(inputQuery, inputLocation, radius)
+    }
   }
 
   // Handle Enter key press to trigger search
