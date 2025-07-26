@@ -45,7 +45,8 @@ import {
   AdjustmentsHorizontalIcon,
   BookmarkIcon,
   UserIcon,
-  SparklesIcon
+  SparklesIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline'
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -529,19 +530,8 @@ function SearchPage() {
             <div className="bg-card rounded-xl shadow-sm border border-input p-6">
               <p className="text-muted-foreground text-sm">
                 {filteredJobs.length} opportunities found
-                {` • ${formatCacheInfo()}`}
                 {isUserIdle && ' • Idle mode (API calls disabled)'}
               </p>
-              {/* Cache management */}
-              {cacheStats.size > 0 && (
-                <button
-                  onClick={clearCache}
-                  className="text-xs text-blue-600 hover:text-blue-700 underline mt-2"
-                  title="Clear search cache"
-                >
-                  Clear Cache
-                </button>
-              )}
             </div>
           </div>
           
@@ -620,6 +610,34 @@ function SearchPage() {
             {saveMessage}
           </div>
         )}
+
+        {/* Search History Container */}
+        <div className="mb-6 bg-card rounded-xl shadow-sm border border-input p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <ClockIcon className="w-4 h-4" />
+              Search History
+            </h3>
+            {cacheStats.size > 0 && (
+              <button
+                onClick={clearCache}
+                className="text-xs text-blue-600 hover:text-blue-700 underline"
+                title="Clear search cache"
+              >
+                Clear Cache
+              </button>
+            )}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {formatCacheInfo()}
+            {isUserIdle && (
+              <div className="mt-2 text-amber-600 flex items-center gap-1">
+                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                Idle mode (API calls disabled)
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Location Filtering Notification */}
         {locationFilterResults?.applied && location && locationFilterResults.filteredCount === 0 && locationFilterResults.originalCount > 0 && (
