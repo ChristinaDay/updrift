@@ -44,7 +44,22 @@ function convertAdzunaJob(adzunaJob: any): Job {
     companyName: employerName,
     companyData: adzunaJob.company,
     logoFound: !!employerLogo,
-    logoUrl: employerLogo
+    logoUrl: employerLogo,
+    // Log all possible logo fields to see what's available
+    possibleLogoFields: {
+      'company.logo': adzunaJob.company?.logo,
+      'company.logo_url': adzunaJob.company?.logo_url,
+      'company.image': adzunaJob.company?.image,
+      'company.image_url': adzunaJob.company?.image_url,
+      'company.icon': adzunaJob.company?.icon,
+      'company.icon_url': adzunaJob.company?.icon_url,
+      'logo': adzunaJob.logo,
+      'logo_url': adzunaJob.logo_url,
+      'image': adzunaJob.image,
+      'image_url': adzunaJob.image_url,
+      'icon': adzunaJob.icon,
+      'icon_url': adzunaJob.icon_url
+    }
   });
   return {
     job_id: adzunaJob.id?.toString() || '',
@@ -550,6 +565,21 @@ function convertJSearchJob(jsearchJob: any): Job {
                       jsearchJob.company_logo ||
                       jsearchJob.company_logo_url ||
                       undefined;
+  
+  // Debug: Log JSearch logo detection
+  console.log('🏢 JSearch Logo detection for job:', {
+    jobId: jsearchJob.job_id,
+    companyName: employerName,
+    logoFound: !!employerLogo,
+    logoUrl: employerLogo,
+    // Log all possible logo fields to see what's available
+    possibleLogoFields: {
+      'employer_logo': jsearchJob.employer_logo,
+      'employer_logo_url': jsearchJob.employer_logo_url,
+      'company_logo': jsearchJob.company_logo,
+      'company_logo_url': jsearchJob.company_logo_url
+    }
+  });
   
   return {
     job_id: jsearchJob.job_id?.toString() || '',
