@@ -19,6 +19,41 @@ Welcome to the Updrift Project Diary! This document summarizes the progress, key
 
 ## Project Diary (from Git History)
 
+### December 2024 — Job Logo Display & Location Input UX Improvements
+- **Job Logo System Enhancement:**
+  - Fixed job logo conversion for both Adzuna and JSearch APIs
+  - Added comprehensive logo field detection checking multiple possible field names
+  - Implemented proper JSearch job conversion function (`convertJSearchJob`)
+  - Added debugging logs to identify correct logo field names from API responses
+  - Enhanced logo detection to check for `employer_logo`, `employer_logo_url`, `company_logo`, `company_logo_url`, and other common variations
+  - Updated mock jobs to include proper logo URLs for testing
+
+- **Location Input UX Improvements:**
+  - Enhanced location input to fill with full city name when a suggestion is selected
+  - Added Enter key handling for location input that matches user input to suggestions
+  - Implemented case-insensitive matching for location suggestions
+  - Location field now shows complete city/state/country format when selected
+  - Improved user experience by ensuring consistent location display format
+
+- **Technical Improvements:**
+  - Added debugging to both Adzuna and JSearch API responses to identify actual field structures
+  - Enhanced `searchJSearchJobs` function to properly convert API responses to Job interface
+  - Updated `convertAdzunaJob` function with better logo field detection
+  - Added comprehensive error handling for logo detection failures
+  - Improved API response logging for debugging purposes
+
+- **Code Quality & Documentation:**
+  - Added detailed comments explaining logo detection logic
+  - Updated TODO.md to track the logo issue for future completion
+  - Enhanced debugging output to help identify correct API field names
+  - Improved code organization with better separation of concerns
+
+- **User Experience Enhancements:**
+  - Location input now provides better feedback with full city names
+  - Search experience is more consistent with proper location formatting
+  - Debugging information helps identify and fix logo display issues
+  - Better error handling prevents logo-related crashes
+
 ### July 5, 2025 — Project Kickoff & Foundation
 - 🚀 Initial commit: Updrift job search platform with Adzuna API integration.
 - Set up TypeScript, Next.js, and Prisma for robust, modern development.
