@@ -28,11 +28,57 @@ import {
   TrophyIcon
 } from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+
+// Global logo statistics tracking
+declare global {
+  interface Window {
+    logoStats?: {
+      totalJobs: number
+      jobsWithLogos: number
+      jobsWithoutLogos: number
+      companiesWithoutLogos: Set<string>
+    }
+    getLogoStats?: () => {
+      totalJobs: number
+      jobsWithLogos: number
+      jobsWithoutLogos: number
+      companiesWithoutLogos: Set<string>
+    } | null
+  }
+}
+
+if (typeof window !== 'undefined') {
+  if (!window.logoStats) {
+    window.logoStats = {
+      totalJobs: 0,
+      jobsWithLogos: 0,
+      jobsWithoutLogos: 0,
+      companiesWithoutLogos: new Set()
+    }
+  }
+  
+  // Add global function to check logo stats
+  if (!window.getLogoStats) {
+    window.getLogoStats = () => {
+      if (window.logoStats) {
+        console.log('📊 CURRENT LOGO STATISTICS:', {
+          totalJobs: window.logoStats.totalJobs,
+          jobsWithLogos: window.logoStats.jobsWithLogos,
+          jobsWithoutLogos: window.logoStats.jobsWithoutLogos,
+          logoPercentage: Math.round((window.logoStats.jobsWithLogos / window.logoStats.totalJobs) * 100),
+          companiesWithoutLogos: Array.from(window.logoStats.companiesWithoutLogos)
+        })
+        return window.logoStats
+      }
+      return null
+    }
+  }
+}
 
 interface JobCardProps {
   job: Job
@@ -66,8 +112,8 @@ export default function JobCard({
   const companyLogoUrl = apiLogoUrl || generatedLogoUrl || ''
   const hasRealLogo = !!(apiLogoUrl || generatedLogoUrl)
 
-  // Enhanced debug logging
-  console.log('🔍 JobCard Logo Debug:', {
+  // Enhanced debug logging with logo data analysis
+  const logoData = {
     jobId: job.job_id,
     employerName: job.employer_name,
     employerLogo: job.employer_logo,
@@ -78,7 +124,45 @@ export default function JobCard({
     hasRealLogo,
     imageError,
     willShowLogo: hasRealLogo && !imageError
-  })
+  }
+
+  // Log all job card data for debugging
+  console.log('🔍 JobCard Logo Debug:', logoData)
+
+  // Special logging for jobs without logos
+  if (!hasRealLogo) {
+    console.log('🚫 NO LOGO DATA FOUND:', {
+      jobId: job.job_id,
+      employerName: job.employer_name,
+      employerLogo: job.employer_logo || 'undefined',
+      employerWebsite: job.employer_website || 'undefined',
+      reason: !job.employer_logo && !job.employer_website ? 'No API logo and no website data' : 'Logo generation failed'
+    })
+  }
+
+  // Track logo statistics
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.logoStats) {
+      window.logoStats.totalJobs++
+      if (hasRealLogo) {
+        window.logoStats.jobsWithLogos++
+      } else {
+        window.logoStats.jobsWithoutLogos++
+        window.logoStats.companiesWithoutLogos.add(job.employer_name)
+      }
+
+      // Log statistics every 10 jobs
+      if (window.logoStats.totalJobs % 10 === 0) {
+        console.log('📊 LOGO STATISTICS:', {
+          totalJobs: window.logoStats.totalJobs,
+          jobsWithLogos: window.logoStats.jobsWithLogos,
+          jobsWithoutLogos: window.logoStats.jobsWithoutLogos,
+          logoPercentage: Math.round((window.logoStats.jobsWithLogos / window.logoStats.totalJobs) * 100),
+          companiesWithoutLogos: Array.from(window.logoStats.companiesWithoutLogos)
+        })
+      }
+    }
+  }, [hasRealLogo, job.employer_name])
 
   const handleSave = () => {
     if (onSave) {
