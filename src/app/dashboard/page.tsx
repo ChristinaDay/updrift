@@ -98,17 +98,20 @@ export default function Dashboard() {
             </div>
           </Link>
           
-          <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+          <Link href="/applications" className="group bg-card p-6 rounded-lg shadow-sm border border-border transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex flex-col h-full justify-between">
             <div className="flex items-center">
               <div className="p-2 bg-secondary rounded-lg">
                 <MagnifyingGlassIcon className="h-6 w-6 text-secondary" />
               </div>
-              <div className="ml-4">
+              <div className="ml-4 flex-1">
                 <p className="text-sm font-medium text-muted-foreground">Applications</p>
                 <p className="text-2xl font-bold text-foreground">0</p>
               </div>
             </div>
-          </div>
+            <div className="flex items-center justify-end mt-6">
+              <span className="text-primary text-sm font-medium">View</span>
+            </div>
+          </Link>
           
           <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
             <div className="flex items-center">
