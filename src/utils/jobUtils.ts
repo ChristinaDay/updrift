@@ -87,36 +87,16 @@ export function getCompanyDomain(website?: string, email?: string): string | nul
 
 /**
  * Generate company logo URL using Clearbit API
- * Tries website first, then falls back to company name-based domain guessing
+ * Only uses real logo data from APIs - no guessing
  */
 export function getCompanyLogoUrl(companyName: string, website?: string): string | null {
-  // First try: use provided website
+  // Only use provided website - no domain guessing
   const domain = getCompanyDomain(website);
   if (domain) {
     return `https://logo.clearbit.com/${domain}`;
   }
 
-  // Second try: generate domain from company name
-  if (companyName) {
-    const cleanName = companyName.toLowerCase()
-      .replace(/[^a-z0-9]/g, '') // Remove special characters
-      .replace(/\s+/g, ''); // Remove spaces
-    
-    // Try common domain patterns
-    const possibleDomains = [
-      `${cleanName}.com`,
-      `${cleanName}.org`,
-      `${cleanName}.net`,
-      `${cleanName}.io`,
-      `${cleanName}.co`,
-      `${cleanName}.tech`,
-      `${cleanName}.ai`
-    ];
-
-    // For now, let's try the most common pattern
-    return `https://logo.clearbit.com/${cleanName}.com`;
-  }
-
+  // No logo available - return null
   return null;
 }
 

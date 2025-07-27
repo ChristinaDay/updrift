@@ -106,39 +106,11 @@ export default function JobCard({
   const skills = extractSkills(job)
   const matchScore = calculateJobMatchScore(job)
   
-  // Enhanced logo logic: try API logo first, then generate from website
+  // Simple logo logic: only use real logo data from APIs
   const apiLogoUrl = job.employer_logo || ''
   const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
   const companyLogoUrl = apiLogoUrl || generatedLogoUrl || ''
   const hasRealLogo = !!(apiLogoUrl || generatedLogoUrl)
-
-  // Enhanced debug logging with logo data analysis
-  const logoData = {
-    jobId: job.job_id,
-    employerName: job.employer_name,
-    employerLogo: job.employer_logo,
-    employerWebsite: job.employer_website,
-    apiLogoUrl,
-    generatedLogoUrl,
-    finalLogoUrl: companyLogoUrl,
-    hasRealLogo,
-    imageError,
-    willShowLogo: hasRealLogo && !imageError
-  }
-
-  // Log all job card data for debugging
-  console.log('🔍 JobCard Logo Debug:', logoData)
-
-  // Special logging for jobs without logos
-  if (!hasRealLogo) {
-    console.log('🚫 NO LOGO DATA FOUND:', {
-      jobId: job.job_id,
-      employerName: job.employer_name,
-      employerLogo: job.employer_logo || 'undefined',
-      employerWebsite: job.employer_website || 'undefined',
-      reason: !job.employer_logo && !job.employer_website ? 'No API logo and no website data' : 'Logo generation failed'
-    })
-  }
 
   // Track logo statistics
   useEffect(() => {
@@ -251,33 +223,19 @@ export default function JobCard({
       <CardContent className="pt-0 pb-4 px-6 flex flex-col flex-1 mt-8">
         {/* Logo + Title Row */}
         <div className="flex items-center gap-4 mb-2">
-          {/* Employer Logo (square thumbnail) - only show if real logo exists and loads successfully */}
-          {(() => {
-            if (hasRealLogo) {
-              console.log('🎨 Rendering logo for:', job.employer_name, 'URL:', companyLogoUrl)
-              return (
-                <div className="w-14 h-14 rounded-lg bg-white shadow border flex items-center justify-center overflow-hidden flex-shrink-0">
-                  <Image
-                    src={companyLogoUrl}
-                    alt={`${job.employer_name} logo`}
-                    width={56}
-                    height={56}
-                    className="w-full h-full object-contain"
-                    onError={() => {
-                      console.log('❌ Image failed to load:', companyLogoUrl)
-                      setImageError(true)
-                    }}
-                    onLoad={() => {
-                      console.log('✅ Image loaded successfully:', companyLogoUrl)
-                    }}
-                  />
-                </div>
-              )
-            } else {
-              console.log('🚫 No logo available for:', job.employer_name)
-              return null
-            }
-          })()}
+          {/* Employer Logo - only show if real logo exists */}
+          {hasRealLogo && (
+            <div className="w-14 h-14 rounded-lg bg-white shadow border flex items-center justify-center overflow-hidden flex-shrink-0">
+              <Image
+                src={companyLogoUrl}
+                alt={`${job.employer_name} logo`}
+                width={56}
+                height={56}
+                className="w-full h-full object-contain"
+                onError={() => setImageError(true)}
+              />
+            </div>
+          )}
           {/* Title & Employer */}
           <div className="flex-1 min-w-0">
             <h3 className="text-xl font-extrabold text-foreground mb-1 line-clamp-2">
