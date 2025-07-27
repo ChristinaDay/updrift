@@ -87,15 +87,16 @@ export function getCompanyDomain(website?: string, email?: string): string | nul
 
 /**
  * Generate company logo URL using Clearbit API
+ * Returns null if no domain is available (no fallback)
  */
-export function getCompanyLogoUrl(companyName: string, website?: string): string {
+export function getCompanyLogoUrl(companyName: string, website?: string): string | null {
   const domain = getCompanyDomain(website);
   if (domain) {
     return `https://logo.clearbit.com/${domain}`;
   }
 
-  // Fallback to a generic company icon
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=6366f1&color=fff&size=200`;
+  // No fallback - return null if no domain available
+  return null;
 }
 
 /**
