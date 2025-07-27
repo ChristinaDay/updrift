@@ -59,18 +59,24 @@ export default function JobCard({
   
   const skills = extractSkills(job)
   const matchScore = calculateJobMatchScore(job)
-  // Only use the real employer_logo, no fallback
-  const companyLogoUrl = job.employer_logo || ''
-  const hasRealLogo = !!job.employer_logo
+  
+  // Enhanced logo logic: try API logo first, then generate from website
+  const apiLogoUrl = job.employer_logo || ''
+  const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
+  const companyLogoUrl = apiLogoUrl || generatedLogoUrl || ''
+  const hasRealLogo = !!(apiLogoUrl || generatedLogoUrl)
 
   // Debug logging
   console.log('JobCard Debug:', {
     jobId: job.job_id,
     employerName: job.employer_name,
     employerLogo: job.employer_logo,
+    employerWebsite: job.employer_website,
+    apiLogoUrl,
+    generatedLogoUrl,
+    finalLogoUrl: companyLogoUrl,
     hasRealLogo,
-    imageError,
-    companyLogoUrl
+    imageError
   })
 
   const handleSave = () => {
