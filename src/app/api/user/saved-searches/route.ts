@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { withRateLimit } from '@/lib/rateLimiter'
 
-export async function GET(request: NextRequest) {
+async function getSavedSearchesHandler(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function createSavedSearchHandler(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+async function deleteSavedSearchHandler(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
@@ -120,4 +121,9 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     )
   }
-} 
+}
+
+// Export the rate-limited handlers
+export const GET = withRateLimit('saved-searches')(getSavedSearchesHandler);
+export const POST = withRateLimit('saved-searches')(createSavedSearchHandler);
+export const DELETE = withRateLimit('saved-searches')(deleteSavedSearchHandler); 

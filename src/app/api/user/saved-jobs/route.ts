@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { withRateLimit } from '@/lib/rateLimiter'
 
-export async function GET(request: NextRequest) {
+async function getSavedJobsHandler(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function createSavedJobHandler(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+async function deleteSavedJobHandler(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
@@ -157,3 +158,8 @@ export async function DELETE(request: NextRequest) {
     )
   }
 } 
+
+// Export the rate-limited handlers
+export const GET = withRateLimit('saved-jobs')(getSavedJobsHandler);
+export const POST = withRateLimit('saved-jobs')(createSavedJobHandler);
+export const DELETE = withRateLimit('saved-jobs')(deleteSavedJobHandler); 

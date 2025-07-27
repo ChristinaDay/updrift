@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import { withRateLimit } from '@/lib/rateLimiter';
 
-export async function GET() {
+async function testHandler() {
   const hasApiKey = !!process.env.RAPIDAPI_KEY;
   
   return NextResponse.json({
@@ -11,4 +12,7 @@ export async function GET() {
       : 'No API key found - using demo data',
     timestamp: new Date().toISOString()
   });
-} 
+}
+
+// Export the rate-limited handler
+export const GET = withRateLimit('api-test')(testHandler); 

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { withRateLimit } from '@/lib/rateLimiter'
 
-export async function POST(request: NextRequest) {
+async function signupHandler(request: NextRequest) {
   try {
     const { email, password, name } = await request.json()
 
@@ -57,4 +58,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-} 
+}
+
+// Export the rate-limited handler
+export const POST = withRateLimit('auth')(signupHandler); 

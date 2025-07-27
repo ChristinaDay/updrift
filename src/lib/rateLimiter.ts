@@ -27,6 +27,7 @@ export class RateLimiter {
   private static instance: RateLimiter;
   private limits: Map<string, RateLimitEntry> = new Map();
   private configs: Map<string, RateLimitConfig> = new Map();
+  private blockedRequests: Map<string, number> = new Map(); // Track blocked requests for monitoring
 
   static getInstance(): RateLimiter {
     if (!RateLimiter.instance) {
@@ -76,6 +77,11 @@ export class RateLimiter {
     // Check if limit exceeded
     if (entry.count >= config.maxRequests) {
       const retryAfter = Math.ceil((entry.resetTime - now) / 1000);
+      
+      // Track blocked requests for monitoring
+      const blockedKey = `${identifier}:${endpoint}`;
+      this.blockedRequests.set(blockedKey, (this.blockedRequests.get(blockedKey) || 0) + 1);
+      
       return {
         allowed: false,
         remaining: 0,
@@ -137,6 +143,42 @@ export class RateLimiter {
   // Clear all rate limits (useful for testing)
   clearAll(): void {
     this.limits.clear();
+    this.blockedRequests.clear();
+  }
+
+  // Get monitoring data
+  getMonitoringData() {
+    return {
+      activeLimits: this.limits.size,
+      blockedRequests: Object.fromEntries(this.blockedRequests),
+      configurations: Object.fromEntries(this.configs)
+    };
+  }
+
+  // Get rate limit statistics for an endpoint
+  getEndpointStats(endpoint: string) {
+    const stats = {
+      totalRequests: 0,
+      blockedRequests: 0,
+      activeLimits: 0
+    };
+
+    // Count active limits for this endpoint
+    for (const [key, entry] of Array.from(this.limits.entries())) {
+      if (key.includes(`:${endpoint}`)) {
+        stats.activeLimits++;
+        stats.totalRequests += entry.count;
+      }
+    }
+
+    // Count blocked requests for this endpoint
+    for (const [key, count] of Array.from(this.blockedRequests.entries())) {
+      if (key.includes(`:${endpoint}`)) {
+        stats.blockedRequests += count;
+      }
+    }
+
+    return stats;
   }
 }
 
@@ -160,11 +202,23 @@ export const defaultRateLimits = {
     maxRequests: 200,
     message: 'Too many saved job operations. Please try again later.'
   },
+  // Saved searches - 100 requests per hour
+  'saved-searches': {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    maxRequests: 100,
+    message: 'Too many saved search operations. Please try again later.'
+  },
   // Authentication - 10 requests per minute
   'auth': {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 10,
     message: 'Too many authentication attempts. Please try again later.'
+  },
+  // API test endpoints - 50 requests per hour
+  'api-test': {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    maxRequests: 50,
+    message: 'Too many test requests. Please try again later.'
   }
 };
 
@@ -178,13 +232,24 @@ Object.entries(defaultRateLimits).forEach(([endpoint, config]) => {
 
 // Utility function to get client identifier
 export function getClientIdentifier(request: Request): string {
-  // In production, you might want to use user ID if authenticated
-  // For now, we'll use IP address as a fallback
+  // Try to get user ID from session if available
+  // This provides better rate limiting for authenticated users
+  const authHeader = request.headers.get('authorization');
+  const sessionToken = request.headers.get('x-session-token');
+  
+  // If we have session info, use user ID for rate limiting
+  if (sessionToken) {
+    // In a real implementation, you'd decode the session token
+    // For now, we'll use the session token as identifier
+    return `user:${sessionToken}`;
+  }
+  
+  // Fallback to IP address for unauthenticated users
   const forwarded = request.headers.get('x-forwarded-for');
   const realIp = request.headers.get('x-real-ip');
   const ip = forwarded?.split(',')[0] || realIp || 'unknown';
   
-  return ip;
+  return `ip:${ip}`;
 }
 
 // Rate limit middleware for Next.js API routes
