@@ -66,8 +66,8 @@ export default function JobCard({
   const companyLogoUrl = apiLogoUrl || generatedLogoUrl || ''
   const hasRealLogo = !!(apiLogoUrl || generatedLogoUrl)
 
-  // Debug logging
-  console.log('JobCard Debug:', {
+  // Enhanced debug logging
+  console.log('🔍 JobCard Logo Debug:', {
     jobId: job.job_id,
     employerName: job.employer_name,
     employerLogo: job.employer_logo,
@@ -76,7 +76,8 @@ export default function JobCard({
     generatedLogoUrl,
     finalLogoUrl: companyLogoUrl,
     hasRealLogo,
-    imageError
+    imageError,
+    willShowLogo: hasRealLogo && !imageError
   })
 
   const handleSave = () => {
@@ -167,24 +168,32 @@ export default function JobCard({
         {/* Logo + Title Row */}
         <div className="flex items-center gap-4 mb-2">
           {/* Employer Logo (square thumbnail) - only show if real logo exists and loads successfully */}
-          {hasRealLogo && (
-            <div className="w-14 h-14 rounded-lg bg-white shadow border flex items-center justify-center overflow-hidden flex-shrink-0">
-              <Image
-                src={companyLogoUrl}
-                alt={`${job.employer_name} logo`}
-                width={56}
-                height={56}
-                className="w-full h-full object-contain"
-                onError={() => {
-                  console.log('Image failed to load:', companyLogoUrl)
-                  setImageError(true)
-                }}
-                onLoad={() => {
-                  console.log('Image loaded successfully:', companyLogoUrl)
-                }}
-              />
-            </div>
-          )}
+          {(() => {
+            if (hasRealLogo) {
+              console.log('🎨 Rendering logo for:', job.employer_name, 'URL:', companyLogoUrl)
+              return (
+                <div className="w-14 h-14 rounded-lg bg-white shadow border flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <Image
+                    src={companyLogoUrl}
+                    alt={`${job.employer_name} logo`}
+                    width={56}
+                    height={56}
+                    className="w-full h-full object-contain"
+                    onError={() => {
+                      console.log('❌ Image failed to load:', companyLogoUrl)
+                      setImageError(true)
+                    }}
+                    onLoad={() => {
+                      console.log('✅ Image loaded successfully:', companyLogoUrl)
+                    }}
+                  />
+                </div>
+              )
+            } else {
+              console.log('🚫 No logo available for:', job.employer_name)
+              return null
+            }
+          })()}
           {/* Title & Employer */}
           <div className="flex-1 min-w-0">
             <h3 className="text-xl font-extrabold text-foreground mb-1 line-clamp-2">
