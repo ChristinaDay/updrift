@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import ThemeToggle from "@/components/ThemeToggle";
-import { UserIcon, MagnifyingGlassIcon, BookmarkIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { UserIcon, MagnifyingGlassIcon, BookmarkIcon, ChevronDownIcon, ChartBarIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { usePathname } from "next/navigation";
@@ -41,16 +41,33 @@ export default function Header() {
               </Link>
               {session && (
                 <>
-                <Link
-                  href="/dashboard"
-                  className={`flex items-center space-x-1 px-1.5 border-b-2 transition-colors duration-200 ${
-                    pathname === "/dashboard"
-                      ? "text-primary border-primary"
-                      : "text-muted-foreground border-transparent hover:text-primary"
-                  }`}
-                >
-                  <span>Dashboard</span>
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className={`flex items-center space-x-1 px-1.5 border-b-2 transition-colors duration-200 ${
+                      pathname === "/dashboard" || pathname === "/applications"
+                        ? "text-primary border-primary"
+                        : "text-muted-foreground border-transparent hover:text-primary"
+                    }`}>
+                      <ChartBarIcon className="h-4 w-4" />
+                      <span>Dashboard</span>
+                      <ChevronDownIcon className="h-3 w-3" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard" className="flex items-center space-x-2">
+                        <ChartBarIcon className="h-4 w-4" />
+                        <span>Overview</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/applications" className="flex items-center space-x-2">
+                        <DocumentTextIcon className="h-4 w-4" />
+                        <span>Applications</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Link
                   href="/saved-jobs"
                   className={`flex items-center space-x-1 px-1.5 border-b-2 transition-colors duration-200 ${
@@ -96,7 +113,15 @@ export default function Header() {
                           href="/dashboard"
                           className={`flex items-center space-x-2 px-2 py-2 rounded-md ${pathname === "/dashboard" ? "text-primary bg-accent" : "text-foreground hover:bg-accent/50"}`}
                         >
+                          <ChartBarIcon className="h-5 w-5" />
                           <span>Dashboard</span>
+                        </Link>
+                        <Link
+                          href="/applications"
+                          className={`flex items-center space-x-2 px-2 py-2 rounded-md ${pathname === "/applications" ? "text-primary bg-accent" : "text-foreground hover:bg-accent/50"}`}
+                        >
+                          <DocumentTextIcon className="h-5 w-5" />
+                          <span>Applications</span>
                         </Link>
                         <Link
                           href="/saved-jobs"
