@@ -28,8 +28,7 @@ import {
   TrophyIcon
 } from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
+import { useState } from 'react'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -101,50 +100,16 @@ export default function JobCard({
   applicationStatus,
   onUpdateApplicationStatus
 }: JobCardProps) {
-  const [imageError, setImageError] = useState(false)
+
   
   const skills = extractSkills(job)
   const matchScore = calculateJobMatchScore(job)
   
-  // Simple logo logic: only use real logo data from APIs
-  const apiLogoUrl = job.employer_logo || ''
-  const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
-  const companyLogoUrl = apiLogoUrl || generatedLogoUrl || ''
-  const hasRealLogo = !!(apiLogoUrl || generatedLogoUrl)
-
-  // Simple debug to see what's happening
-  console.log('🔍 Logo Check:', {
-    company: job.employer_name,
-    hasRealLogo,
-    apiLogoUrl: apiLogoUrl || 'none',
-    generatedLogoUrl: generatedLogoUrl || 'none'
-  })
+  // No logo logic - just show company names cleanly
 
 
 
-  // Track logo statistics
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.logoStats) {
-      window.logoStats.totalJobs++
-      if (hasRealLogo) {
-        window.logoStats.jobsWithLogos++
-      } else {
-        window.logoStats.jobsWithoutLogos++
-        window.logoStats.companiesWithoutLogos.add(job.employer_name)
-      }
 
-      // Log statistics every 10 jobs
-      if (window.logoStats.totalJobs % 10 === 0) {
-        console.log('📊 LOGO STATISTICS:', {
-          totalJobs: window.logoStats.totalJobs,
-          jobsWithLogos: window.logoStats.jobsWithLogos,
-          jobsWithoutLogos: window.logoStats.jobsWithoutLogos,
-          logoPercentage: Math.round((window.logoStats.jobsWithLogos / window.logoStats.totalJobs) * 100),
-          companiesWithoutLogos: Array.from(window.logoStats.companiesWithoutLogos)
-        })
-      }
-    }
-  }, [hasRealLogo, job.employer_name])
 
   const handleSave = () => {
     if (onSave) {
@@ -231,30 +196,14 @@ export default function JobCard({
         </Button>
       </div>
       <CardContent className="pt-0 pb-4 px-6 flex flex-col flex-1 mt-8">
-        {/* Logo + Title Row */}
-        <div className="flex items-center gap-4 mb-2">
-          {/* Employer Logo - only show if real logo exists */}
-          {hasRealLogo && (
-            <div className="w-14 h-14 rounded-lg bg-white shadow border flex items-center justify-center overflow-hidden flex-shrink-0">
-              <Image
-                src={companyLogoUrl}
-                alt={`${job.employer_name} logo`}
-                width={56}
-                height={56}
-                className="w-full h-full object-contain"
-                onError={() => setImageError(true)}
-              />
-            </div>
-          )}
-          {/* Title & Employer */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-xl font-extrabold text-foreground mb-1 line-clamp-2">
-              {job.job_title}
-            </h3>
-            <p className="text-base text-muted-foreground font-medium mb-0 line-clamp-1">
-              {job.employer_name}
-            </p>
-          </div>
+        {/* Title & Employer */}
+        <div className="mb-2">
+          <h3 className="text-xl font-extrabold text-foreground mb-1 line-clamp-2">
+            {job.job_title}
+          </h3>
+          <p className="text-base text-muted-foreground font-medium mb-0 line-clamp-1">
+            {job.employer_name}
+          </p>
         </div>
         {/* Meta Row (stat boxes) */}
         <div className="flex flex-wrap justify-start gap-2 mb-3">
