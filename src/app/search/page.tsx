@@ -76,6 +76,7 @@ function SearchPage() {
     dataSource,
     locationFilterResults,
     searchJobs,
+    loadMoreJobs,
     clearCache,
     cacheStats,
     isUserIdle,
@@ -117,9 +118,7 @@ function SearchPage() {
   const [showSearchHistory, setShowSearchHistory] = useState(false)
   const [isUpdatingUrl, setIsUpdatingUrl] = useState(false)
   
-  // Load more functionality
-  const [displayedJobsCount, setDisplayedJobsCount] = useState(20)
-  const [hasMoreJobs, setHasMoreJobs] = useState(false)
+
 
   // Local filtered jobs state (for client-side filtering)
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
@@ -503,17 +502,7 @@ function SearchPage() {
     }
   }, [searchQuery, location, radius, searchJobs, session])
 
-  // Update displayed jobs when filtered jobs change
-  useEffect(() => {
-    // Reset displayed count when new search results come in
-    setDisplayedJobsCount(20)
-    setHasMoreJobs(initialFilteredJobs.length > 20)
-  }, [initialFilteredJobs])
 
-  // Update hasMoreJobs when displayed count changes
-  useEffect(() => {
-    setHasMoreJobs(displayedJobsCount < filteredJobs.length)
-  }, [displayedJobsCount, filteredJobs.length])
 
   const trackSearch = async () => {
     try {
@@ -676,10 +665,7 @@ function SearchPage() {
     })
   }
 
-  // Load more jobs handler
-  const handleLoadMore = () => {
-    setDisplayedJobsCount(prev => prev + 20)
-  }
+
 
   if (loading) {
     return (
@@ -1230,7 +1216,7 @@ function SearchPage() {
                 </div>
               ) : (
                 <div className={viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 gap-6' : 'space-y-4'}>
-                  {filteredJobs.slice(0, displayedJobsCount).map(job => (
+                  {filteredJobs.map(job => (
                     <JobCard
                       key={job.job_id}
                       job={job}
@@ -1245,13 +1231,13 @@ function SearchPage() {
                   ))}
                   
                   {/* Load more button */}
-                  {hasMoreJobs && displayedJobsCount < filteredJobs.length && (
+                  {initialFilteredJobs.length > 0 && (
                     <div className="text-center mt-8">
                       <button 
-                        onClick={handleLoadMore}
+                        onClick={loadMoreJobs}
                         className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium transition-colors"
                       >
-                        Load More Jobs ({filteredJobs.length - displayedJobsCount} remaining)
+                        Load More Jobs
                       </button>
                     </div>
                   )}

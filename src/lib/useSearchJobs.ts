@@ -15,6 +15,7 @@ interface UseSearchJobsReturn {
     filteredCount: number;
   } | null;
   searchJobs: (query: string, location: string, radius: number) => void;
+  loadMoreJobs: () => Promise<void>;
   clearCache: () => void;
   cacheStats: { size: number; keys: string[] };
   isUserIdle: boolean;
@@ -38,6 +39,11 @@ export function useSearchJobs(): UseSearchJobsReturn {
     radius: number;
   } | null>(null);
   const [currentCacheEntry, setCurrentCacheEntry] = useState<{ timestamp: number; searchParams: string } | null>(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMorePages, setHasMorePages] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   // Track user activity
   useEffect(() => {
@@ -71,6 +77,10 @@ export function useSearchJobs(): UseSearchJobsReturn {
       setLastSearchParams(null);
       return;
     }
+
+    // Reset pagination for new searches
+    setCurrentPage(1);
+    setHasMorePages(false);
 
     // Normalize location text for consistent caching
     const normalizedLocation = location.trim();
@@ -121,6 +131,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
       if (query) params.append('query', query);
       if (normalizedLocation) params.append('location', normalizedLocation);
       if (normalizedLocation && radius) params.append('radius', radius.toString());
+      params.append('page', '1'); // Always start with page 1 for new searches
       
       console.log('🔍 Fetching jobs with params:', params.toString());
       
@@ -175,6 +186,9 @@ export function useSearchJobs(): UseSearchJobsReturn {
       // Store original and filtered jobs
       setJobs(data.original_data || data.data || []);
       setFilteredJobs(data.data || []);
+      
+      // Check if there are more pages available
+      setHasMorePages(data.num_pages > 1);
 
       // Track location filtering results
       if (data.client_filtered) {
@@ -202,6 +216,49 @@ export function useSearchJobs(): UseSearchJobsReturn {
       setLoading(false);
     }
   }, []);
+
+  // Load more jobs function
+  const loadMoreJobs = useCallback(async () => {
+    if (!lastSearchParams || !hasMorePages || loadingMore) {
+      return;
+    }
+
+    setLoadingMore(true);
+    try {
+      const nextPage = currentPage + 1;
+      
+      // Build API URL with parameters
+      const params = new URLSearchParams();
+      if (lastSearchParams.query) params.append('query', lastSearchParams.query);
+      if (lastSearchParams.location) params.append('location', lastSearchParams.location);
+      if (lastSearchParams.radius) params.append('radius', lastSearchParams.radius.toString());
+      params.append('page', nextPage.toString());
+      
+      console.log('🔍 Loading more jobs, page:', nextPage);
+      
+      const response = await fetch(`/api/jobs/search?${params.toString()}`);
+      const data = await response.json();
+      
+      if (data.status === 'success' && data.data?.length > 0) {
+        // Append new jobs to existing ones
+        setJobs(prev => [...prev, ...(data.original_data || data.data || [])]);
+        setFilteredJobs(prev => [...prev, ...(data.data || [])]);
+        setCurrentPage(nextPage);
+        
+        // Check if there are still more pages
+        setHasMorePages(nextPage < data.num_pages);
+        
+        console.log('✅ Loaded more jobs:', data.data.length, 'jobs, page', nextPage);
+      } else {
+        setHasMorePages(false);
+        console.log('📄 No more jobs available');
+      }
+    } catch (error) {
+      console.error('❌ Error loading more jobs:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [lastSearchParams, hasMorePages, loadingMore, currentPage]);
 
   // Debounced search function
   const debouncedSearch = useCallback(
@@ -231,6 +288,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
     dataSource,
     locationFilterResults,
     searchJobs: debouncedSearch,
+    loadMoreJobs,
     clearCache,
     cacheStats,
     isUserIdle: searchCache.isUserIdle(),
