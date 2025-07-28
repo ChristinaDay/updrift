@@ -42,7 +42,6 @@ function convertAdzunaJob(adzunaJob: any): Job {
   console.log('🏢 Logo detection for job:', {
     jobId: adzunaJob.id,
     companyName: employerName,
-    companyData: adzunaJob.company,
     logoFound: !!employerLogo,
     logoUrl: employerLogo,
     // Log all possible logo fields to see what's available
@@ -59,6 +58,13 @@ function convertAdzunaJob(adzunaJob: any): Job {
       'image_url': adzunaJob.image_url,
       'icon': adzunaJob.icon,
       'icon_url': adzunaJob.icon_url
+    },
+    // Log the raw company data to see what's actually available
+    rawCompanyData: adzunaJob.company,
+    rawJobData: {
+      id: adzunaJob.id,
+      title: adzunaJob.title,
+      company: adzunaJob.company
     }
   });
   return {
@@ -578,6 +584,12 @@ function convertJSearchJob(jsearchJob: any): Job {
       'employer_logo_url': jsearchJob.employer_logo_url,
       'company_logo': jsearchJob.company_logo,
       'company_logo_url': jsearchJob.company_logo_url
+    },
+    // Log the raw job data to see what's actually available
+    rawJobData: {
+      job_id: jsearchJob.job_id,
+      employer_name: jsearchJob.employer_name,
+      job_title: jsearchJob.job_title
     }
   });
   
