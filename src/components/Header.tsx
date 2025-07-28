@@ -41,33 +41,17 @@ export default function Header() {
               </Link>
               {session && (
                 <>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className={`flex items-center space-x-1 px-1.5 border-b-2 transition-colors duration-200 ${
-                      pathname === "/dashboard" || pathname === "/applications"
-                        ? "text-primary border-primary"
-                        : "text-muted-foreground border-transparent hover:text-primary"
-                    }`}>
-                      <ChartBarIcon className="h-4 w-4" />
-                      <span>Dashboard</span>
-                      <ChevronDownIcon className="h-3 w-3" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard" className="flex items-center space-x-2">
-                        <ChartBarIcon className="h-4 w-4" />
-                        <span>Overview</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/applications" className="flex items-center space-x-2">
-                        <DocumentTextIcon className="h-4 w-4" />
-                        <span>Job Tracker</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Link
+                  href="/dashboard"
+                  className={`flex items-center space-x-1 px-1.5 border-b-2 transition-colors duration-200 ${
+                    pathname === "/dashboard"
+                      ? "text-primary border-primary"
+                      : "text-muted-foreground border-transparent hover:text-primary"
+                  }`}
+                >
+                  <ChartBarIcon className="h-4 w-4" />
+                  <span>Dashboard</span>
+                </Link>
                 <Link
                   href="/saved-jobs"
                   className={`flex items-center space-x-1 px-1.5 border-b-2 transition-colors duration-200 ${
@@ -77,7 +61,7 @@ export default function Header() {
                   }`}
                 >
                   <BookmarkIcon className="h-4 w-4" />
-                  <span>Saved Jobs</span>
+                  <span>Job Manager</span>
                 </Link>
                 </>
               )}
@@ -117,18 +101,11 @@ export default function Header() {
                           <span>Dashboard</span>
                         </Link>
                         <Link
-                          href="/applications"
-                          className={`flex items-center space-x-2 px-2 py-2 rounded-md ${pathname === "/applications" ? "text-primary bg-accent" : "text-foreground hover:bg-accent/50"}`}
-                        >
-                          <DocumentTextIcon className="h-5 w-5" />
-                          <span>Job Tracker</span>
-                        </Link>
-                        <Link
                           href="/saved-jobs"
                           className={`flex items-center space-x-2 px-2 py-2 rounded-md ${pathname.startsWith("/saved-jobs") ? "text-primary bg-accent" : "text-foreground hover:bg-accent/50"}`}
                         >
                           <BookmarkIcon className="h-5 w-5" />
-                          <span>Saved Jobs</span>
+                          <span>Job Manager</span>
                         </Link>
                       </>
                     )}

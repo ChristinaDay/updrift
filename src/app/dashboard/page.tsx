@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { BookmarkIcon, MagnifyingGlassIcon, UserIcon, SparklesIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
+import { BookmarkIcon, MagnifyingGlassIcon, UserIcon, SparklesIcon, PaperAirplaneIcon, BriefcaseIcon } from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { capitalizeLocation } from '@/utils/jobUtils'
 import ThemeToggle from '@/components/ThemeToggle'
@@ -98,13 +98,13 @@ export default function Dashboard() {
             </div>
           </Link>
           
-          <Link href="/applications" className="group bg-card p-6 rounded-lg shadow-sm border border-border transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex flex-col h-full justify-between">
+          <Link href="/saved-jobs" className="group bg-card p-6 rounded-lg shadow-sm border border-border transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex flex-col h-full justify-between">
             <div className="flex items-center">
               <div className="p-2 bg-secondary rounded-lg">
-                <MagnifyingGlassIcon className="h-6 w-6 text-secondary" />
+                <BriefcaseIcon className="h-6 w-6 text-secondary" />
               </div>
               <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-muted-foreground">Tracked Jobs</p>
+                <p className="text-sm font-medium text-muted-foreground">Job Manager</p>
                 <p className="text-2xl font-bold text-foreground">0</p>
               </div>
             </div>
