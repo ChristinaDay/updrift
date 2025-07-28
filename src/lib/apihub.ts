@@ -85,18 +85,14 @@ export const jobProviders: JobProvider[] = [
 
 // Search all providers in parallel and aggregate results
 export async function searchAllProviders(params: JobSearchParams): Promise<Job[]> {
-  console.log('🔍 Starting search across all providers:', params);
-  
   // Call all providers in parallel
   const results = await Promise.all(
     jobProviders.map(async provider => {
-      console.log(`🔍 Calling provider: ${provider.id}`);
       try {
         const jobs = await provider.searchJobs(params);
-        console.log(`✅ Provider ${provider.id} returned ${jobs.length} jobs`);
         return jobs;
       } catch (err) {
-        console.error(`❌ Provider ${provider.id} failed:`, err);
+        console.error(`Provider ${provider.id} failed:`, err);
         return [];
       }
     })
@@ -104,7 +100,6 @@ export async function searchAllProviders(params: JobSearchParams): Promise<Job[]
   
   // Flatten and deduplicate by job_id
   const allJobs = results.flat();
-  console.log(`📊 Total jobs from all providers: ${allJobs.length}`);
   
   const seen = new Set<string>();
   const deduped = allJobs.filter(job => {
