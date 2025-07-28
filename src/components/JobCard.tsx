@@ -122,7 +122,7 @@ export default function JobCard({
     }
   }
 
-  const handleApply = () => {
+  const handleLearnMore = () => {
     if (onApply) {
       onApply(job)
     } else {
@@ -291,7 +291,7 @@ export default function JobCard({
           </div>
         )}
         <Button 
-          onClick={handleApply} 
+          onClick={handleLearnMore} 
           className={`w-full font-bold text-lg flex items-center justify-center gap-2 ${
             applicationStatus 
               ? 'bg-muted text-muted-foreground hover:bg-muted/80' 
@@ -309,7 +309,7 @@ export default function JobCard({
             </>
           ) : (
             <>
-              Apply Now
+              Learn More
               <ArrowTopRightOnSquareIcon className="w-5 h-5" />
             </>
           )}

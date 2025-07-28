@@ -282,6 +282,24 @@ function SearchPage() {
     }
   }, [showLocationSuggestions])
 
+  // Close search history when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (!target.closest('.search-history-container')) {
+        setShowSearchHistory(false)
+      }
+    }
+
+    if (showSearchHistory) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showSearchHistory])
+
   // Load user's saved jobs if authenticated
   useEffect(() => {
     if (session?.user) {
@@ -664,7 +682,7 @@ function SearchPage() {
         )}
 
         {/* Search History Dropdown */}
-        <div className="mb-6">
+        <div className="mb-6 search-history-container">
           <div className="relative">
             <button
               onClick={() => setShowSearchHistory(!showSearchHistory)}
