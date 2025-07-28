@@ -112,16 +112,7 @@ export default function JobCard({
   const companyLogoUrl = apiLogoUrl || generatedLogoUrl || ''
   const hasRealLogo = !!(apiLogoUrl || generatedLogoUrl)
 
-  // Debug: Log what logo data we have
-  console.log('🔍 Logo Debug:', {
-    jobId: job.job_id,
-    companyName: job.employer_name,
-    apiLogoUrl: apiLogoUrl || 'undefined',
-    employerWebsite: job.employer_website || 'undefined',
-    generatedLogoUrl: generatedLogoUrl || 'undefined',
-    finalLogoUrl: companyLogoUrl || 'undefined',
-    hasRealLogo
-  })
+
 
   // Track logo statistics
   useEffect(() => {
