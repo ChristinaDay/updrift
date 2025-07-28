@@ -120,6 +120,17 @@ function SearchPage() {
   // Local filtered jobs state (for client-side filtering)
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
 
+  // Database search history state
+  const [dbSearchHistory, setDbSearchHistory] = useState<Array<{
+    id: string;
+    query: string;
+    location: string;
+    radius: number;
+    createdAt: Date;
+    formattedTime: string;
+  }>>([])
+  const [loadingSearchHistory, setLoadingSearchHistory] = useState(false)
+
   // Format search parameters from cache key
   const formatSearchParams = (searchParamsKey: string) => {
     const [query, location, radius] = searchParamsKey.split(':');
@@ -129,9 +140,26 @@ function SearchPage() {
     if (location) parts.push(`in ${location}`);
     if (radius && radius !== '25') parts.push(`(${radius}mi radius)`);
     
-    return parts.length > 0 ? parts.join(' ') : 'No search parameters';
+    const formattedText = parts.length > 0 ? parts.join(' ') : 'No search parameters';
+    console.log(`📋 Formatting search params: "${searchParamsKey}" → "${formattedText}"`);
+    return formattedText;
   };
 
+  // Helper function to format timestamp
+  const formatTimestamp = (timestamp: number) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+
+    if (diff < 60000) { // Less than 1 minute
+      return 'Just now';
+    } else if (diff < 3600000) { // Less than 1 hour
+      return `${Math.floor(diff / 60000)}m ago`;
+    } else if (diff < 86400000) { // Less than 1 day
+      return `${Math.floor(diff / 3600000)}h ago`;
+    } else {
+      return new Date(timestamp).toLocaleDateString();
+    }
+  };
 
 
   // Get search parameters from URL
@@ -148,7 +176,7 @@ function SearchPage() {
     setSearchQuery(query)
     setLocation(loc)
     setInputQuery(query)
-    setInputLocation(loc)
+    setInputLocation(loc) // This will now be the normalized location from URL
     if (rad) {
       setRadius(parseInt(rad))
     }
@@ -162,15 +190,60 @@ function SearchPage() {
     })
   }, [allCacheEntries])
 
+  // Note: Cache entries created before location normalization will show raw input
+  // Users can click "Clear All Cache" to refresh with normalized location names
+
+  // Load search history from database
+  const loadSearchHistoryFromDB = async () => {
+    if (!session?.user) return;
+    
+    setLoadingSearchHistory(true);
+    try {
+      const response = await fetch('/api/user/search-results');
+      if (response.ok) {
+        const data = await response.json();
+        const historyEntries = data.searchResults.map((result: any) => ({
+          id: result.id,
+          query: result.query,
+          location: result.location,
+          radius: result.radius,
+          createdAt: new Date(result.createdAt),
+          formattedTime: formatTimestamp(new Date(result.createdAt).getTime())
+        }));
+        setDbSearchHistory(historyEntries);
+        console.log('📋 Loaded search history from database:', historyEntries.length, 'entries');
+      }
+    } catch (error) {
+      console.error('Error loading search history from database:', error);
+    } finally {
+      setLoadingSearchHistory(false);
+    }
+  };
+
+  // Load search history when user is authenticated
+  useEffect(() => {
+    if (session?.user) {
+      loadSearchHistoryFromDB();
+    }
+  }, [session]);
 
 
   // Manual search trigger function
   const triggerSearch = () => {
     console.log('🔍 Triggering search with:', { inputQuery, inputLocation, radius })
     
+    // Try to match the input to a suggestion for better location normalization
+    const match = locationSuggestions.find(suggestion =>
+      suggestion.toLowerCase() === inputLocation.toLowerCase() ||
+      suggestion.toLowerCase().startsWith(inputLocation.toLowerCase()) ||
+      suggestion.toLowerCase().includes(inputLocation.toLowerCase())
+    )
+    
+    const normalizedLocation = match || inputLocation
+    
     // Update state first
     setSearchQuery(inputQuery)
-    setLocation(inputLocation)
+    setLocation(normalizedLocation)
     
     // Set flag to prevent URL parameter override
     setIsUpdatingUrl(true)
@@ -178,14 +251,15 @@ function SearchPage() {
     // Update URL with current search parameters
     const params = new URLSearchParams()
     if (inputQuery) params.append('q', inputQuery)
-    if (inputLocation) params.append('location', inputLocation)
-    if (inputLocation && radius) params.append('radius', radius.toString())
+    if (normalizedLocation) params.append('location', normalizedLocation)
+    if (normalizedLocation && radius) params.append('radius', radius.toString())
     
     router.push(`/search?${params.toString()}`)
     
     // Also trigger search directly to ensure it works
-    if (inputQuery || inputLocation) {
-      searchJobs(inputQuery, inputLocation, radius)
+    if (inputQuery || normalizedLocation) {
+      console.log(`🔍 Executing search with normalized location: "${normalizedLocation}"`)
+      searchJobs(inputQuery, normalizedLocation, radius)
     }
   }
 
@@ -197,16 +271,28 @@ function SearchPage() {
         // Try to match the input to a suggestion (case-insensitive, partial or full)
         const match = locationSuggestions.find(suggestion =>
           suggestion.toLowerCase() === inputLocation.toLowerCase() ||
-          suggestion.toLowerCase().startsWith(inputLocation.toLowerCase())
+          suggestion.toLowerCase().startsWith(inputLocation.toLowerCase()) ||
+          suggestion.toLowerCase().includes(inputLocation.toLowerCase())
         )
         if (match) {
           setInputLocation(match)
           setLocation(match)
+          console.log(`📍 Location matched: "${inputLocation}" → "${match}"`)
+          // Trigger search with normalized location
+          setTimeout(() => {
+            console.log(`🔍 Triggering search with matched location: "${match}"`)
+            searchJobs(inputQuery, match, radius)
+          }, 100)
         } else {
           setLocation(inputLocation)
+          console.log(`📍 Using raw input: "${inputLocation}"`)
+          // Trigger search with raw input
+          setTimeout(() => {
+            console.log(`🔍 Triggering search with raw location: "${inputLocation}"`)
+            searchJobs(inputQuery, inputLocation, radius)
+          }, 100)
         }
         setShowLocationSuggestions(false)
-        setTimeout(() => triggerSearch(), 100)
       } else {
         triggerSearch()
       }
@@ -260,8 +346,12 @@ function SearchPage() {
     setInputLocation(suggestion)
     setLocation(suggestion)
     setShowLocationSuggestions(false)
-    // Trigger search when location is selected
-    setTimeout(() => triggerSearch(), 100)
+    console.log(`📍 Location selected: "${suggestion}"`)
+    // Trigger search when location is selected with normalized location
+    setTimeout(() => {
+      console.log(`🔍 Triggering search with selected location: "${suggestion}"`)
+      searchJobs(inputQuery, suggestion, radius)
+    }, 100)
   }
 
   // Close location suggestions when clicking outside
@@ -404,6 +494,8 @@ function SearchPage() {
     // Track search in history if user is authenticated and search has content
     if (session?.user && (searchQuery || location)) {
       trackSearch()
+      // Refresh search history after new search
+      setTimeout(() => loadSearchHistoryFromDB(), 1000)
     }
   }, [searchQuery, location, radius, searchJobs, session])
 
@@ -694,7 +786,7 @@ function SearchPage() {
               <div className="flex items-center gap-2">
                 <ClockIcon className="w-4 h-4" />
                 <span className="text-sm font-semibold text-foreground">
-                  Search History ({allCacheEntries.length})
+                  Search History ({dbSearchHistory.length})
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -715,46 +807,35 @@ function SearchPage() {
                 aria-label="Search history list"
               >
                 <div className="p-2">
-                  {allCacheEntries.length > 0 ? (
+                  {dbSearchHistory.length > 0 ? (
                     <ul className="space-y-1" role="list">
-                      {allCacheEntries.map((entry, index) => {
-                        const now = Date.now();
-                        const ageMs = now - entry.timestamp;
-                        const ageHours = Math.floor(ageMs / (1000 * 60 * 60));
-                        const ageMinutes = Math.floor((ageMs % (1000 * 60 * 60)) / (1000 * 60));
-                        
-                        let ageText = '';
-                        if (ageHours > 0) {
-                          ageText = `${ageHours}h ${ageMinutes}m old`;
-                        } else {
-                          ageText = `${ageMinutes}m old`;
-                        }
-                        
-                        const refreshTime = new Date(entry.timestamp + (24 * 60 * 60 * 1000));
-                        const refreshText = refreshTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        
-                        const searchParamsText = formatSearchParams(entry.searchParams);
-                        const isCurrent = currentCacheEntry && currentCacheEntry.searchParams === entry.searchParams;
+                      {dbSearchHistory.map((entry, index) => {
+                        const searchParamsText = formatSearchParams(`${entry.query}:${entry.location}:${entry.radius}`);
+                        const isCurrent = currentCacheEntry && 
+                          currentCacheEntry.searchParams === `${entry.query}:${entry.location}:${entry.radius}`;
                         
                         return (
                           <li 
-                            key={entry.searchParams} 
+                            key={entry.id} 
                             className={`p-2 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${isCurrent ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-muted'}`} 
                             role="listitem"
                             onClick={() => {
-                              // Parse search parameters from cache entry
-                              const [query, location, radiusStr] = entry.searchParams.split(':');
-                              const radius = parseInt(radiusStr);
-                              
                               // Update form fields
-                              setInputQuery(query);
-                              setInputLocation(location);
-                              setRadius(radius);
-                              setSearchQuery(query);
-                              setLocation(location);
+                              setInputQuery(entry.query);
+                              setInputLocation(entry.location);
+                              setRadius(entry.radius);
+                              setSearchQuery(entry.query);
+                              setLocation(entry.location);
                               
-                              // Load cached results directly
-                              searchJobs(query, location, radius);
+                              // Update URL with normalized location
+                              const params = new URLSearchParams();
+                              if (entry.query) params.append('q', entry.query);
+                              if (entry.location) params.append('location', entry.location);
+                              if (entry.radius) params.append('radius', entry.radius.toString());
+                              router.push(`/search?${params.toString()}`);
+                              
+                              // Load cached results or make new API call
+                              searchJobs(entry.query, entry.location, entry.radius);
                               
                               // Close dropdown
                               setShowSearchHistory(false);
@@ -766,7 +847,7 @@ function SearchPage() {
                                   {searchParamsText}
                                 </div>
                                 <div className="text-muted-foreground text-xs">
-                                  Cached {ageText} • Refreshes at {refreshText}
+                                  {entry.formattedTime}
                                 </div>
                               </div>
                               {isCurrent && (
@@ -779,13 +860,19 @@ function SearchPage() {
                         );
                       })}
                     </ul>
+                  ) : loadingSearchHistory ? (
+                    <div className="p-3 rounded-lg bg-muted/30 border border-muted">
+                      <div className="font-medium text-foreground text-sm">
+                        Loading search history...
+                      </div>
+                    </div>
                   ) : (
                     <div className="p-3 rounded-lg bg-muted/30 border border-muted">
                       <div className="font-medium text-foreground text-sm">
-                        No cached searches
+                        No search history
                       </div>
                       <div className="text-muted-foreground text-xs">
-                        Cached 0h 0m old • Refreshes at --:--
+                        Your searches will appear here
                       </div>
                     </div>
                   )}
@@ -793,7 +880,10 @@ function SearchPage() {
                   {cacheStats.size > 0 && (
                     <div className="mt-2 pt-2 border-t border-muted">
                       <button
-                        onClick={clearCache}
+                        onClick={() => {
+                          clearCache();
+                          loadSearchHistoryFromDB();
+                        }}
                         className="w-full text-xs text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors"
                         title="Clear search cache"
                       >

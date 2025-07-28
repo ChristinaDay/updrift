@@ -196,8 +196,24 @@
 - [x] **Add idle detection** (10+ minutes inactive)
 - [x] **Prevent auto-refresh on user activity**
 - [x] **One API call per search per 24 hours**
-- [x] **Smart duplicate detection**
-- [x] **Visual cache status indicators**
+
+### Persistent Search History System
+- [x] **Add SearchResult database model** - Store search results with user association and 24-hour expiration
+- [x] **Implement database storage** - Store full job results in database for persistence across sessions
+- [x] **Add natural language timestamps** - "2 hours ago", "yesterday", "last week", "on July 15"
+- [x] **Create search results API** - POST/GET endpoints for storing and retrieving search results
+- [x] **Add cleanup system** - Delete expired search results after 24 hours
+- [x] **Update search history display** - Show natural language timestamps instead of technical timestamps
+- [x] **Maintain user association** - Search history tied to user accounts, survives logout/login
+- [x] **Database persistence** - Search history available after hard refresh, navigation, logout
+
+### Automated Testing System
+- [x] **Create unit tests** - Test formatTimestamp function with natural language timestamps
+- [x] **Add integration tests** - Test search results API endpoints
+- [x] **Build automated test script** - Node.js script for testing core functionality
+- [x] **Create E2E test script** - Puppeteer-based tests for real user interactions
+- [x] **Add npm test scripts** - Easy commands for running different test types
+- [x] **Database schema validation** - Test SearchResult table exists and works correctly
 
 ### Core Features
 - [x] **Basic job search functionality**

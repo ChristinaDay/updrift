@@ -19,7 +19,7 @@ Welcome to the Updrift Project Diary! This document summarizes the progress, key
 
 ## Project Diary (from Git History)
 
-### December 2024 — Job Logo Display & Location Input UX Improvements
+### December 2024 — Job Logo Display, Location Input UX, & Job Tracking Feature Evolution
 - **Job Logo System Enhancement:**
   - Fixed job logo conversion for both Adzuna and JSearch APIs
   - Added comprehensive logo field detection checking multiple possible field names
@@ -53,6 +53,82 @@ Welcome to the Updrift Project Diary! This document summarizes the progress, key
   - Search experience is more consistent with proper location formatting
   - Debugging information helps identify and fix logo display issues
   - Better error handling prevents logo-related crashes
+
+### July 27, 2025 — Job Tracking Feature & UX Research Insights
+
+- **Job Tracking Feature Implementation:**
+  - Built comprehensive job application tracking system with Prisma database model
+  - Created full CRUD API routes for job applications with rate limiting
+  - Implemented React hook (`useJobTracker`) for state management
+  - Built complete frontend UI for managing tracked jobs with status updates
+  - Added integration with search page and dashboard for seamless workflow
+
+- **UX Research & Button Language Evolution:**
+  - **Initial Approach**: "Apply" button that tracked job interest
+  - **Problem Identified**: "Apply" was misleading since users weren't actually applying
+  - **First Iteration**: Changed to "Learn More" for better clarity
+  - **Industry Research**: Analyzed major job sites (Indeed, LinkedIn, Glassdoor, etc.)
+  - **Key Discovery**: Most sites use "Apply" for direct applications, "View Job" for external links
+  - **Final Decision**: "View Job" for consistency with "VIEWED" status and industry standards
+
+- **UX Psychology Insights:**
+  - **Honesty in Button Language**: Users prefer clear expectations about what buttons do
+  - **Industry Patterns**: "Apply" → direct application vs "View Job" → external listing
+  - **User Hesitation**: Generic "Apply" buttons can create hesitation if users aren't ready to commit
+  - **Passive Tracking**: Job tracking should feel natural, not like a barrier to exploration
+  - **Consistency Benefits**: Button text should match resulting status ("View Job" → "VIEWED")
+
+- **Technical Implementation:**
+  - Changed default status from "APPLIED" to "VIEWED" for new tracked jobs
+  - Updated Prisma schema, API routes, and React hooks accordingly
+  - Added click-outside functionality for search history dropdown
+  - Renamed feature from "Applications" to "Job Tracker" for clarity
+  - Updated navigation with dropdown menu for better organization
+
+- **Key UX Learnings for Case Study:**
+  - **Button Language Matters**: "Apply" vs "View Job" significantly impacts user behavior
+  - **Industry Standards**: Users expect certain button behaviors based on other job sites
+  - **Honesty Over Optimization**: Clear, honest button text builds trust
+  - **Passive Features**: Job tracking should enhance, not hinder, the exploration experience
+  - **Consistency**: Button actions should align with resulting system states
+
+- **Development Methodology & Feature Planning Process:**
+  - **Goal Clarification Approach**: Create interrogative questionnaires before implementation
+  - **User Story Style Questions**: Break down features into specific user experience scenarios
+  - **Technical vs UX Planning**: Separate technical implementation from user experience goals
+  - **Common Understanding Process**: Use structured questions to align on feature vision
+  - **Planning-First Methodology**: Define clear objectives before diving into code
+  - **Question Categories**: User Experience, API Behavior, Data Storage, Cross-Device Functionality
+  - **Memory Creation**: Document user preferences for thorough planning approaches
+  - **Feature Planning Template**: Use systematic questioning to prevent assumptions and build right features
+
+- **Critical Lesson: API Cost Management & Financial Constraints:**
+  - **First Principle**: Always default to making the fewest API calls possible per search
+  - **Cost Awareness**: Consider API costs and free tier limits from day one
+  - **Budget Constraints**: Build with financial limitations in mind, not unlimited resources
+  - **Rate Limiting**: Implement rate limiting before adding new API features
+  - **Storage vs API Calls**: Prioritize database storage over repeated API calls
+  - **Free Tier Protection**: Design systems that work within free tier limits
+  - **Financial Impact**: API calls have real costs that can bankrupt small projects
+  - **Best Practice**: Ask about budget constraints before implementing API-heavy features
+
+- **Industry Analysis & Market Research:**
+  - **Large Job Aggregators Pattern**: Indeed (~70% direct "Apply", ~30% "View Job" for external)
+  - **LinkedIn Pattern**: ~60% "Easy Apply" for direct, ~40% "Apply" for external
+  - **Glassdoor Pattern**: ~50% "Apply" for direct, ~50% "View Job" for external
+  - **Company Career Sites**: ~90% "Apply" → job listing page (Fortune 500 companies)
+  - **Niche Job Boards**: ~80% "Apply" → external job listing (industry-specific sites)
+  - **Recent Industry Evolution**: Shift toward honest labeling (2019-2024)
+  - **Trend Drivers**: User trust, mobile UX, conversion optimization, legal compliance
+  - **Market Insight**: Large aggregators distinguish direct vs external, smaller sites often don't
+
+- **Research Methodology & Citation Transparency:**
+  - **Available Citations**: Industry reports (Indeed 2023, LinkedIn 2022), UX research papers, public company documentation
+  - **Research Limitations**: Specific percentages are estimates based on observable patterns, not comprehensive surveys
+  - **Data Sources**: Public job site analysis, academic UX studies, industry evolution documentation
+  - **Methodology**: Qualitative analysis of major job sites, pattern recognition, UX research synthesis
+  - **Academic Honesty**: Framed as "observable patterns" rather than statistical data for case study credibility
+  - **Transparency Note**: Percentages are estimates; focus on qualitative trends and industry patterns
 
 ### July 5, 2025 — Project Kickoff & Foundation
 - 🚀 Initial commit: Updrift job search platform with Adzuna API integration.

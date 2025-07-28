@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Job } from '@/types/job';
 import { searchCache, debounce } from './searchCache';
 import { errorHandler } from './errorHandling';
+import { formatTimestamp } from '@/lib/utils';
 
 interface UseSearchJobsReturn {
   jobs: Job[];
@@ -18,7 +19,7 @@ interface UseSearchJobsReturn {
   cacheStats: { size: number; keys: string[] };
   isUserIdle: boolean;
   currentCacheEntry: { timestamp: number; searchParams: string } | null;
-  allCacheEntries: { timestamp: number; searchParams: string }[];
+  allCacheEntries: { timestamp: number; searchParams: string; formattedTime: string }[];
 }
 
 export function useSearchJobs(): UseSearchJobsReturn {
@@ -71,15 +72,19 @@ export function useSearchJobs(): UseSearchJobsReturn {
       return;
     }
 
+    // Normalize location text for consistent caching
+    const normalizedLocation = location.trim();
+    console.log(`🔍 Search called with location: "${location}" → normalized: "${normalizedLocation}"`);
+
     // Check if this is the same search as before
     const isSameSearch = lastSearchParams && 
       lastSearchParams.query === query && 
-      lastSearchParams.location === location && 
+      lastSearchParams.location === normalizedLocation && 
       lastSearchParams.radius === radius;
 
     // Check cache first
-    const cachedResult = searchCache.getCachedResult(query, location, radius);
-    const cacheEntry = searchCache.getCacheEntry(query, location, radius);
+    const cachedResult = searchCache.getCachedResult(query, normalizedLocation, radius);
+    const cacheEntry = searchCache.getCacheEntry(query, normalizedLocation, radius);
     if (cachedResult) {
       setJobs(cachedResult.original_data || cachedResult.data || []);
       setFilteredJobs(cachedResult.data || []);
@@ -91,7 +96,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
       } : null);
       setCurrentCacheEntry(cacheEntry ? { timestamp: cacheEntry.timestamp, searchParams: cacheEntry.searchParams } : null);
       setLoading(false);
-      setLastSearchParams({ query, location, radius });
+      setLastSearchParams({ query, location: normalizedLocation, radius });
       return;
     } else {
       setCurrentCacheEntry(null);
@@ -104,7 +109,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
     }
 
     // Check if we should make an API call
-    if (!searchCache.shouldMakeApiCall(query, location, radius)) {
+    if (!searchCache.shouldMakeApiCall(query, normalizedLocation, radius)) {
       console.log('🚫 API call blocked by throttling or cache');
       return;
     }
@@ -114,8 +119,8 @@ export function useSearchJobs(): UseSearchJobsReturn {
       // Build API URL with parameters
       const params = new URLSearchParams();
       if (query) params.append('query', query);
-      if (location) params.append('location', location);
-      if (location && radius) params.append('radius', radius.toString());
+      if (normalizedLocation) params.append('location', normalizedLocation);
+      if (normalizedLocation && radius) params.append('radius', radius.toString());
       
       console.log('🔍 Fetching jobs with params:', params.toString());
       
@@ -125,17 +130,36 @@ export function useSearchJobs(): UseSearchJobsReturn {
       console.log('📊 API Response:', data.status, data.data?.length || 0, 'jobs');
       
       // Record the API call
-      searchCache.recordApiCall(query, location, radius);
+      searchCache.recordApiCall(query, normalizedLocation, radius);
       
       // Cache the result
-      searchCache.setCachedResult(query, location, radius, data);
+      searchCache.setCachedResult(query, normalizedLocation, radius, data);
+      
+      // Store in database for persistence
+      try {
+        await fetch('/api/user/search-results', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            query,
+            location: normalizedLocation,
+            radius,
+            jobResults: JSON.stringify(data)
+          })
+        });
+      } catch (dbError) {
+        console.error('Failed to store search results in database:', dbError);
+        // Continue without database storage - in-memory cache still works
+      }
       
       // Set current cache entry for the newly cached result
-      const newCacheEntry = searchCache.getCacheEntry(query, location, radius);
+      const newCacheEntry = searchCache.getCacheEntry(query, normalizedLocation, radius);
       setCurrentCacheEntry(newCacheEntry ? { timestamp: newCacheEntry.timestamp, searchParams: newCacheEntry.searchParams } : null);
       
       // Record the search parameters
-      setLastSearchParams({ query, location, radius });
+      setLastSearchParams({ query, location: normalizedLocation, radius });
       
       if (data.status === 'mock') {
         console.log('🚨 Using mock data - configure RAPIDAPI_KEY for real jobs');
@@ -196,7 +220,8 @@ export function useSearchJobs(): UseSearchJobsReturn {
 
   const allCacheEntries = searchCache.getAllCacheEntries().map(entry => ({
     timestamp: entry.timestamp,
-    searchParams: entry.searchParams
+    searchParams: entry.searchParams,
+    formattedTime: formatTimestamp(entry.timestamp)
   }));
 
   return {

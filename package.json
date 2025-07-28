@@ -7,9 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
-    "test-api": "curl http://localhost:3000/api/jobs/test",
-    "check-env": "node -e \"console.log('Adzuna API configured:', !!process.env.ADZUNA_APP_ID && !!process.env.ADZUNA_APP_KEY)\""
+    "test:search-history": "node scripts/test-search-history.js",
+    "test:cleanup": "curl -X POST http://localhost:3000/api/cleanup/expired-search-results",
+    "test:api": "curl -X GET http://localhost:3000/api/user/search-results",
+    "test:all": "npm run test:search-history && npm run test:cleanup && npm run test:api"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

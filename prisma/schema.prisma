@@ -63,6 +63,7 @@ model User {
   sessions    Session[]
   savedJobs   SavedJob[]
   applications JobApplication[]
+  searchResults SearchResult[]
 }
 
 model VerificationToken {
@@ -130,4 +131,21 @@ model SavedSearch {
   createdAt DateTime @default(now())
   
   @@index([userId, createdAt])
+}
+
+// New model for storing search results in database
+model SearchResult {
+  id          String   @id @default(cuid())
+  userId      String
+  query       String
+  location    String?
+  radius      Int      @default(25)
+  jobResults  String   // JSON string of full job data
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime // 24 hours from creation
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, createdAt])
+  @@index([expiresAt]) // For cleanup queries
 }
