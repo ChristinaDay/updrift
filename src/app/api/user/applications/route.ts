@@ -82,7 +82,7 @@ const createApplicationHandler = async (request: NextRequest) => {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { jobId, jobData, applicationUrl, notes, status = 'APPLIED' } = await request.json()
+    const { jobId, jobData, applicationUrl, notes, status = 'VIEWED' } = await request.json()
 
     // Validate required fields
     if (!jobId || !jobData) {
@@ -102,7 +102,7 @@ const createApplicationHandler = async (request: NextRequest) => {
 
     if (existingApplication) {
       return NextResponse.json(
-        { error: 'You have already applied to this job' },
+        { error: 'You have already tracked this job' },
         { status: 409 }
       )
     }
@@ -130,7 +130,7 @@ const createApplicationHandler = async (request: NextRequest) => {
 
     return NextResponse.json({
       success: true,
-      message: 'Job application created successfully',
+      message: 'Job added to tracker successfully',
       application: {
         ...application,
         jobData: JSON.parse(application.jobData)

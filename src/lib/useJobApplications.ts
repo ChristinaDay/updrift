@@ -81,7 +81,7 @@ export function useJobTracker(status?: string): UseJobTrackerReturn {
     }
   }, [session?.user, status])
 
-  // Apply to a job
+  // Track a job
   const applyToJob = useCallback(async (
     jobId: string, 
     jobData: any, 
@@ -89,7 +89,7 @@ export function useJobTracker(status?: string): UseJobTrackerReturn {
     notes?: string
   ) => {
     if (!session?.user) {
-      throw new Error('You must be signed in to apply to jobs')
+      throw new Error('You must be signed in to track jobs')
     }
 
     setLoading(true)
@@ -106,13 +106,13 @@ export function useJobTracker(status?: string): UseJobTrackerReturn {
           jobData,
           applicationUrl,
           notes,
-          status: 'APPLIED'
+          status: 'VIEWED'
         }),
       })
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to apply to job')
+        throw new Error(errorData.error || 'Failed to track job')
       }
 
       const data = await response.json()
@@ -124,7 +124,7 @@ export function useJobTracker(status?: string): UseJobTrackerReturn {
       return data.application
     } catch (err) {
       console.error('Error applying to job:', err)
-      setError(err instanceof Error ? err.message : 'Failed to apply to job')
+      setError(err instanceof Error ? err.message : 'Failed to track job')
       throw err
     } finally {
       setLoading(false)

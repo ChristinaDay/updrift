@@ -92,7 +92,7 @@ model JobApplication {
   userId         String
   jobId          String            // Job ID from the API
   jobData        String            // JSON string of job data
-  status         ApplicationStatus @default(APPLIED)
+  status         ApplicationStatus @default(VIEWED)
   appliedAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
   applicationUrl String?
