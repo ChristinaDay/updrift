@@ -53,7 +53,6 @@ interface SavedJob {
 interface ApplicationStats {
   total: number
   applied: number
-  viewed: number
   interviewing: number
   rejected: number
   hired: number
@@ -132,7 +131,6 @@ export default function SavedJobsPage() {
   const stats: ApplicationStats = {
     total: totalApplications,
     applied: applicationStatus.APPLIED,
-    viewed: applicationStatus.VIEWED,
     interviewing: applicationStatus.INTERVIEWING,
     rejected: applicationStatus.REJECTED,
     hired: applicationStatus.HIRED
@@ -143,8 +141,6 @@ export default function SavedJobsPage() {
     switch (status) {
       case 'APPLIED':
         return <CheckCircleIcon className="w-4 h-4" />
-      case 'VIEWED':
-        return <EyeSolidIcon className="w-4 h-4" />
       case 'INTERVIEWING':
         return <ClockSolidIcon className="w-4 h-4" />
       case 'REJECTED':
@@ -160,8 +156,6 @@ export default function SavedJobsPage() {
     switch (status) {
       case 'APPLIED':
         return 'bg-blue-100 text-blue-800'
-      case 'VIEWED':
-        return 'bg-gray-100 text-gray-800'
       case 'INTERVIEWING':
         return 'bg-yellow-100 text-yellow-800'
       case 'REJECTED':
@@ -664,7 +658,6 @@ export default function SavedJobsPage() {
                     >
                       <option value="all">All Status</option>
                       <option value="APPLIED">Applied</option>
-                      <option value="VIEWED">Viewed</option>
                       <option value="INTERVIEWING">Interviewing</option>
                       <option value="REJECTED">Rejected</option>
                       <option value="HIRED">Hired</option>
@@ -675,7 +668,7 @@ export default function SavedJobsPage() {
             </div>
 
             {/* Application Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
@@ -698,17 +691,7 @@ export default function SavedJobsPage() {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Viewed</p>
-                      <p className="text-2xl font-bold text-gray-600">{stats.viewed}</p>
-                    </div>
-                    <EyeIcon className="h-5 w-5 text-gray-600" />
-                  </div>
-                </CardContent>
-              </Card>
+
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
@@ -846,7 +829,7 @@ export default function SavedJobsPage() {
                           <h4 className="text-sm font-medium text-muted-foreground">Update Status</h4>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {['APPLIED', 'VIEWED', 'INTERVIEWING', 'REJECTED', 'HIRED'].map(status => (
+                          {['APPLIED', 'INTERVIEWING', 'REJECTED', 'HIRED'].map(status => (
                             <button
                               key={status}
                               onClick={() => handleUpdateApplicationStatus(application.id, status)}
@@ -926,7 +909,6 @@ export default function SavedJobsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="APPLIED">Applied</SelectItem>
-                  <SelectItem value="VIEWED">Viewed</SelectItem>
                   <SelectItem value="INTERVIEWING">Interviewing</SelectItem>
                   <SelectItem value="REJECTED">Rejected</SelectItem>
                   <SelectItem value="HIRED">Hired</SelectItem>
