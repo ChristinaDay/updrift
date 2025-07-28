@@ -77,6 +77,7 @@ function SearchPage() {
     locationFilterResults,
     searchJobs,
     loadMoreJobs,
+    hasMorePages,
     clearCache,
     cacheStats,
     isUserIdle,
@@ -699,7 +700,8 @@ function SearchPage() {
           <div className="flex-1 min-w-0">
             <div className="bg-card rounded-xl shadow-sm border border-input p-6">
               <p className="text-muted-foreground text-sm">
-                {filteredJobs.length} opportunities found
+                {filteredJobs.length} opportunities loaded
+                {hasMorePages && ' • More available'}
                 {isUserIdle && ' • Idle mode (API calls disabled)'}
               </p>
             </div>
@@ -1231,7 +1233,7 @@ function SearchPage() {
                   ))}
                   
                   {/* Load more button */}
-                  {initialFilteredJobs.length > 0 && (
+                  {hasMorePages && (
                     <div className="text-center mt-8">
                       <button 
                         onClick={loadMoreJobs}

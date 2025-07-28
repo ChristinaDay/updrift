@@ -16,6 +16,7 @@ interface UseSearchJobsReturn {
   } | null;
   searchJobs: (query: string, location: string, radius: number) => void;
   loadMoreJobs: () => Promise<void>;
+  hasMorePages: boolean;
   clearCache: () => void;
   cacheStats: { size: number; keys: string[] };
   isUserIdle: boolean;
@@ -289,6 +290,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
     locationFilterResults,
     searchJobs: debouncedSearch,
     loadMoreJobs,
+    hasMorePages,
     clearCache,
     cacheStats,
     isUserIdle: searchCache.isUserIdle(),
