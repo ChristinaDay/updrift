@@ -115,6 +115,7 @@ function SearchPage() {
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([])
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false)
   const [showSearchHistory, setShowSearchHistory] = useState(false)
+  const [isUpdatingUrl, setIsUpdatingUrl] = useState(false)
 
   // Local filtered jobs state (for client-side filtering)
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
@@ -135,6 +136,12 @@ function SearchPage() {
 
   // Get search parameters from URL
   useEffect(() => {
+    // Don't update from URL if we're actively updating the URL ourselves
+    if (isUpdatingUrl) {
+      setIsUpdatingUrl(false)
+      return
+    }
+    
     const query = searchParams.get('q') || ''
     const loc = searchParams.get('location') || ''
     const rad = searchParams.get('radius')
@@ -164,6 +171,9 @@ function SearchPage() {
     // Update state first
     setSearchQuery(inputQuery)
     setLocation(inputLocation)
+    
+    // Set flag to prevent URL parameter override
+    setIsUpdatingUrl(true)
     
     // Update URL with current search parameters
     const params = new URLSearchParams()
