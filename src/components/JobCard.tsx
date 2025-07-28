@@ -203,8 +203,8 @@ export default function JobCard({
       <CardContent className="pt-0 pb-4 px-6 flex flex-col flex-1 mt-8">
         {/* Logo + Title Row */}
         <div className="flex items-center gap-4 mb-2">
-          {/* Employer Logo - only show if real logo exists */}
-          {hasRealLogo && (
+          {/* Employer Logo - only show if real logo exists AND loads successfully */}
+          {hasRealLogo && !imageError && (
             <div className="w-14 h-14 rounded-lg bg-white shadow border flex items-center justify-center overflow-hidden flex-shrink-0">
               <Image
                 src={companyLogoUrl}
