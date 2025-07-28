@@ -61,7 +61,7 @@ export default function Header() {
                   }`}
                 >
                   <BookmarkIcon className="h-4 w-4" />
-                  <span>Job Manager</span>
+                  <span>My Jobs</span>
                 </Link>
                 </>
               )}
@@ -105,7 +105,7 @@ export default function Header() {
                           className={`flex items-center space-x-2 px-2 py-2 rounded-md ${pathname.startsWith("/saved-jobs") ? "text-primary bg-accent" : "text-foreground hover:bg-accent/50"}`}
                         >
                           <BookmarkIcon className="h-5 w-5" />
-                          <span>Job Manager</span>
+                          <span>My Jobs</span>
                         </Link>
                       </>
                     )}

@@ -104,7 +104,7 @@ export default function Dashboard() {
                 <BriefcaseIcon className="h-6 w-6 text-secondary" />
               </div>
               <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-muted-foreground">Job Manager</p>
+                <p className="text-sm font-medium text-muted-foreground">My Jobs</p>
                 <p className="text-2xl font-bold text-foreground">0</p>
               </div>
             </div>

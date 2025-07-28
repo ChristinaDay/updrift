@@ -369,7 +369,7 @@ export default function SavedJobsPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground flex items-center">
             <BookmarkSolidIcon className="h-8 w-8 text-primary mr-3" />
-            Job Manager
+            My Jobs
           </h1>
           <p className="text-muted-foreground mt-2">
             Save job opportunities and track your applications in one place
