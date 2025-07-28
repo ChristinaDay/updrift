@@ -13,10 +13,32 @@ import {
   FunnelIcon,
   UserIcon,
   CalendarIcon,
-  CheckIcon
+  CheckIcon,
+  EyeIcon,
+  ClockIcon,
+  XCircleIcon,
+  TrophyIcon,
+  PlusIcon,
+  ChartBarIcon,
+  BriefcaseIcon
 } from '@heroicons/react/24/outline'
-import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
+import { 
+  BookmarkIcon as BookmarkSolidIcon,
+  CheckCircleIcon,
+  EyeIcon as EyeSolidIcon,
+  ClockIcon as ClockSolidIcon,
+  XCircleIcon as XCircleSolidIcon,
+  TrophyIcon as TrophySolidIcon
+} from '@heroicons/react/24/solid'
 import Header from '@/components/Header'
+import { useJobTracker } from '@/lib/useJobApplications'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 
 interface SavedJob {
   id: string
@@ -24,6 +46,15 @@ interface SavedJob {
   jobData: any
   notes: string | null
   savedAt: string
+}
+
+interface ApplicationStats {
+  total: number
+  applied: number
+  viewed: number
+  interviewing: number
+  rejected: number
+  hired: number
 }
 
 export default function SavedJobsPage() {
@@ -39,6 +70,29 @@ export default function SavedJobsPage() {
   const [notesText, setNotesText] = useState('')
   const [message, setMessage] = useState('')
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'title' | 'company'>('newest')
+  
+  // Job tracking states
+  const [selectedStatus, setSelectedStatus] = useState<string>('all')
+  const [showApplyDialog, setShowApplyDialog] = useState(false)
+  const [applyJobData, setApplyJobData] = useState<any>(null)
+  const [newStatus, setNewStatus] = useState<string>('APPLIED')
+  const [editingApplication, setEditingApplication] = useState<string | null>(null)
+  
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'saved' | 'tracker'>('saved')
+
+  // Use job tracker hook
+  const {
+    applications,
+    loading: applicationsLoading,
+    error: applicationsError,
+    applicationStatus,
+    totalApplications,
+    applyToJob,
+    updateApplicationStatus,
+    deleteApplication,
+    refreshApplications
+  } = useJobTracker(selectedStatus === 'all' ? undefined : selectedStatus)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -70,6 +124,64 @@ export default function SavedJobsPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Calculate application stats
+  const stats: ApplicationStats = {
+    total: totalApplications,
+    applied: applicationStatus.APPLIED,
+    viewed: applicationStatus.VIEWED,
+    interviewing: applicationStatus.INTERVIEWING,
+    rejected: applicationStatus.REJECTED,
+    hired: applicationStatus.HIRED
+  }
+
+  // Helper functions for job tracking
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'APPLIED':
+        return <CheckCircleIcon className="w-4 h-4" />
+      case 'VIEWED':
+        return <EyeSolidIcon className="w-4 h-4" />
+      case 'INTERVIEWING':
+        return <ClockSolidIcon className="w-4 h-4" />
+      case 'REJECTED':
+        return <XCircleSolidIcon className="w-4 h-4" />
+      case 'HIRED':
+        return <TrophySolidIcon className="w-4 h-4" />
+      default:
+        return <BriefcaseIcon className="w-4 h-4" />
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'APPLIED':
+        return 'bg-blue-100 text-blue-800'
+      case 'VIEWED':
+        return 'bg-gray-100 text-gray-800'
+      case 'INTERVIEWING':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'REJECTED':
+        return 'bg-red-100 text-red-800'
+      case 'HIRED':
+        return 'bg-green-100 text-green-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }
+
+  // Check if a saved job has an application
+  const getApplicationForJob = (jobId: string) => {
+    return applications.find(app => app.jobId === jobId)
   }
 
   const filterAndSortJobs = () => {
@@ -127,25 +239,67 @@ export default function SavedJobsPage() {
       const response = await fetch(`/api/user/saved-jobs/${savedJobId}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ notes }),
+        body: JSON.stringify({ notes })
       })
 
       if (response.ok) {
-        setSavedJobs(prev => prev.map(job => 
-          job.id === savedJobId ? { ...job, notes } : job
-        ))
-        setEditingNotes(null)
-        setNotesText('')
+        setSavedJobs(prev => 
+          prev.map(job => 
+            job.id === savedJobId 
+              ? { ...job, notes } 
+              : job
+          )
+        )
         setMessage('Notes updated successfully')
         setTimeout(() => setMessage(''), 3000)
-      } else {
-        setMessage('Error updating notes')
       }
     } catch (error) {
       console.error('Error updating notes:', error)
       setMessage('Error updating notes')
+    }
+    setEditingNotes(null)
+    setNotesText('')
+  }
+
+  // Job tracking action handlers
+  const handleApplyToJob = async (jobData: any) => {
+    try {
+      await applyToJob(jobData.job_id, jobData, undefined, notesText)
+      setMessage('Job application tracked successfully')
+      setTimeout(() => setMessage(''), 3000)
+      setShowApplyDialog(false)
+      setApplyJobData(null)
+      setNotesText('')
+      setNewStatus('APPLIED')
+    } catch (error) {
+      console.error('Error applying to job:', error)
+      setMessage('Error tracking job application')
+    }
+  }
+
+  const handleUpdateApplicationStatus = async (applicationId: string, status: string, notes?: string) => {
+    try {
+      await updateApplicationStatus(applicationId, status as any, notes)
+      setMessage('Application status updated successfully')
+      setTimeout(() => setMessage(''), 3000)
+      setEditingApplication(null)
+      setNotesText('')
+    } catch (error) {
+      console.error('Error updating application status:', error)
+      setMessage('Error updating application status')
+    }
+  }
+
+  const handleDeleteApplication = async (applicationId: string) => {
+    try {
+      await deleteApplication(applicationId)
+      setMessage('Application deleted successfully')
+      setTimeout(() => setMessage(''), 3000)
+    } catch (error) {
+      console.error('Error deleting application:', error)
+      setMessage('Error deleting application')
     }
   }
 
@@ -215,11 +369,45 @@ export default function SavedJobsPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground flex items-center">
             <BookmarkSolidIcon className="h-8 w-8 text-primary mr-3" />
-            Saved Jobs ({savedJobs.length})
+            Job Manager
           </h1>
           <p className="text-muted-foreground mt-2">
-            Manage your saved job opportunities and track your applications
+            Save job opportunities and track your applications in one place
           </p>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="mb-6">
+          <div className="border-b border-border">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('saved')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'saved'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <BookmarkSolidIcon className="h-5 w-5" />
+                  <span>Saved Jobs ({savedJobs.length})</span>
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('tracker')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'tracker'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <BriefcaseIcon className="h-5 w-5" />
+                  <span>Job Tracker ({totalApplications})</span>
+                </div>
+              </button>
+            </nav>
+          </div>
         </div>
 
         {/* Message */}
@@ -229,170 +417,521 @@ export default function SavedJobsPage() {
           </div>
         )}
 
-        {/* Controls */}
-        <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            {/* Search */}
-            <div className="relative flex-1 max-w-lg">
-              <MagnifyingGlassIcon className="h-5 w-5 text-muted-foreground absolute left-3 top-3" />
-              <input
-                type="text"
-                placeholder="Search saved jobs..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-              />
-            </div>
-
-            <div className="flex items-center space-x-4">
-              {/* Sort */}
-              <div className="flex items-center space-x-2">
-                <label className="text-sm text-muted-foreground">Sort by:</label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="px-3 py-1 border border-input rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="title">Job Title</option>
-                  <option value="company">Company</option>
-                </select>
-              </div>
-
-              {/* Bulk Actions */}
-              {savedJobs.length > 0 && (
-                <button
-                  onClick={selectAllJobs}
-                  className="flex items-center px-3 py-2 text-sm text-muted-foreground hover:text-foreground border border-input rounded-lg hover:bg-accent"
-                >
-                  <CheckIcon className="h-4 w-4 mr-1" />
-                  {selectedJobs.size === filteredJobs.length ? 'Deselect All' : 'Select All'}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Bulk Actions Bar */}
-          {showBulkActions && (
-            <div className="mt-4 pt-4 border-t border-border">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">
-                  {selectedJobs.size} job{selectedJobs.size !== 1 ? 's' : ''} selected
-                </span>
-                <button
-                  onClick={handleBulkDelete}
-                  className="flex items-center px-3 py-2 text-sm text-destructive hover:text-destructive-foreground border border-destructive rounded-lg hover:bg-destructive/10"
-                >
-                  <TrashIcon className="h-4 w-4 mr-1" />
-                  Delete Selected
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Job List */}
-        {filteredJobs.length === 0 ? (
-          <div className="text-center py-12">
-            <BookmarkIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">
-              {savedJobs.length === 0 ? 'No saved jobs yet' : 'No jobs match your search'}
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              {savedJobs.length === 0 
-                ? 'Start saving interesting job opportunities to keep track of them'
-                : 'Try adjusting your search terms'
-              }
-            </p>
-            {savedJobs.length === 0 && (
-              <Link
-                href="/search"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90"
-              >
-                Browse Jobs
-              </Link>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {filteredJobs.map(savedJob => (
-              <div key={savedJob.id} className="relative pl-12">
-                {/* Selection Checkbox */}
-                <div className="absolute top-4 left-4 z-10">
+        {/* Tab Content */}
+        {activeTab === 'saved' ? (
+          <>
+            {/* Saved Jobs Controls */}
+            <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                {/* Search */}
+                <div className="relative flex-1 max-w-lg">
+                  <MagnifyingGlassIcon className="h-5 w-5 text-muted-foreground absolute left-3 top-3" />
                   <input
-                    type="checkbox"
-                    checked={selectedJobs.has(savedJob.id)}
-                    onChange={() => toggleJobSelection(savedJob.id)}
-                    className="h-4 w-4 text-primary focus:ring-primary border-input rounded"
+                    type="text"
+                    placeholder="Search saved jobs..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                   />
                 </div>
-                {/* Card and Notes Container */}
-                <div>
-                  <JobCard
-                    job={savedJob.jobData}
-                    isSaved={true}
-                    onSave={() => handleUnsaveJob(savedJob.jobId)}
-                    showMatchScore={true}
+
+                <div className="flex items-center space-x-4">
+                  {/* Sort */}
+                  <div className="flex items-center space-x-2">
+                    <label className="text-sm text-muted-foreground">Sort by:</label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as any)}
+                      className="px-3 py-1 border border-input rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                    >
+                      <option value="newest">Newest First</option>
+                      <option value="oldest">Oldest First</option>
+                      <option value="title">Job Title</option>
+                      <option value="company">Company</option>
+                    </select>
+                  </div>
+
+                  {/* Bulk Actions */}
+                  {savedJobs.length > 0 && (
+                    <button
+                      onClick={selectAllJobs}
+                      className="flex items-center px-3 py-2 text-sm text-muted-foreground hover:text-foreground border border-input rounded-lg hover:bg-accent"
+                    >
+                      <CheckIcon className="h-4 w-4 mr-1" />
+                      {selectedJobs.size === filteredJobs.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Bulk Actions Bar */}
+              {showBulkActions && (
+                <div className="mt-4 pt-4 border-t border-border">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      {selectedJobs.size} job{selectedJobs.size !== 1 ? 's' : ''} selected
+                    </span>
+                    <button
+                      onClick={handleBulkDelete}
+                      className="flex items-center px-3 py-2 text-sm text-destructive hover:text-destructive-foreground border border-destructive rounded-lg hover:bg-destructive/10"
+                    >
+                      <TrashIcon className="h-4 w-4 mr-1" />
+                      Delete Selected
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Job Tracker Controls */}
+            <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                {/* Search */}
+                <div className="relative flex-1 max-w-lg">
+                  <MagnifyingGlassIcon className="h-5 w-5 text-muted-foreground absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    placeholder="Search applications..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                   />
-                  {/* Notes Section */}
-                  <div className="mt-4 bg-muted rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-medium text-muted-foreground">Notes</h4>
-                      <button
-                        onClick={() => {
-                          setEditingNotes(savedJob.id)
-                          setNotesText(savedJob.notes || '')
-                        }}
-                        className="text-primary hover:text-primary/80 text-sm"
-                      >
-                        <PencilIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                    {editingNotes === savedJob.id ? (
-                      <div className="space-y-2">
-                        <textarea
-                          value={notesText}
-                          onChange={(e) => setNotesText(e.target.value)}
-                          className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                          rows={3}
-                          placeholder="Add your notes about this job..."
-                        />
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleUpdateNotes(savedJob.id, notesText)}
-                            className="px-3 py-1 bg-primary text-primary-foreground text-sm rounded-md hover:bg-primary/90"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={() => {
-                              setEditingNotes(null)
-                              setNotesText('')
-                            }}
-                            className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-md hover:bg-muted/80"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        {savedJob.notes || 'No notes added yet. Click the edit icon to add notes.'}
-                      </p>
-                    )}
-                    <div className="mt-2 flex items-center text-xs text-muted-foreground">
-                      <CalendarIcon className="h-4 w-4 mr-1" />
-                      Saved {new Date(savedJob.savedAt).toLocaleDateString()} at{' '}
-                      {new Date(savedJob.savedAt).toLocaleTimeString()}
-                    </div>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  {/* Status Filter */}
+                  <div className="flex items-center space-x-2">
+                    <label className="text-sm text-muted-foreground">Status:</label>
+                    <select
+                      value={selectedStatus}
+                      onChange={(e) => setSelectedStatus(e.target.value)}
+                      className="px-3 py-1 border border-input rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                    >
+                      <option value="all">All Status</option>
+                      <option value="APPLIED">Applied</option>
+                      <option value="VIEWED">Viewed</option>
+                      <option value="INTERVIEWING">Interviewing</option>
+                      <option value="REJECTED">Rejected</option>
+                      <option value="HIRED">Hired</option>
+                    </select>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+
+            {/* Application Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total</p>
+                      <p className="text-2xl font-bold">{stats.total}</p>
+                    </div>
+                    <BriefcaseIcon className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Applied</p>
+                      <p className="text-2xl font-bold text-blue-600">{stats.applied}</p>
+                    </div>
+                    <CheckCircleIcon className="h-5 w-5 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Viewed</p>
+                      <p className="text-2xl font-bold text-gray-600">{stats.viewed}</p>
+                    </div>
+                    <EyeIcon className="h-5 w-5 text-gray-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Interviewing</p>
+                      <p className="text-2xl font-bold text-yellow-600">{stats.interviewing}</p>
+                    </div>
+                    <ClockIcon className="h-5 w-5 text-yellow-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Rejected</p>
+                      <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
+                    </div>
+                    <XCircleIcon className="h-5 w-5 text-red-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Hired</p>
+                      <p className="text-2xl font-bold text-green-600">{stats.hired}</p>
+                    </div>
+                    <TrophyIcon className="h-5 w-5 text-green-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
+
+        {/* Tab Content */}
+        {activeTab === 'saved' ? (
+          <>
+            {/* Saved Jobs List */}
+            {filteredJobs.length === 0 ? (
+              <div className="text-center py-12">
+                <BookmarkIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  {savedJobs.length === 0 ? 'No saved jobs yet' : 'No jobs match your search'}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {savedJobs.length === 0 
+                    ? 'Start saving interesting job opportunities to keep track of them'
+                    : 'Try adjusting your search terms'
+                  }
+                </p>
+                {savedJobs.length === 0 && (
+                  <Link
+                    href="/search"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90"
+                  >
+                    Browse Jobs
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {filteredJobs.map(savedJob => {
+                  const application = getApplicationForJob(savedJob.jobId)
+                  return (
+                    <div key={savedJob.id} className="relative pl-12">
+                      {/* Selection Checkbox */}
+                      <div className="absolute top-4 left-4 z-10">
+                        <input
+                          type="checkbox"
+                          checked={selectedJobs.has(savedJob.id)}
+                          onChange={() => toggleJobSelection(savedJob.id)}
+                          className="h-4 w-4 text-primary focus:ring-primary border-input rounded"
+                        />
+                      </div>
+                      {/* Card and Notes Container */}
+                      <div>
+                        <JobCard
+                          job={savedJob.jobData}
+                          isSaved={true}
+                          onSave={() => handleUnsaveJob(savedJob.jobId)}
+                          showMatchScore={true}
+                        />
+                        
+                        {/* Application Status */}
+                        {application && (
+                          <div className="mt-4 bg-card border border-border rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center space-x-2">
+                                {getStatusIcon(application.status)}
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(application.status)}`}>
+                                  {application.status}
+                                </span>
+                              </div>
+                              <span className="text-xs text-muted-foreground">
+                                Applied {formatDate(application.appliedAt)}
+                              </span>
+                            </div>
+                            {application.notes && (
+                              <p className="text-sm text-foreground mt-2">{application.notes}</p>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Notes Section */}
+                        <div className="mt-4 bg-muted rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-medium text-muted-foreground">Notes</h4>
+                            <div className="flex space-x-2">
+                              {!application && (
+                                <button
+                                  onClick={() => {
+                                    setApplyJobData(savedJob.jobData)
+                                    setShowApplyDialog(true)
+                                  }}
+                                  className="text-primary hover:text-primary/80 text-sm flex items-center space-x-1"
+                                >
+                                  <PlusIcon className="h-4 w-4" />
+                                  <span>Track Application</span>
+                                </button>
+                              )}
+                              <button
+                                onClick={() => {
+                                  setEditingNotes(savedJob.id)
+                                  setNotesText(savedJob.notes || '')
+                                }}
+                                className="text-primary hover:text-primary/80 text-sm"
+                              >
+                                <PencilIcon className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                          {editingNotes === savedJob.id ? (
+                            <div className="space-y-2">
+                              <textarea
+                                value={notesText}
+                                onChange={(e) => setNotesText(e.target.value)}
+                                className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                rows={3}
+                                placeholder="Add your notes about this job..."
+                              />
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleUpdateNotes(savedJob.id, notesText)}
+                                  className="px-3 py-1 bg-primary text-primary-foreground text-sm rounded-md hover:bg-primary/90"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditingNotes(null)
+                                    setNotesText('')
+                                  }}
+                                  className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-md hover:bg-muted/80"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              {savedJob.notes || 'No notes added yet. Click the edit icon to add notes.'}
+                            </p>
+                          )}
+                          <div className="mt-2 flex items-center text-xs text-muted-foreground">
+                            <CalendarIcon className="h-4 w-4 mr-1" />
+                            Saved {new Date(savedJob.savedAt).toLocaleDateString()} at{' '}
+                            {new Date(savedJob.savedAt).toLocaleTimeString()}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {/* Job Tracker List */}
+            {applicationsLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading applications...</p>
+              </div>
+            ) : applications.length === 0 ? (
+              <div className="text-center py-12">
+                <BriefcaseIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  No applications tracked yet
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  Start tracking your job applications to monitor your progress
+                </p>
+                <Link
+                  href="/search"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90"
+                >
+                  Browse Jobs
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {applications
+                  .filter(app => {
+                    if (!searchQuery) return true
+                    const query = searchQuery.toLowerCase()
+                    return (
+                      app.jobData?.job_title?.toLowerCase().includes(query) ||
+                      app.jobData?.employer_name?.toLowerCase().includes(query) ||
+                      app.notes?.toLowerCase().includes(query)
+                    )
+                  })
+                  .map(application => (
+                    <div key={application.id} className="bg-card border border-border rounded-lg p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-foreground mb-1">
+                            {application.jobData.job_title}
+                          </h3>
+                          <p className="text-muted-foreground mb-2">
+                            {application.jobData.employer_name}
+                          </p>
+                          <div className="flex items-center space-x-2">
+                            {getStatusIcon(application.status)}
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(application.status)}`}>
+                              {application.status}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              Applied {formatDate(application.appliedAt)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => {
+                              setEditingApplication(application.id)
+                              setNotesText(application.notes || '')
+                            }}
+                            className="text-primary hover:text-primary/80"
+                          >
+                            <PencilIcon className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteApplication(application.id)}
+                            className="text-destructive hover:text-destructive/80"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Status Update */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-muted-foreground mb-2">
+                          Update Status
+                        </label>
+                        <div className="flex space-x-2">
+                          {['APPLIED', 'VIEWED', 'INTERVIEWING', 'REJECTED', 'HIRED'].map(status => (
+                            <button
+                              key={status}
+                              onClick={() => handleUpdateApplicationStatus(application.id, status)}
+                              className={`px-3 py-1 text-xs font-medium rounded-full ${
+                                application.status === status
+                                  ? getStatusColor(status)
+                                  : 'bg-muted text-muted-foreground hover:bg-accent'
+                              }`}
+                            >
+                              {status}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Notes */}
+                      {editingApplication === application.id ? (
+                        <div className="space-y-2">
+                          <textarea
+                            value={notesText}
+                            onChange={(e) => setNotesText(e.target.value)}
+                            placeholder="Add notes about this application..."
+                            className="w-full p-2 border border-input rounded-lg bg-background text-foreground text-sm resize-none"
+                            rows={3}
+                          />
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleUpdateApplicationStatus(application.id, application.status, notesText)}
+                              className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingApplication(null)
+                                setNotesText('')
+                              }}
+                              className="px-3 py-1 text-sm border border-input rounded hover:bg-accent"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        application.notes && (
+                          <p className="text-sm text-foreground bg-muted rounded p-3">
+                            {application.notes}
+                          </p>
+                        )
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </>
         )}
       </main>
+
+      {/* Application Tracking Dialog */}
+      <Dialog open={showApplyDialog} onOpenChange={setShowApplyDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Track Job Application</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
+                Initial Status
+              </label>
+              <Select value={newStatus} onValueChange={setNewStatus}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="APPLIED">Applied</SelectItem>
+                  <SelectItem value="VIEWED">Viewed</SelectItem>
+                  <SelectItem value="INTERVIEWING">Interviewing</SelectItem>
+                  <SelectItem value="REJECTED">Rejected</SelectItem>
+                  <SelectItem value="HIRED">Hired</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">
+                Notes (Optional)
+              </label>
+              <Textarea
+                value={notesText}
+                onChange={(e) => setNotesText(e.target.value)}
+                placeholder="Add notes about this application..."
+                rows={3}
+              />
+            </div>
+            <div className="flex space-x-2">
+              <Button
+                onClick={() => applyJobData && handleApplyToJob(applyJobData)}
+                className="flex-1"
+              >
+                Track Application
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowApplyDialog(false)
+                  setApplyJobData(null)
+                  setNotesText('')
+                  setNewStatus('APPLIED')
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 
