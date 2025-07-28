@@ -20,7 +20,9 @@ import {
   TrophyIcon,
   PlusIcon,
   ChartBarIcon,
-  BriefcaseIcon
+  BriefcaseIcon,
+  MapPinIcon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline'
 import { 
   BookmarkIcon as BookmarkSolidIcon,
@@ -482,6 +484,157 @@ export default function SavedJobsPage() {
                 </div>
               )}
             </div>
+
+            {/* Saved Jobs List */}
+            {filteredJobs.length === 0 ? (
+              <div className="text-center py-12">
+                <BookmarkIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  {savedJobs.length === 0 ? 'No saved jobs yet' : 'No jobs match your search'}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {savedJobs.length === 0 
+                    ? 'Start saving interesting job opportunities to keep track of them'
+                    : 'Try adjusting your search terms'
+                  }
+                </p>
+                {savedJobs.length === 0 && (
+                  <Link
+                    href="/search"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90"
+                  >
+                    Browse Jobs
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredJobs.map(savedJob => {
+                  const application = getApplicationForJob(savedJob.jobId)
+                  return (
+                    <div key={savedJob.id} className="relative pl-12">
+                      {/* Selection Checkbox */}
+                      <div className="absolute top-4 left-4 z-10">
+                        <input
+                          type="checkbox"
+                          checked={selectedJobs.has(savedJob.id)}
+                          onChange={() => toggleJobSelection(savedJob.id)}
+                          className="h-4 w-4 text-primary focus:ring-primary border-input rounded"
+                        />
+                      </div>
+                      
+                      {/* Minimal Job Card */}
+                      <div className="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-2">
+                              <h3 className="text-lg font-semibold text-foreground">
+                                {savedJob.jobData.job_title}
+                              </h3>
+                              {application && (
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(application.status)}`}>
+                                  {application.status}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-muted-foreground mb-2">
+                              {savedJob.jobData.employer_name}
+                            </p>
+                            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                              {savedJob.jobData.location && (
+                                <span className="flex items-center">
+                                  <MapPinIcon className="h-4 w-4 mr-1" />
+                                  {savedJob.jobData.location}
+                                </span>
+                              )}
+                              {savedJob.jobData.salary_min && (
+                                <span className="flex items-center">
+                                  <CurrencyDollarIcon className="h-4 w-4 mr-1" />
+                                  ${savedJob.jobData.salary_min.toLocaleString()}
+                                  {savedJob.jobData.salary_max && ` - $${savedJob.jobData.salary_max.toLocaleString()}`}
+                                </span>
+                              )}
+                              <span className="flex items-center">
+                                <CalendarIcon className="h-4 w-4 mr-1" />
+                                Saved {new Date(savedJob.savedAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            {!application && (
+                              <button
+                                onClick={() => {
+                                  setApplyJobData(savedJob.jobData)
+                                  setShowApplyDialog(true)
+                                }}
+                                className="text-primary hover:text-primary/80 text-sm flex items-center space-x-1"
+                              >
+                                <PlusIcon className="h-4 w-4" />
+                                <span>Track</span>
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleUnsaveJob(savedJob.jobId)}
+                              className="text-muted-foreground hover:text-destructive"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Notes Section */}
+                        <div className="border-t border-border pt-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-medium text-muted-foreground">Notes</h4>
+                            <button
+                              onClick={() => {
+                                setEditingNotes(savedJob.id)
+                                setNotesText(savedJob.notes || '')
+                              }}
+                              className="text-primary hover:text-primary/80 text-sm"
+                            >
+                              <PencilIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                          {editingNotes === savedJob.id ? (
+                            <div className="space-y-2">
+                              <textarea
+                                value={notesText}
+                                onChange={(e) => setNotesText(e.target.value)}
+                                className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                                rows={3}
+                                placeholder="Add your notes about this job..."
+                              />
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleUpdateNotes(savedJob.id, notesText)}
+                                  className="px-3 py-1 bg-primary text-primary-foreground text-sm rounded-md hover:bg-primary/90"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditingNotes(null)
+                                    setNotesText('')
+                                  }}
+                                  className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-md hover:bg-muted/80"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              {savedJob.notes || 'No notes added yet. Click the edit icon to add notes.'}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </>
         ) : (
           <>
@@ -593,151 +746,9 @@ export default function SavedJobsPage() {
           </>
         )}
 
-        {/* Tab Content */}
-        {activeTab === 'saved' ? (
+        {/* Job Tracker List */}
+        {activeTab === 'tracker' && (
           <>
-            {/* Saved Jobs List */}
-            {filteredJobs.length === 0 ? (
-              <div className="text-center py-12">
-                <BookmarkIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">
-                  {savedJobs.length === 0 ? 'No saved jobs yet' : 'No jobs match your search'}
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  {savedJobs.length === 0 
-                    ? 'Start saving interesting job opportunities to keep track of them'
-                    : 'Try adjusting your search terms'
-                  }
-                </p>
-                {savedJobs.length === 0 && (
-                  <Link
-                    href="/search"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90"
-                  >
-                    Browse Jobs
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {filteredJobs.map(savedJob => {
-                  const application = getApplicationForJob(savedJob.jobId)
-                  return (
-                    <div key={savedJob.id} className="relative pl-12">
-                      {/* Selection Checkbox */}
-                      <div className="absolute top-4 left-4 z-10">
-                        <input
-                          type="checkbox"
-                          checked={selectedJobs.has(savedJob.id)}
-                          onChange={() => toggleJobSelection(savedJob.id)}
-                          className="h-4 w-4 text-primary focus:ring-primary border-input rounded"
-                        />
-                      </div>
-                      {/* Card and Notes Container */}
-                      <div>
-                        <JobCard
-                          job={savedJob.jobData}
-                          isSaved={true}
-                          onSave={() => handleUnsaveJob(savedJob.jobId)}
-                          showMatchScore={true}
-                        />
-                        
-                        {/* Application Status */}
-                        {application && (
-                          <div className="mt-4 bg-card border border-border rounded-lg p-4">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center space-x-2">
-                                {getStatusIcon(application.status)}
-                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(application.status)}`}>
-                                  {application.status}
-                                </span>
-                              </div>
-                              <span className="text-xs text-muted-foreground">
-                                Applied {formatDate(application.appliedAt)}
-                              </span>
-                            </div>
-                            {application.notes && (
-                              <p className="text-sm text-foreground mt-2">{application.notes}</p>
-                            )}
-                          </div>
-                        )}
-                        
-                        {/* Notes Section */}
-                        <div className="mt-4 bg-muted rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-medium text-muted-foreground">Notes</h4>
-                            <div className="flex space-x-2">
-                              {!application && (
-                                <button
-                                  onClick={() => {
-                                    setApplyJobData(savedJob.jobData)
-                                    setShowApplyDialog(true)
-                                  }}
-                                  className="text-primary hover:text-primary/80 text-sm flex items-center space-x-1"
-                                >
-                                  <PlusIcon className="h-4 w-4" />
-                                  <span>Track Application</span>
-                                </button>
-                              )}
-                              <button
-                                onClick={() => {
-                                  setEditingNotes(savedJob.id)
-                                  setNotesText(savedJob.notes || '')
-                                }}
-                                className="text-primary hover:text-primary/80 text-sm"
-                              >
-                                <PencilIcon className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
-                          {editingNotes === savedJob.id ? (
-                            <div className="space-y-2">
-                              <textarea
-                                value={notesText}
-                                onChange={(e) => setNotesText(e.target.value)}
-                                className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
-                                rows={3}
-                                placeholder="Add your notes about this job..."
-                              />
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={() => handleUpdateNotes(savedJob.id, notesText)}
-                                  className="px-3 py-1 bg-primary text-primary-foreground text-sm rounded-md hover:bg-primary/90"
-                                >
-                                  Save
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setEditingNotes(null)
-                                    setNotesText('')
-                                  }}
-                                  className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-md hover:bg-muted/80"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">
-                              {savedJob.notes || 'No notes added yet. Click the edit icon to add notes.'}
-                            </p>
-                          )}
-                          <div className="mt-2 flex items-center text-xs text-muted-foreground">
-                            <CalendarIcon className="h-4 w-4 mr-1" />
-                            Saved {new Date(savedJob.savedAt).toLocaleDateString()} at{' '}
-                            {new Date(savedJob.savedAt).toLocaleTimeString()}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            {/* Job Tracker List */}
             {applicationsLoading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -760,7 +771,7 @@ export default function SavedJobsPage() {
                 </Link>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {applications
                   .filter(app => {
                     if (!searchQuery) return true
@@ -771,22 +782,41 @@ export default function SavedJobsPage() {
                       app.notes?.toLowerCase().includes(query)
                     )
                   })
+                  .filter(app => {
+                    if (selectedStatus === 'all') return true
+                    return app.status === selectedStatus
+                  })
                   .map(application => (
-                    <div key={application.id} className="bg-card border border-border rounded-lg p-6">
+                    <div key={application.id} className="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-foreground mb-1">
-                            {application.jobData.job_title}
-                          </h3>
-                          <p className="text-muted-foreground mb-2">
-                            {application.jobData.employer_name}
-                          </p>
-                          <div className="flex items-center space-x-2">
-                            {getStatusIcon(application.status)}
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h3 className="text-lg font-semibold text-foreground">
+                              {application.jobData.job_title}
+                            </h3>
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(application.status)}`}>
                               {application.status}
                             </span>
-                            <span className="text-xs text-muted-foreground">
+                          </div>
+                          <p className="text-muted-foreground mb-2">
+                            {application.jobData.employer_name}
+                          </p>
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                            {application.jobData.location && (
+                              <span className="flex items-center">
+                                <MapPinIcon className="h-4 w-4 mr-1" />
+                                {application.jobData.location}
+                              </span>
+                            )}
+                            {application.jobData.salary_min && (
+                              <span className="flex items-center">
+                                <CurrencyDollarIcon className="h-4 w-4 mr-1" />
+                                ${application.jobData.salary_min.toLocaleString()}
+                                {application.jobData.salary_max && ` - $${application.jobData.salary_max.toLocaleString()}`}
+                              </span>
+                            )}
+                            <span className="flex items-center">
+                              <CalendarIcon className="h-4 w-4 mr-1" />
                               Applied {formatDate(application.appliedAt)}
                             </span>
                           </div>
@@ -811,16 +841,16 @@ export default function SavedJobsPage() {
                       </div>
                       
                       {/* Status Update */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-muted-foreground mb-2">
-                          Update Status
-                        </label>
-                        <div className="flex space-x-2">
+                      <div className="border-t border-border pt-4 mb-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-medium text-muted-foreground">Update Status</h4>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
                           {['APPLIED', 'VIEWED', 'INTERVIEWING', 'REJECTED', 'HIRED'].map(status => (
                             <button
                               key={status}
                               onClick={() => handleUpdateApplicationStatus(application.id, status)}
-                              className={`px-3 py-1 text-xs font-medium rounded-full ${
+                              className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                                 application.status === status
                                   ? getStatusColor(status)
                                   : 'bg-muted text-muted-foreground hover:bg-accent'
@@ -834,7 +864,8 @@ export default function SavedJobsPage() {
                       
                       {/* Notes */}
                       {editingApplication === application.id ? (
-                        <div className="space-y-2">
+                        <div className="border-t border-border pt-4 space-y-2">
+                          <h4 className="text-sm font-medium text-muted-foreground">Notes</h4>
                           <textarea
                             value={notesText}
                             onChange={(e) => setNotesText(e.target.value)}
@@ -862,9 +893,12 @@ export default function SavedJobsPage() {
                         </div>
                       ) : (
                         application.notes && (
-                          <p className="text-sm text-foreground bg-muted rounded p-3">
-                            {application.notes}
-                          </p>
+                          <div className="border-t border-border pt-4">
+                            <h4 className="text-sm font-medium text-muted-foreground mb-2">Notes</h4>
+                            <p className="text-sm text-foreground bg-muted rounded p-3">
+                              {application.notes}
+                            </p>
+                          </div>
                         )
                       )}
                     </div>
