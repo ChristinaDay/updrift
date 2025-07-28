@@ -63,7 +63,7 @@ export default function Header() {
                     <DropdownMenuItem asChild>
                       <Link href="/applications" className="flex items-center space-x-2">
                         <DocumentTextIcon className="h-4 w-4" />
-                        <span>Applications</span>
+                        <span>Job Tracker</span>
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -121,7 +121,7 @@ export default function Header() {
                           className={`flex items-center space-x-2 px-2 py-2 rounded-md ${pathname === "/applications" ? "text-primary bg-accent" : "text-foreground hover:bg-accent/50"}`}
                         >
                           <DocumentTextIcon className="h-5 w-5" />
-                          <span>Applications</span>
+                          <span>Job Tracker</span>
                         </Link>
                         <Link
                           href="/saved-jobs"

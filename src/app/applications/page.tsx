@@ -28,7 +28,7 @@ import {
   TrophyIcon as TrophySolidIcon
 } from '@heroicons/react/24/solid'
 import Header from '@/components/Header'
-import { useJobApplications } from '@/lib/useJobApplications'
+import { useJobTracker } from '@/lib/useJobApplications'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -46,7 +46,7 @@ interface ApplicationStats {
   hired: number
 }
 
-export default function ApplicationsPage() {
+export default function JobTrackerPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
@@ -69,7 +69,7 @@ export default function ApplicationsPage() {
     updateApplicationStatus,
     deleteApplication,
     refreshApplications
-  } = useJobApplications(selectedStatus === 'all' ? undefined : selectedStatus)
+  } = useJobTracker(selectedStatus === 'all' ? undefined : selectedStatus)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -212,9 +212,9 @@ export default function ApplicationsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Job Applications</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Job Tracker</h1>
             <p className="text-muted-foreground">
-              Track your job applications and their status
+              Track jobs you're interested in and your application progress
             </p>
           </div>
           <div className="flex gap-2 mt-4 sm:mt-0">

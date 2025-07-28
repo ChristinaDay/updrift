@@ -104,7 +104,7 @@ export default function Dashboard() {
                 <MagnifyingGlassIcon className="h-6 w-6 text-secondary" />
               </div>
               <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-muted-foreground">Applications</p>
+                <p className="text-sm font-medium text-muted-foreground">Tracked Jobs</p>
                 <p className="text-2xl font-bold text-foreground">0</p>
               </div>
             </div>

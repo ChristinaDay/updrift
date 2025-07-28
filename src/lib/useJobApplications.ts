@@ -22,7 +22,7 @@ export interface ApplicationStatus {
   HIRED: number
 }
 
-export interface UseJobApplicationsReturn {
+export interface UseJobTrackerReturn {
   applications: JobApplication[]
   loading: boolean
   error: string | null
@@ -34,7 +34,7 @@ export interface UseJobApplicationsReturn {
   refreshApplications: () => Promise<void>
 }
 
-export function useJobApplications(status?: string): UseJobApplicationsReturn {
+export function useJobTracker(status?: string): UseJobTrackerReturn {
   const { data: session } = useSession()
   const [applications, setApplications] = useState<JobApplication[]>([])
   const [loading, setLoading] = useState(false)

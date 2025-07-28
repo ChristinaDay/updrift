@@ -32,7 +32,7 @@ import { useSession } from 'next-auth/react'
 import { Job } from '@/types/job'
 import { filterJobs, sortJobs, capitalizeLocation } from '@/utils/jobUtils'
 import { useSearchJobs } from '@/lib/useSearchJobs'
-import { useJobApplications } from '@/lib/useJobApplications'
+import { useJobTracker } from '@/lib/useJobApplications'
 import JobCard from '@/components/JobCard'
 import ApiSetupGuide from '@/components/ApiSetupGuide'
 import {
@@ -89,7 +89,7 @@ function SearchPage() {
     applyToJob,
     updateApplicationStatus,
     loading: applicationsLoading
-  } = useJobApplications()
+  } = useJobTracker()
 
   // Enhanced filter states
   const [filters, setFilters] = useState({
