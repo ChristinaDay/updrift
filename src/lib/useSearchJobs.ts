@@ -17,6 +17,7 @@ interface UseSearchJobsReturn {
   searchJobs: (query: string, location: string, radius: number) => void;
   loadMoreJobs: () => Promise<void>;
   hasMorePages: boolean;
+  totalCount: number;
   clearCache: () => void;
   cacheStats: { size: number; keys: string[] };
   isUserIdle: boolean;
@@ -45,6 +46,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMorePages, setHasMorePages] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [totalCount, setTotalCount] = useState(0)
 
   // Track user activity
   useEffect(() => {
@@ -187,6 +189,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
       // Store original and filtered jobs
       setJobs(data.original_data || data.data || []);
       setFilteredJobs(data.data || []);
+      setTotalCount(data.total_count || 0); // Update totalCount
       
       // Check if there are more pages available
       setHasMorePages(data.num_pages > 1);
@@ -291,6 +294,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
     searchJobs: debouncedSearch,
     loadMoreJobs,
     hasMorePages,
+    totalCount,
     clearCache,
     cacheStats,
     isUserIdle: searchCache.isUserIdle(),

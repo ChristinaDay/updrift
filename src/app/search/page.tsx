@@ -78,6 +78,7 @@ function SearchPage() {
     searchJobs,
     loadMoreJobs,
     hasMorePages,
+    totalCount,
     clearCache,
     cacheStats,
     isUserIdle,
@@ -700,7 +701,7 @@ function SearchPage() {
           <div className="flex-1 min-w-0">
             <div className="bg-card rounded-xl shadow-sm border border-input p-6">
               <p className="text-muted-foreground text-sm">
-                {filteredJobs.length} opportunities loaded
+                {filteredJobs.length} of {totalCount > 0 ? totalCount : 'many'} opportunities loaded
                 {hasMorePages && ' • More available'}
                 {isUserIdle && ' • Idle mode (API calls disabled)'}
               </p>

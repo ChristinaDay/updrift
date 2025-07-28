@@ -240,7 +240,8 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
           num_pages: Math.ceil(response.data.count / 20),
           client_filtered: radiusFiltered,
           original_count: originalJobs.length,
-          filtered_count: filteredJobs.length
+          filtered_count: filteredJobs.length,
+          total_count: response.data.count // Total jobs available from API
         } as JobSearchResponse;
       } else {
         throw new Error('No results from Adzuna API');

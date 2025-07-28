@@ -75,6 +75,7 @@ export interface JobSearchResponse {
   client_filtered?: boolean;
   original_count?: number;
   filtered_count?: number;
+  total_count?: number; // Total jobs available from API
 }
 
 export interface SavedJob {
