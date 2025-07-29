@@ -144,7 +144,7 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
       const queryParams: any = {
         app_id: ADZUNA_APP_ID,
         app_key: ADZUNA_APP_KEY,
-        results_per_page: 20, // Initial load of 20 jobs
+        results_per_page: 200, // Initial load of 200 jobs (increased from 20)
         'content-type': 'application/json'
       };
       
@@ -237,7 +237,7 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
           parameters: params,
           data: filteredJobs,
           original_data: originalJobs,
-          num_pages: Math.ceil(response.data.count / 20),
+          num_pages: Math.ceil(response.data.count / 200),
           client_filtered: radiusFiltered,
           original_count: originalJobs.length,
           filtered_count: filteredJobs.length,

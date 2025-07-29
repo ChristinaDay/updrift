@@ -20,12 +20,10 @@ export default function Header() {
     <header className="bg-card shadow-sm border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-8">
             <Link href="/" className="text-2xl font-bold text-primary" aria-label="Go to home page">
               UpDrift
             </Link>
-          </div>
-          <div className="flex items-center space-x-4">
             {/* Desktop Nav */}
             <nav className="hidden md:flex space-x-8">
               <Link
@@ -66,6 +64,8 @@ export default function Header() {
                 </>
               )}
             </nav>
+          </div>
+          <div className="flex items-center space-x-4">
             {/* Mobile Hamburger Button */}
             <div className="md:hidden">
               <Dialog>

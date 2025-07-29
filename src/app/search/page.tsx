@@ -125,6 +125,11 @@ function SearchPage() {
   // Local filtered jobs state (for client-side filtering)
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [jobsPerPage] = useState(20) // Show 20 jobs per page
+  const [displayedJobs, setDisplayedJobs] = useState<Job[]>([])
+
   // Database search history state
   const [dbSearchHistory, setDbSearchHistory] = useState<Array<{
     id: string;
@@ -231,6 +236,19 @@ function SearchPage() {
       loadSearchHistoryFromDB();
     }
   }, [session]);
+
+  // Update displayed jobs when filteredJobs changes (pagination logic)
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * jobsPerPage;
+    const endIndex = startIndex + jobsPerPage;
+    const jobsToShow = filteredJobs.slice(startIndex, endIndex);
+    setDisplayedJobs(jobsToShow);
+  }, [filteredJobs, currentPage, jobsPerPage]);
+
+  // Reset to page 1 when starting a new search
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [initialFilteredJobs]);
 
 
   // Manual search trigger function
@@ -667,6 +685,27 @@ function SearchPage() {
     })
   }
 
+  // Pagination functions
+  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage)
+  
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+    }
+  }
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1)
+    }
+  }
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
+
 
 
   if (loading) {
@@ -695,18 +734,17 @@ function SearchPage() {
           {searchQuery ? `Jobs for "${searchQuery}"` : (location ? `Jobs in ${capitalizeLocation(location)}` : 'Explore Job Opportunities')}
         </h1>
         
-        {/* Search and Summary Row */}
+        {/* Search Row */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-          {/* Summary Text */}
-          <div className="flex-1 min-w-0">
-            <div className="bg-card rounded-xl shadow-sm border border-input p-6">
-              <p className="text-muted-foreground text-sm">
-                {filteredJobs.length} of {totalCount > 0 ? totalCount : 'many'} opportunities loaded
-                {hasMorePages && ' • More available'}
-                {isUserIdle && ' • Idle mode (API calls disabled)'}
+          {/* Intro blurb */}
+          {!searchQuery && !location && (
+            <div className="flex-1 min-w-0">
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Search for jobs by title, skills, or company. Add a location to find opportunities near you, or browse remote positions. 
+                Your search history is automatically saved for quick access.
               </p>
             </div>
-          </div>
+          )}
           
           {/* Search inputs */}
           <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-end lg:flex-shrink-0">
@@ -1141,6 +1179,12 @@ function SearchPage() {
             {/* Results header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div className="flex items-center space-x-4">
+                {/* Summary Text */}
+                <p className="text-muted-foreground text-sm">
+                  {filteredJobs.length === 0 && !loading ? '0' : (totalCount > 0 ? totalCount : 'many')} results
+                  {isUserIdle && ' • Idle mode (API calls disabled)'}
+                </p>
+                
                 <div className="flex items-center space-x-2">
                   <label className="text-sm text-muted-foreground">Sort by:</label>
                   <select
@@ -1219,7 +1263,7 @@ function SearchPage() {
                 </div>
               ) : (
                 <div className={viewMode === 'grid' ? 'grid grid-cols-1 lg:grid-cols-2 gap-6' : 'space-y-4'}>
-                  {filteredJobs.map(job => (
+                  {displayedJobs.map(job => (
                     <JobCard
                       key={job.job_id}
                       job={job}
@@ -1233,15 +1277,71 @@ function SearchPage() {
                     />
                   ))}
                   
-                  {/* Load more button */}
-                  {hasMorePages && (
-                    <div className="text-center mt-8">
-                      <button 
-                        onClick={loadMoreJobs}
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium transition-colors"
-                      >
-                        Load More Jobs
-                      </button>
+                  {/* Pagination */}
+                  {filteredJobs.length > 0 && (
+                    <div className="mt-8">
+                      {/* Client-side pagination for loaded jobs */}
+                      {totalPages > 1 && (
+                        <div className="flex items-center justify-center space-x-2 mb-4">
+                          <button
+                            onClick={goToPreviousPage}
+                            disabled={currentPage === 1}
+                            className="px-3 py-2 text-sm border border-input rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Previous
+                          </button>
+                          
+                          {/* Page numbers */}
+                          <div className="flex items-center space-x-1">
+                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                              let pageNum;
+                              if (totalPages <= 5) {
+                                pageNum = i + 1;
+                              } else if (currentPage <= 3) {
+                                pageNum = i + 1;
+                              } else if (currentPage >= totalPages - 2) {
+                                pageNum = totalPages - 4 + i;
+                              } else {
+                                pageNum = currentPage - 2 + i;
+                              }
+                              
+                              return (
+                                <button
+                                  key={pageNum}
+                                  onClick={() => goToPage(pageNum)}
+                                  className={`px-3 py-2 text-sm rounded-lg ${
+                                    currentPage === pageNum
+                                      ? 'bg-primary text-primary-foreground'
+                                      : 'border border-input hover:bg-muted'
+                                  }`}
+                                >
+                                  {pageNum}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          
+                          <button
+                            onClick={goToNextPage}
+                            disabled={currentPage === totalPages}
+                            className="px-3 py-2 text-sm border border-input rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      )}
+                      
+                      {/* Load remaining jobs from API */}
+                      {hasMorePages && (
+                        <div className="text-center">
+                          <button 
+                            onClick={loadMoreJobs}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium transition-colors"
+                          >
+                            Load All Remaining Jobs
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

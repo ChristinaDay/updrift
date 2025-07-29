@@ -221,7 +221,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
     }
   }, []);
 
-  // Load more jobs function
+  // Load more jobs function - loads ALL remaining jobs
   const loadMoreJobs = useCallback(async () => {
     if (!lastSearchParams || !hasMorePages || loadingMore) {
       return;
@@ -229,30 +229,48 @@ export function useSearchJobs(): UseSearchJobsReturn {
 
     setLoadingMore(true);
     try {
-      const nextPage = currentPage + 1;
+      // Calculate how many jobs we've already loaded
+      const jobsLoaded = filteredJobs.length;
+      const totalAvailable = totalCount;
+      const remainingJobs = totalAvailable - jobsLoaded;
       
-      // Build API URL with parameters
-      const params = new URLSearchParams();
-      if (lastSearchParams.query) params.append('query', lastSearchParams.query);
-      if (lastSearchParams.location) params.append('location', lastSearchParams.location);
-      if (lastSearchParams.radius) params.append('radius', lastSearchParams.radius.toString());
-      params.append('page', nextPage.toString());
+      // Calculate how many pages we need to load to get all remaining jobs
+      const jobsPerPage = 200;
+      const pagesNeeded = Math.ceil(remainingJobs / jobsPerPage);
       
-      console.log('🔍 Loading more jobs, page:', nextPage);
+      console.log(`🔍 Loading ALL remaining jobs: ${remainingJobs} jobs across ${pagesNeeded} pages`);
       
-      const response = await fetch(`/api/jobs/search?${params.toString()}`);
-      const data = await response.json();
+      let allNewJobs: Job[] = [];
       
-      if (data.status === 'success' && data.data?.length > 0) {
-        // Append new jobs to existing ones
-        setJobs(prev => [...prev, ...(data.original_data || data.data || [])]);
-        setFilteredJobs(prev => [...prev, ...(data.data || [])]);
-        setCurrentPage(nextPage);
+      // Load all remaining pages
+      for (let page = 2; page <= pagesNeeded + 1; page++) {
+        const params = new URLSearchParams();
+        if (lastSearchParams.query) params.append('query', lastSearchParams.query);
+        if (lastSearchParams.location) params.append('location', lastSearchParams.location);
+        if (lastSearchParams.radius) params.append('radius', lastSearchParams.radius.toString());
+        params.append('page', page.toString());
         
-        // Check if there are still more pages
-        setHasMorePages(nextPage < data.num_pages);
+        console.log(`🔍 Loading page ${page} of ${pagesNeeded + 1}`);
         
-        console.log('✅ Loaded more jobs:', data.data.length, 'jobs, page', nextPage);
+        const response = await fetch(`/api/jobs/search?${params.toString()}`);
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.data?.length > 0) {
+          allNewJobs = [...allNewJobs, ...(data.original_data || data.data || [])];
+          console.log(`✅ Loaded page ${page}: ${data.data.length} jobs`);
+        } else {
+          console.log(`📄 No more jobs on page ${page}`);
+          break;
+        }
+      }
+      
+      if (allNewJobs.length > 0) {
+        // Add all new jobs to existing ones
+        setJobs(prev => [...prev, ...allNewJobs]);
+        setFilteredJobs(prev => [...prev, ...allNewJobs]);
+        setCurrentPage(pagesNeeded + 1);
+        setHasMorePages(false); // No more pages after loading all
+        console.log(`✅ Loaded ALL remaining jobs: ${allNewJobs.length} total new jobs`);
       } else {
         setHasMorePages(false);
         console.log('📄 No more jobs available');
@@ -262,7 +280,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
     } finally {
       setLoadingMore(false);
     }
-  }, [lastSearchParams, hasMorePages, loadingMore, currentPage]);
+  }, [lastSearchParams, hasMorePages, loadingMore, filteredJobs.length, totalCount]);
 
   // Debounced search function
   const debouncedSearch = useCallback(
