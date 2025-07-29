@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import ThemeToggle from '@/components/ThemeToggle'
 import Header from '@/components/Header';
+import { Job } from '@/types/job'
+import { getCompanyLogoUrl } from '@/utils/jobUtils'
 
 // Dynamic Wave Component
 function DynamicWaves() {
@@ -495,6 +497,7 @@ export default function Home() {
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([])
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const [heroJobs, setHeroJobs] = useState<Job[]>([])
   const [particles, setParticles] = useState<Array<{
     id: string;
     x: number;
@@ -506,97 +509,31 @@ export default function Home() {
     delay: number;
   }>>([])
 
-  // Real job data for hero preview
-  const heroJobs = [
-    {
-      job_id: 'hero-1',
-      job_title: 'Senior Frontend Engineer',
-      employer_name: 'Stripe',
-      job_city: 'San Francisco',
-      job_state: 'CA',
-      job_country: 'US',
-      job_is_remote: false,
-      job_min_salary: 160000,
-      job_max_salary: 220000,
-      job_salary_currency: 'USD',
-      job_salary_period: 'YEAR',
-      job_employment_type: 'FULLTIME',
-      job_posted_at_timestamp: Date.now() - 86400000, // 1 day ago
-      job_posted_at_datetime_utc: new Date(Date.now() - 86400000).toISOString(),
-      job_apply_link: '#',
-      job_apply_is_direct: true,
-      job_publisher: 'Stripe Careers',
-      job_description: 'Build the future of internet commerce with cutting-edge payment infrastructure.',
-      job_required_skills: ['React', 'TypeScript', 'JavaScript', 'CSS'],
-      delay: 0
-    },
-    {
-      job_id: 'hero-2',
-      job_title: 'Product Manager - AI',
-      employer_name: 'Anthropic',
-      job_city: 'Remote',
-      job_state: '',
-      job_country: 'US',
-      job_is_remote: true,
-      job_min_salary: 180000,
-      job_max_salary: 250000,
-      job_salary_currency: 'USD',
-      job_salary_period: 'YEAR',
-      job_employment_type: 'FULLTIME',
-      job_posted_at_timestamp: Date.now() - 172800000, // 2 days ago
-      job_posted_at_datetime_utc: new Date(Date.now() - 172800000).toISOString(),
-      job_apply_link: '#',
-      job_apply_is_direct: true,
-      job_publisher: 'Anthropic Careers',
-      job_description: 'Shape the future of AI safety and alignment in our next-generation language models.',
-      job_required_skills: ['Product Strategy', 'AI/ML', 'Data Analysis', 'Leadership'],
-      delay: 1
-    },
-    {
-      job_id: 'hero-3',
-      job_title: 'DevOps Engineer',
-      employer_name: 'Docker',
-      job_city: 'Austin',
-      job_state: 'TX',
-      job_country: 'US',
-      job_is_remote: true,
-      job_min_salary: 130000,
-      job_max_salary: 170000,
-      job_salary_currency: 'USD',
-      job_salary_period: 'YEAR',
-      job_employment_type: 'FULLTIME',
-      job_posted_at_timestamp: Date.now() - 345600000, // 4 days ago
-      job_posted_at_datetime_utc: new Date(Date.now() - 345600000).toISOString(),
-      job_apply_link: '#',
-      job_apply_is_direct: true,
-      job_publisher: 'Docker Careers',
-      job_description: 'Scale containerized applications and improve developer experience across our global platform.',
-      job_required_skills: ['Docker', 'Kubernetes', 'AWS', 'Terraform'],
-      delay: 2
-    },
-    {
-      job_id: 'hero-4',
-      job_title: 'UX Designer',
-      employer_name: 'Figma',
-      job_city: 'San Francisco',
-      job_state: 'CA',
-      job_country: 'US',
-      job_is_remote: true,
-      job_min_salary: 120000,
-      job_max_salary: 160000,
-      job_salary_currency: 'USD',
-      job_salary_period: 'YEAR',
-      job_employment_type: 'FULLTIME',
-      job_posted_at_timestamp: Date.now() - 518400000, // 6 days ago
-      job_posted_at_datetime_utc: new Date(Date.now() - 518400000).toISOString(),
-      job_apply_link: '#',
-      job_apply_is_direct: true,
-      job_publisher: 'Figma Careers',
-      job_description: 'Design intuitive interfaces that empower creative teams worldwide to bring ideas to life.',
-      job_required_skills: ['Figma', 'Prototyping', 'User Research', 'Design Systems'],
-      delay: 3
+  // Fetch real job examples for hero section
+  const fetchHeroJobs = async () => {
+    try {
+      // Fetch a single large batch of jobs
+      const response = await fetch(`/api/jobs/search?query=software engineer&location=Remote&num_pages=1`);
+      const data = await response.json();
+      
+      if (data.status === 'success' && data.data) {
+        // Filter for jobs that have generated logos (Adzuna doesn't provide API logos)
+        const jobsWithLogos = data.data.filter((job: Job) => {
+          const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
+          return !!generatedLogoUrl
+        });
+        
+        // Take the first 4 jobs with logos
+        const jobsToShow = jobsWithLogos.slice(0, 4);
+        setHeroJobs(jobsToShow);
+      } else {
+        setHeroJobs([]);
+      }
+    } catch (error) {
+      console.error('Error fetching hero jobs:', error);
+      setHeroJobs([]);
     }
-  ];
+  };
 
   // Helper function to format salary
   const formatSalary = (minSalary?: number, maxSalary?: number) => {
@@ -691,7 +628,15 @@ export default function Home() {
     }
 
     setParticles(newParticles)
+    
+    // Fetch real job examples for hero
+    fetchHeroJobs()
   }, [])
+  
+  // Debug hero jobs state
+  useEffect(() => {
+    console.log('Hero jobs state updated:', heroJobs.length, heroJobs);
+  }, [heroJobs])
 
   const handleSearch = () => {
     const params = new URLSearchParams()
@@ -1013,42 +958,59 @@ export default function Home() {
             {/* Right: Flowing Job Cards */}
             <div className="relative">
               <div className="space-y-6">
-                {[
-                  { company: 'Stripe', role: 'Senior Frontend Engineer', salary: '$160k - $220k', logo: '💳' },
-                  { company: 'Anthropic', role: 'Product Manager - AI', salary: '$180k - $250k', logo: '🤖' },
-                  { company: 'Docker', role: 'DevOps Engineer', salary: '$130k - $170k', logo: '🐳' },
-                  { company: 'Figma', role: 'UX Designer', salary: '$120k - $160k', logo: '🎨' }
-                ].map((job, index) => (
-                  <div
-                    key={index}
-                    className={`hero-job-card-float-${index} transition-all duration-500 hover:scale-105`}
-                  >
-                    <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
-                      <CardContent className="p-6">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
-                            {job.logo}
+                {heroJobs.map((job, index) => {
+                  // Only use generated logos since Adzuna doesn't provide API logos
+                  const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
+                  const hasRealLogo = !!generatedLogoUrl
+                  
+                  return (
+                    <div
+                      key={job.job_id}
+                      className={`hero-job-card-float-${index} transition-all duration-500 hover:scale-105`}
+                    >
+                      <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
+                        <CardContent className="p-6">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
+                              {hasRealLogo ? (
+                                <img 
+                                  src={generatedLogoUrl} 
+                                  alt={job.employer_name}
+                                  className="w-8 h-8 object-contain"
+                                  onError={(e) => {
+                                    // Hide logo on error, show initial instead
+                                    e.currentTarget.style.display = 'none'
+                                    e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                                  }}
+                                />
+                              ) : null}
+                              <span className={`text-lg ${hasRealLogo ? 'hidden' : ''}`}>
+                                {job.employer_name.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-foreground">{job.job_title}</h3>
+                              <p className="text-sm text-muted-foreground">{job.employer_name}</p>
+                              <p className="text-sm font-medium text-primary">
+                                {formatSalary(job.job_min_salary, job.job_max_salary)}
+                              </p>
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="text-sm text-muted-foreground hover:text-primary transition-colors opacity-60 hover:opacity-100"
+                              asChild
+                            >
+                              <Link href={`/search?q=${encodeURIComponent(job.job_title)}&location=${job.job_is_remote ? 'Remote' : job.job_city}`}>
+                                View →
+                              </Link>
+                            </Button>
                           </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-foreground">{job.role}</h3>
-                            <p className="text-sm text-muted-foreground">{job.company}</p>
-                            <p className="text-sm font-medium text-primary">{job.salary}</p>
-                          </div>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="text-sm text-muted-foreground hover:text-primary transition-colors opacity-60 hover:opacity-100"
-                            asChild
-                          >
-                            <Link href={`/search?q=${encodeURIComponent(job.role)}&location=Remote`}>
-                              View →
-                            </Link>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </div>

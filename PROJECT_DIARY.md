@@ -19,6 +19,39 @@ Welcome to the Updrift Project Diary! This document summarizes the progress, key
 
 ## Project Diary (from Git History)
 
+### January 2025 — Adzuna API Logo Field Discovery & Hero Job Filtering Challenge
+
+- **Critical API Discovery:**
+  - **Problem**: Hero section job filtering was failing to find jobs with logos
+  - **Investigation**: Tested direct Adzuna API call to examine actual response structure
+  - **Key Finding**: Adzuna API does NOT provide logo URLs in job responses
+  - **Evidence**: Direct API call showed company object only contains `display_name`, no logo fields
+  - **Impact**: All logo filtering logic relying on `employer_logo` from Adzuna was fundamentally flawed
+
+- **API Response Structure Analysis:**
+  - **Adzuna Job Object**: Contains `title`, `company.display_name`, `location`, `salary_min/max`, `description`
+  - **Company Object**: Only has `__CLASS__` and `display_name` fields
+  - **Missing Logo Fields**: No `logo`, `logo_url`, `image`, `icon`, or any visual asset fields
+  - **Implication**: Must rely entirely on generated logos via `getCompanyLogoUrl()` function
+
+- **Technical Architecture Impact:**
+  - **Logo Source Reality**: Adzuna provides no logos, JSearch may provide some, Clearbit generates most
+  - **Filtering Strategy**: Cannot filter for "API logos" from Adzuna since they don't exist
+  - **Fallback Strategy**: Must use generated logos as primary source for Adzuna jobs
+  - **Code Cleanup Needed**: Remove all `employer_logo` filtering logic for Adzuna jobs
+
+- **Development Process Insights:**
+  - **API Documentation vs Reality**: Direct API testing revealed discrepancies with assumed field structure
+  - **Debugging Methodology**: Console logging and direct API calls essential for accurate field discovery
+  - **Assumption Dangers**: Relying on assumed API structure without verification leads to circular debugging
+  - **Documentation Value**: This finding should prevent future developers from making same assumptions
+
+- **Next Steps Required:**
+  - Update `convertAdzunaJob` function to remove all logo field detection attempts
+  - Modify hero job filtering to only check for generated logos (`getCompanyLogoUrl`)
+  - Clean up debug logs and remove incorrect logo filtering logic
+  - Document this finding for future API integration work
+
 ### December 2024 — Job Logo Display, Location Input UX, & Job Tracking Feature Evolution
 - **Job Logo System Enhancement:**
   - Fixed job logo conversion for both Adzuna and JSearch APIs

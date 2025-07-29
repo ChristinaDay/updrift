@@ -21,27 +21,11 @@ const adzunaClient = axios.create({
 
 /**
  * Convert Adzuna job format to our Job interface
+ * Note: Adzuna API does not provide logo URLs - logos are generated via getCompanyLogoUrl()
  */
 function convertAdzunaJob(adzunaJob: any): Job {
   const employerName = adzunaJob.company?.display_name || '';
   const employerWebsite = adzunaJob.company?.url || undefined;
-  // Only use a real logo if present in the Adzuna API response
-  // Check multiple possible logo field names that job APIs commonly use
-  // Adzuna API might store logo in different locations - let's check the actual response structure
-  const employerLogo = adzunaJob.company?.logo || 
-                      adzunaJob.company?.logo_url || 
-                      adzunaJob.company?.image || 
-                      adzunaJob.company?.image_url ||
-                      adzunaJob.company?.icon ||
-                      adzunaJob.company?.icon_url ||
-                      adzunaJob.logo ||
-                      adzunaJob.logo_url ||
-                      adzunaJob.image ||
-                      adzunaJob.image_url ||
-                      adzunaJob.icon ||
-                      adzunaJob.icon_url ||
-                      undefined;
-  
 
   return {
     job_id: adzunaJob.id?.toString() || '',
@@ -60,7 +44,6 @@ function convertAdzunaJob(adzunaJob: any): Job {
     job_salary_currency: 'USD',
     job_salary_period: 'YEAR',
     employer_name: employerName,
-    ...(employerLogo ? { employer_logo: employerLogo } : {}),
     employer_website: employerWebsite,
     job_publisher: 'Adzuna',
     job_apply_is_direct: false,
@@ -276,15 +259,8 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
     
     if (params.query) url.searchParams.set('what', params.query);
     if (params.location) url.searchParams.set('where', params.location);
-    // Temporarily remove page parameter to see if that's causing issues
-    // if (params.page) url.searchParams.set('page', params.page.toString());
-
-    console.log('🔍 Adzuna API URL:', url.toString());
-    console.log('🔍 Adzuna API params:', params);
 
     const response = await fetch(url.toString());
-    
-    console.log('🔍 Adzuna API response status:', response.status, response.statusText);
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -295,52 +271,20 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
     const data = await response.json();
     success = true;
 
-    console.log('🔍 Adzuna API raw response:', {
-      hasResults: !!data.results,
-      resultsLength: data.results?.length || 0,
-      firstResult: data.results?.[0]?.title || 'No results',
-      totalResults: data.count,
-      numPages: data.num_pages,
-      requestId: data.request_id,
-      fullResponseKeys: Object.keys(data),
-      fullResponse: data // Log the full response to see what's available
-    });
-    
-    console.log('🔍 Adzuna total count debug:', {
-      dataCount: data.count,
-      resultsLength: data.results?.length || 0,
-      willSetTotalCount: data.count || (data.results?.length || 0)
-    });
-
     // Parse quota information from response headers
     const adzunaQuota = parseQuotaFromHeaders(response.headers, 'adzuna');
     
     // Convert Adzuna jobs to our format
     const convertedJobs = (data.results || []).map(convertAdzunaJob);
     
-    console.log('🔍 Adzuna converted jobs:', {
-      convertedLength: convertedJobs.length,
-      firstConvertedJob: convertedJobs[0]?.job_title || 'No converted jobs'
-    });
-    
     // Record API usage for quota tracking
     quotaTracker.recordUsage('adzuna', 1);
-    
-    console.log('✅ Adzuna API success:', convertedJobs.length, 'jobs found');
     
     // Calculate num_pages based on total results if not provided by API
     const resultsPerPage = 200; // Match our API setting
     const totalResults = data.count || convertedJobs.length;
     const calculatedNumPages = Math.ceil(totalResults / resultsPerPage);
     const numPages = data.num_pages || calculatedNumPages;
-    
-    console.log('🔍 Pagination calculation:', {
-      totalResults,
-      resultsPerPage,
-      calculatedNumPages,
-      apiNumPages: data.num_pages,
-      finalNumPages: numPages
-    });
     
     return {
       status: 'success',
