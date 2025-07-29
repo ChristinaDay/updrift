@@ -643,6 +643,13 @@ function SearchPage() {
     }
 
     try {
+      // Store job data for internal job detail pages
+      await fetch('/api/jobs/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job })
+      })
+
       await applyToJob(job.job_id, job, job.job_apply_link)
       setSaveMessage('Application tracked successfully!')
       

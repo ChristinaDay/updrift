@@ -1,134 +1,162 @@
 # TODO
 
-## ✅ **Completed Features**
+## Current Tasks
 
-### **Core Infrastructure**
-- ✅ Next.js 15 with App Router setup
-- ✅ Prisma database integration with PostgreSQL
-- ✅ NextAuth.js authentication system
-- ✅ Tailwind CSS styling with custom theme system
-- ✅ TypeScript configuration and type safety
-- ✅ Vercel deployment with successful builds
+### API Integration
+- [ ] Fix Adzuna API 502 errors (currently down)
+- [ ] Add more job providers to diversify API sources
+- [ ] Implement better error handling for API failures
+- [ ] Add API health monitoring
 
-### **Search & Job Management System**
-- ✅ Database-driven search storage with 24-hour expiration
-- ✅ Location normalization for professional display
-- ✅ Natural language timestamps ("2 hours ago", "yesterday")
-- ✅ Search history persistence across sessions
-- ✅ Comprehensive automated testing suite
-- ✅ Job search API integration with Adzuna
-- ✅ Saved jobs functionality with notes system
+### User Experience
+- [ ] Add loading states for job cards
+- [ ] Improve search result pagination
+- [ ] Add job search filters (salary, experience level, etc.)
+- [ ] Implement job alerts/notifications
 
-### **Job Tracking Integration**
-- ✅ Merged job tracking functionality into saved jobs page
-- ✅ Tabbed interface: "Saved Jobs" and "Job Tracker"
-- ✅ Application status management with visual indicators
-- ✅ Status update buttons for quick workflow
-- ✅ Application tracking dialog for new applications
-- ✅ Notes system for both saved jobs and applications
-- ✅ Application statistics dashboard
-- ✅ Eliminated separate `/applications` page
-- ✅ Updated navigation to use unified job manager
-- ✅ Streamlined user experience with fewer clicks
+### Database & Backend
+- [ ] Add job application tracking
+- [ ] Implement user preferences system
+- [ ] Add search history functionality
+- [ ] Create job recommendation system
 
-### **Build & Deployment**
-- ✅ Fixed Prisma model name inconsistencies (searchResult vs SearchResult)
-- ✅ Regenerated Prisma client to resolve type errors
-- ✅ Updated all API routes to use correct model names
-- ✅ Build now passes successfully on Vercel
+### Frontend
+- [ ] Add dark mode support
+- [ ] Improve mobile responsiveness
+- [ ] Add job card animations
+- [ ] Implement infinite scroll for job results
 
-### **User Experience & Interaction Fixes**
-- ✅ Fixed viewed job card interaction - made "VIEWED" jobs clickable with "View Again" button
-- ✅ Removed redundant "VIEWED" tag from top of job cards for cleaner design
-- ✅ Enhanced search results counter to show total available jobs instead of just loaded subset
-- ✅ Improved API aggregation to properly sum total counts from all providers
-- ✅ Added yellow styling for "View Again" button to distinguish from other statuses
-- ✅ Maintained disabled state for other application statuses (APPLIED, INTERVIEWING, etc.)
+## Internal Job Detail Pages - Implementation Plan
 
-### **API Hub & System Integration Fixes**
-- ✅ Fixed API hub quota tracking discrepancy between Usage Statistics and Monthly Quota
-- ✅ Created `/api/debug/quota-status` endpoint to connect server-side quota data with client-side display
-- ✅ Resolved Date object conversion errors for JSON serialized dates from server
-- ✅ Added auto-refresh (30 seconds) and manual refresh functionality to API hub page
-- ✅ Implemented proper error handling for unauthenticated users in job applications hook
-- ✅ Fixed webpack chunk loading errors by clearing build cache and rebuilding
-- ✅ Enhanced debug logging to track quota tracker instance sharing between server and client
-- ✅ Connected separate tracking systems (`apiUsageTracker` and `quotaTracker`) for consistent data display
-- ✅ Fixed rate limiting for quota-status endpoint - added proper rate limit configuration (200 requests/hour)
+### Overview
+Create internal job detail pages (`/jobs/[jobId]`) to keep users in the UpDrift ecosystem instead of immediately redirecting to external job sites. This follows LinkedIn's approach of hosting job details internally while providing external apply links.
 
-## 🚧 **In Progress**
+### Phase 1: Foundation (2-3 days)
 
-### **Enhanced Job Tracking Features**
-- 🔄 Add follow-up date tracking for applications
-- 🔄 Implement application reminders system
-- 🔄 Add bulk status updates functionality
-- 🔄 Create application export functionality
+#### Database & API
+- [ ] Create `JobDetail` model in Prisma schema for storing full job data
+- [ ] Add API endpoint `GET /api/jobs/[jobId]` to fetch individual job details
+- [ ] Implement job data caching strategy (24-hour cache)
+- [ ] Create composite job ID system (e.g., `adzuna-123`, `jsearch-456`)
 
-## 📋 **Next Steps**
+#### Routing & Pages
+- [ ] Create `/jobs/[jobId]` route structure
+- [ ] Build `JobDetailPage.tsx` component with full job layout
+- [ ] Add SEO meta tags and structured data for job pages
+- [ ] Implement breadcrumb navigation
 
-### **1. Complete Job Manager Integration**
-- [ ] Remove any remaining `/applications` page references
-- [ ] Update header navigation to use unified job manager
-- [ ] Test all job tracking functionality in new interface
-- [ ] Ensure all old application routes are properly redirected
+#### Components
+- [ ] Create `JobDescription.tsx` for displaying full job description
+- [ ] Build `JobApplyButton.tsx` with external redirect and tracking
+- [ ] Add `JobSaveButton.tsx` for saving jobs within the app
+- [ ] Create `CompanyInfo.tsx` component for employer details
 
-### **2. Enhanced Job Tracking Features**
-- [ ] Add follow-up date tracking with calendar integration
-- [ ] Implement application reminders with email notifications
-- [ ] Add bulk status updates for multiple applications
-- [ ] Create application export functionality (CSV/PDF)
-- [ ] Add interview scheduling and preparation tools
+#### Data Flow Changes
+- [ ] Modify job cards to link to internal pages instead of external sites
+- [ ] Update search results to use internal job URLs
+- [ ] Implement fallback to external links for jobs without full data
+- [ ] Add job data validation and error handling
 
-### **3. User Experience Improvements**
-- [ ] Add job application templates
-- [ ] Implement application success tracking and analytics
-- [ ] Add interview preparation tools and resources
-- [ ] Create comprehensive application analytics dashboard
-- [ ] Improve mobile responsiveness for job tracking
+### Phase 2: Enhanced Features (3-4 days)
 
-### **4. Performance Optimizations**
-- [ ] Implement lazy loading for large job lists
-- [ ] Add search indexing for faster queries
-- [ ] Optimize database queries for better performance
-- [ ] Add caching for frequently accessed data
-- [ ] Implement virtual scrolling for long lists
+#### User Engagement
+- [ ] Add "Similar Jobs" recommendations section
+- [ ] Implement job sharing functionality
+- [ ] Create "Recently Viewed Jobs" tracking
+- [ ] Add job bookmarking with notes
 
-### **5. Advanced Features**
-- [ ] Email integration for application tracking
-- [ ] Calendar integration for interviews and follow-ups
-- [ ] Resume builder integration
-- [ ] Job application templates and cover letter generator
-- [ ] Interview preparation tools and question banks
-- [ ] Salary negotiation tracking and tools
+#### Application Tracking
+- [ ] Build application status tracking system
+- [ ] Add "Applied" button with status updates
+- [ ] Create application history page
+- [ ] Implement follow-up reminders
 
-### **6. API Hub Development**
-- ✅ Implemented API usage analytics with real-time tracking
-- ✅ Created API setup guide and documentation
-- ✅ Added comprehensive API status monitoring with quota tracking
-- ✅ Implemented auto-refresh and manual refresh functionality
-- [ ] Add more API integrations beyond Adzuna
-- [ ] Create advanced API usage analytics dashboard
-- [ ] Add API performance monitoring and alerting
+#### Analytics & Insights
+- [ ] Add job view tracking
+- [ ] Implement salary insights and comparisons
+- [ ] Create company information cards
+- [ ] Add job market trends display
 
-### **7. UX & Interaction Improvements**
-- [ ] Review all button states for consistency and clarity
-- [ ] Audit disabled states to ensure they don't create dead-end interactions
-- [ ] Improve visual feedback for all user actions
-- [ ] Add loading states for better user experience
-- [ ] Implement progressive disclosure for complex features
-- [ ] Review color coding for accessibility and clarity
+### Phase 3: Advanced Features (1-2 weeks)
 
-## 🎯 **Current Focus**
+#### Job Alerts
+- [ ] Create job alert system for similar positions
+- [ ] Add email notifications for new matching jobs
+- [ ] Implement saved search alerts
 
-**Primary Goal**: Enhance job tracking features with advanced functionality to provide users with comprehensive application management tools.
+#### Interview Tools
+- [ ] Add interview preparation resources
+- [ ] Create company research tools
+- [ ] Implement application status dashboard
 
-**Success Criteria**:
-- ✅ Job tracking fully integrated into saved jobs page
-- ✅ All application management features working
-- ✅ Clean, intuitive user interface
-- ✅ No broken functionality from the integration
-- ✅ Streamlined navigation with unified job manager
-- ✅ Eliminated separate applications page
-- ✅ Build system working correctly on Vercel
+#### SEO & Discovery
+- [ ] Optimize job pages for search engines
+- [ ] Add structured data markup
+- [ ] Implement job sitemap generation
+- [ ] Create job category pages
 
-**Next Milestone**: Complete follow-up date tracking and reminder system for job applications. 
+### Technical Considerations
+
+#### URL Structure
+```
+/jobs/[provider]-[jobId] - Individual job pages
+/jobs/[provider]-[jobId]/apply - Apply tracking
+/jobs/[provider]-[jobId]/save - Save job
+```
+
+#### Data Storage Strategy
+- **Option A**: Store full job data in database (recommended)
+- **Option B**: Fetch from APIs on-demand (faster initial development)
+- **Hybrid**: Cache job data for 24 hours, then fetch fresh data
+
+#### Performance Optimization
+- [ ] Implement job data caching
+- [ ] Add lazy loading for job descriptions
+- [ ] Optimize images and company logos
+- [ ] Add service worker for offline job viewing
+
+### User Experience Benefits
+1. **Better Engagement**: Users stay in UpDrift ecosystem longer
+2. **Rich Information**: Full job descriptions and company details
+3. **Application Tracking**: Save jobs and track application status
+4. **SEO Value**: Job pages can rank in search engines
+5. **Analytics**: Better understanding of user behavior and preferences
+
+### Budget Impact
+- **API Calls**: Minimal increase (job data already fetched during search)
+- **Database**: Small increase in storage for job details
+- **Development**: 1-2 weeks of focused work
+- **Maintenance**: Ongoing job data updates and caching
+
+### Implementation Priority
+1. **High Priority**: Phase 1 foundation (basic job detail pages)
+2. **Medium Priority**: Phase 2 features (similar jobs, application tracking)
+3. **Low Priority**: Phase 3 advanced features (alerts, interview tools)
+
+### Success Metrics
+- [ ] Job page view time (target: 2+ minutes average)
+- [ ] Application rate from job pages (target: 15%+)
+- [ ] Job save rate (target: 25%+)
+- [ ] Return user rate (target: 40%+)
+- [ ] SEO traffic to job pages (target: 10% of total traffic)
+
+### Alternative Approach
+If internal job pages prove too complex initially, consider:
+- [ ] Keep external links but add "Save Job" functionality
+- [ ] Implement job preview modals before external redirect
+- [ ] Add application tracking without internal pages
+- [ ] Focus on search and discovery features first
+
+## Completed Tasks
+- [x] Set up Next.js project with TypeScript
+- [x] Implement job search functionality
+- [x] Create job card components
+- [x] Add external job links
+- [x] Set up database with Prisma
+- [x] Implement user authentication
+- [x] Add job search caching
+- [x] Create API rate limiting
+- [x] Build job application tracking system
+- [x] Add saved jobs functionality
+- [x] Implement search history
+- [x] Create user preferences system 

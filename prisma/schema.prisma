@@ -149,3 +149,19 @@ model SearchResult {
   @@index([userId, createdAt])
   @@index([expiresAt]) // For cleanup queries
 }
+
+// Job detail pages - store full job data for internal pages
+model JobDetail {
+  id          String   @id @default(cuid())
+  jobId       String   @unique // Composite job ID (e.g., "adzuna-123", "jsearch-456")
+  provider    String   // Provider name (adzuna, jsearch, etc.)
+  originalId  String   // Original job ID from provider
+  jobData     String   // JSON string of full job data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  expiresAt   DateTime // 24 hours from creation for cleanup
+  
+  @@index([jobId])
+  @@index([provider, originalId])
+  @@index([expiresAt]) // For cleanup queries
+}

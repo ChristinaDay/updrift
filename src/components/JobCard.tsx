@@ -128,7 +128,9 @@ export default function JobCard({
     if (onApply) {
       onApply(job)
     } else {
-      window.open(job.job_apply_link, '_blank')
+      // Create composite job ID for internal routing
+      const compositeJobId = `${job.job_publisher.toLowerCase()}-${job.job_id}`
+      window.location.href = `/jobs/${compositeJobId}`
     }
   }
 
