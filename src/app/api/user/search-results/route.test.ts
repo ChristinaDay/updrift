@@ -16,7 +16,7 @@ jest.mock('next-auth', () => ({
 
 // Mock Prisma
 const mockPrisma = {
-  searchResult: {
+        searchResult: {
     create: jest.fn(),
     findMany: jest.fn()
   }

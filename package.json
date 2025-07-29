@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "test:search-history": "node scripts/test-search-history.js",
     "test:cleanup": "curl -X POST http://localhost:3000/api/cleanup/expired-search-results",
     "test:api": "curl -X GET http://localhost:3000/api/user/search-results",
