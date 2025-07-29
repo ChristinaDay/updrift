@@ -24,32 +24,8 @@ import {
 import Header from '@/components/Header';
 
 // Import quota tracker with error handling
-let quotaTrackerInstance: any = null;
-try {
-  const { quotaTracker } = require('@/lib/quotaTracker');
-  quotaTrackerInstance = quotaTracker;
-} catch (error) {
-  console.error('Failed to import quota tracker:', error);
-  // Create a fallback quota tracker
-  quotaTrackerInstance = {
-    getMonthlyQuota: (apiName: string) => ({
-      apiName,
-      monthlyLimit: 1000,
-      currentUsage: 0,
-      remainingQuota: 1000,
-      usagePercentage: 0,
-      resetDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
-      lastUpdated: new Date()
-    }),
-    getUsageEstimate: (apiName: string) => ({
-      dailyUsage: 0,
-      weeklyUsage: 0,
-      monthlyUsage: 0,
-      estimatedMonthlyTotal: 0,
-      daysUntilReset: 30
-    })
-  };
-}
+import { quotaTracker } from '@/lib/quotaTracker';
+let quotaTrackerInstance = quotaTracker;
 
 interface APIUsage {
   totalRequests: number;
