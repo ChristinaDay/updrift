@@ -835,17 +835,17 @@ export default function Home() {
           75% { transform: translateY(-5px) rotate(-1deg); }
         }
         
-        /* Subtle floating/bobbing for hero job cards */
+        /* Enhanced floating/bobbing for hero job cards */
         @keyframes heroCardFloat {
-          0%, 100% { transform: translateY(0px); }
-          20% { transform: translateY(-3.5px); }
-          50% { transform: translateY(2px); }
-          80% { transform: translateY(-2.5px); }
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          25% { transform: translateY(-6px) rotate(0.5deg); }
+          50% { transform: translateY(3px) rotate(-0.3deg); }
+          75% { transform: translateY(-4px) rotate(0.2deg); }
         }
-        .hero-job-card-float-0 { animation: heroCardFloat 5.2s ease-in-out infinite; animation-delay: 0s; }
-        .hero-job-card-float-1 { animation: heroCardFloat 5.7s ease-in-out infinite; animation-delay: 0.5s; }
-        .hero-job-card-float-2 { animation: heroCardFloat 5.4s ease-in-out infinite; animation-delay: 1.1s; }
-        .hero-job-card-float-3 { animation: heroCardFloat 5.9s ease-in-out infinite; animation-delay: 1.7s; }
+        .hero-job-card-float-0 { animation: heroCardFloat 6.2s ease-in-out infinite; animation-delay: 0s; }
+        .hero-job-card-float-1 { animation: heroCardFloat 6.7s ease-in-out infinite; animation-delay: 0.8s; }
+        .hero-job-card-float-2 { animation: heroCardFloat 6.4s ease-in-out infinite; animation-delay: 1.6s; }
+        .hero-job-card-float-3 { animation: heroCardFloat 6.9s ease-in-out infinite; animation-delay: 2.4s; }
 
       `}</style>
 
@@ -986,7 +986,8 @@ export default function Home() {
                       href={`/search?q=${encodeURIComponent(job.job_title)}&location=${job.job_is_remote ? 'Remote' : job.job_city}`}
                       className={`hero-job-card-float-${index} transition-all duration-500 hover:scale-105 block`}
                     >
-                      <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
+                      <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer group/card">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 rounded-xl blur opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
                         <CardContent className="p-6">
                           <div className="flex items-center space-x-4">
                             <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
