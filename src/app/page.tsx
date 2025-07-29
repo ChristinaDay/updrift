@@ -842,10 +842,8 @@ export default function Home() {
           50% { transform: translateY(6px) rotate(-0.5deg); }
           75% { transform: translateY(-8px) rotate(0.5deg); }
         }
-        .hero-job-card-float-0 { animation: heroCardFloat 6.2s ease-in-out infinite !important; animation-delay: 0s !important; will-change: transform; }
-        .hero-job-card-float-1 { animation: heroCardFloat 6.7s ease-in-out infinite !important; animation-delay: 0.8s !important; will-change: transform; }
-        .hero-job-card-float-2 { animation: heroCardFloat 6.4s ease-in-out infinite !important; animation-delay: 1.6s !important; will-change: transform; }
-        .hero-job-card-float-3 { animation: heroCardFloat 6.9s ease-in-out infinite !important; animation-delay: 2.4s !important; will-change: transform; }
+        
+
 
       `}</style>
 
@@ -980,7 +978,7 @@ export default function Home() {
                   const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
                   const hasRealLogo = !!generatedLogoUrl
                   
-                  console.log(`Hero job ${index}: ${job.employer_name} - animation class: hero-job-card-float-${index}`)
+
                   
                   return (
                     <Link
@@ -988,7 +986,14 @@ export default function Home() {
                       href={`/search?q=${encodeURIComponent(job.job_title)}&location=${job.job_is_remote ? 'Remote' : job.job_city}`}
                       className="block"
                     >
-                      <Card className={`hero-job-card-float-${index} bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer group/card`}>
+                      <Card 
+                        className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer group/card"
+                        style={{
+                          animation: `heroCardFloat ${6.2 + index * 0.5}s ease-in-out infinite`,
+                          animationDelay: `${index * 0.8}s`,
+                          willChange: 'transform'
+                        }}
+                      >
                         <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 rounded-xl blur opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
                         <CardContent className="p-6">
                           <div className="flex items-center space-x-4">
