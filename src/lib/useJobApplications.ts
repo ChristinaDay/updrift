@@ -67,6 +67,12 @@ export function useJobTracker(status?: string): UseJobTrackerReturn {
       const response = await fetch(`/api/user/applications?${params.toString()}`)
       
       if (!response.ok) {
+        if (response.status === 401) {
+          // User is not authenticated, this is expected
+          setApplications([])
+          setTotalApplications(0)
+          return
+        }
         throw new Error('Failed to fetch applications')
       }
 
