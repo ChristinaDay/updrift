@@ -260,9 +260,9 @@ export default function JobCard({
       <div className="px-6 pb-4 mt-auto">
         {/* Salary */}
         {(job.job_min_salary || job.job_max_salary) && (
-          <div className="flex items-center justify-center bg-emerald-900/40 ring-2 ring-emerald-400/60 rounded-full px-3 py-1 shadow-lg mb-4">
-            <CurrencyDollarIcon className="w-5 h-5 text-emerald-300 dark:text-emerald-400 mr-2 drop-shadow-lg" />
-            <span className="text-emerald-200 dark:text-emerald-300 font-extrabold text-lg tracking-wide drop-shadow-lg">
+          <div className="flex items-center justify-center bg-emerald-100 dark:bg-emerald-900/40 ring-2 ring-emerald-500 dark:ring-emerald-400/60 rounded-full px-3 py-1 shadow-lg mb-4">
+            <CurrencyDollarIcon className="w-5 h-5 text-emerald-700 dark:text-emerald-400 mr-2 drop-shadow-lg" />
+            <span className="text-emerald-800 dark:text-emerald-300 font-extrabold text-lg tracking-wide drop-shadow-lg">
               {formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency, job.job_salary_period)}
             </span>
           </div>
