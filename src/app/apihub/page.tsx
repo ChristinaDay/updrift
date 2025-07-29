@@ -491,7 +491,7 @@ export default function APIhubPage() {
                   {/* Special message for JSearch quota exceeded */}
                   {api.id === 'jsearch' && testData.apis?.jsearch?.status === 'quota-exceeded' && (
                     <div className="mb-3 p-2 bg-destructive/10 rounded text-xs text-destructive">
-                      🚫 JSearch API: Monthly quota exceeded. API calls will fail until quota resets on {api.monthlyQuota?.resetDate.toLocaleDateString()}.
+                      🚫 JSearch API: Monthly quota exceeded. API calls will fail until quota resets on {api.monthlyQuota?.resetDate ? new Date(api.monthlyQuota.resetDate).toLocaleDateString() : 'unknown date'}.
                     </div>
                   )}
 
