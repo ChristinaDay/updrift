@@ -884,12 +884,6 @@ export default function Home() {
         .hero-job-card-float-1 { animation: heroCardFloat 5.7s ease-in-out infinite; animation-delay: 0.5s; }
         .hero-job-card-float-2 { animation: heroCardFloat 5.4s ease-in-out infinite; animation-delay: 1.1s; }
         .hero-job-card-float-3 { animation: heroCardFloat 5.9s ease-in-out infinite; animation-delay: 1.7s; }
-        /* Liquid container waves */
-        .liquid-waves {
-          pointer-events: none;
-        }
-        
-        /* Dynamic waves - no CSS animation needed */
 
       `}</style>
 
@@ -1061,149 +1055,99 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section - Liquid Container */}
-      <section className="relative bg-background pt-32 pb-32 overflow-hidden">
-        {/* Animated gradient blob background */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute left-1/4 top-0 w-96 h-96 bg-gradient-to-br from-fuchsia-500/30 via-cyan-400/20 to-blue-500/20 rounded-full blur-3xl animate-pulse-slow" />
-          <div className="absolute right-1/4 bottom-0 w-96 h-96 bg-gradient-to-tr from-cyan-400/30 via-fuchsia-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse-slower" />
-        </div>
-        <div className="relative z-10 mt-2">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {stats.map((stat, index) => (
-                <Card
-                  key={index}
-                  className="text-center bg-background/70 backdrop-blur-lg border-2 border-transparent hover:border-gradient-to-r hover:from-primary hover:to-accent transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 group relative overflow-hidden"
-                  style={{ boxShadow: '0 4px 32px 0 rgba(80,80,180,0.10)' }}
-                >
-                  <CardContent className="p-6">
-                    <div className="text-3xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
-                      <AnimatedCount value={stat.value} />
-                    </div>
-                    <div className="text-sm font-medium text-muted-foreground mt-1">{stat.label}</div>
-                    <div className="text-xs text-muted-foreground/80 mt-1">{stat.description}</div>
-                  </CardContent>
-                  {/* Animated border accent */}
-                  <div className="absolute inset-0 pointer-events-none rounded-2xl border-2 border-gradient-to-r from-primary/30 to-accent/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 bg-muted/50 relative z-10">
+      {/* Stats Section - Simplified */}
+      <section className="relative bg-background py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-extrabold text-foreground sm:text-4xl">
-              Why UpDrift Beats LinkedIn
-            </h2>
-            <p className="mt-4 text-xl text-muted-foreground">
-              Experience the future of job searching with features that actually work for you
-            </p>
-          </div>
-          <div className="flex gap-8 overflow-x-auto snap-x snap-mandatory md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible md:gap-8">
-            {features.map((feature, index) => (
-              <Card
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div
                 key={index}
-                className="hover:shadow-2xl transition-shadow duration-300 group snap-center min-w-[260px] md:min-w-0 relative border border-border bg-card/80 backdrop-blur-xl"
+                className="text-center group"
               >
-                {/* Vertical accent divider on desktop */}
-                {index !== 0 && (
-                  <div className="hidden lg:block absolute -left-4 top-6 bottom-6 w-1 bg-gradient-to-b from-primary/30 via-accent/30 to-secondary/30 rounded-full" />
-                )}
-                <CardContent className="p-6 flex flex-col items-center">
-                  <div className="flex items-center justify-center w-16 h-16 bg-primary/10 group-hover:bg-primary/20 transition-colors rounded-lg mb-4 animate-bounce-on-hover">
-                    <div className="text-primary group-hover:scale-110 group-hover:text-accent transition-transform duration-300">
-                      {feature.icon}
-                    </div>
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-center">{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground relative grid-texture-bg overflow-hidden">
-        {/* Animated grid or gradient background */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="w-full h-full bg-gradient-to-br from-fuchsia-500/10 via-cyan-400/10 to-blue-500/10 animate-gradient-move" />
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h2 className="text-3xl font-extrabold sm:text-4xl">
-            Ready to Find Your Dream Job?
-          </h2>
-          <p className="mt-4 text-xl opacity-90">
-            Join thousands of professionals who've upgraded their job search experience
-          </p>
-          {/* Trusted by row */}
-          <div className="mt-8 flex flex-wrap justify-center gap-6 opacity-80">
-            {["Google","Meta","Stripe","Netflix","Amazon"].map((logo, i) => (
-              <div key={logo} className="grayscale opacity-70 hover:opacity-100 hover:grayscale-0 transition-all text-2xl font-bold tracking-wide px-4 py-2 bg-white/10 rounded-lg shadow-sm">
-                {logo}
+                <div className="text-4xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                  <AnimatedCount value={stat.value} />
+                </div>
+                <div className="text-sm font-medium text-muted-foreground mt-2">{stat.label}</div>
+                <div className="text-xs text-muted-foreground/70 mt-1">{stat.description}</div>
               </div>
             ))}
           </div>
-          <div className="mt-12">
+        </div>
+      </section>
+
+      {/* Features Section - Modernized */}
+      <section className="py-24 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              Why Choose UpDrift?
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Intelligent job matching that actually understands what you're looking for
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="group p-6 rounded-2xl bg-background/80 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg"
+              >
+                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 group-hover:bg-primary/20 transition-colors rounded-xl mb-4">
+                  {feature.icon}
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-3">{feature.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section - Streamlined */}
+      <section className="py-20 bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold text-foreground mb-4">
+            Ready to Find Your Dream Job?
+          </h2>
+          <p className="text-xl text-muted-foreground mb-8">
+            Join thousands of professionals who've upgraded their job search experience
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {session ? (
-              <Button variant="secondary" size="lg" asChild className="animate-cta-pulse">
+              <Button size="lg" asChild className="bg-primary hover:bg-primary/90">
                 <Link href="/dashboard">Go to Dashboard</Link>
               </Button>
             ) : (
-              <Button variant="secondary" size="lg" asChild className="animate-cta-pulse">
-                <Link href="/auth/signup">Start Searching Now</Link>
-              </Button>
+              <>
+                <Button size="lg" asChild className="bg-primary hover:bg-primary/90">
+                  <Link href="/auth/signup">Get Started Free</Link>
+                </Button>
+                <Button variant="outline" size="lg" asChild>
+                  <Link href="/search">Browse Jobs</Link>
+                </Button>
+              </>
             )}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-background border-t-4 border-gradient-to-r from-primary via-accent to-secondary py-12 relative z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/5 via-background/80 to-background/100 pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-foreground">UpDrift</h3>
-              <p className="text-muted-foreground">
-                The intelligent job search platform that outperforms traditional job boards.
+      {/* Footer - Simplified */}
+      <footer className="bg-background border-t border-border/50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-8">
+            <div className="flex-1 max-w-md">
+              <h3 className="text-xl font-semibold text-foreground mb-2">UpDrift</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Intelligent job search that matches you with opportunities that actually fit.
               </p>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold mb-4 text-foreground">Product</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">Job Search</a></li>
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">Company Insights</a></li>
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">Salary Data</a></li>
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">Career Advice</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold mb-4 text-foreground">Company</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">About</a></li>
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">Careers</a></li>
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">Press</a></li>
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">Contact</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold mb-4 text-foreground">Support</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">Help Center</a></li>
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-foreground hover:underline underline-offset-4 transition-all">API</a></li>
-              </ul>
+            <div className="flex gap-8 text-sm text-muted-foreground">
+              <a href="/search" className="hover:text-foreground transition-colors font-medium">Search</a>
+              <a href="/auth/signin" className="hover:text-foreground transition-colors font-medium">Sign In</a>
+              <a href="/auth/signup" className="hover:text-foreground transition-colors font-medium">Sign Up</a>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t text-center text-muted-foreground">
+          <div className="mt-8 pt-8 border-t border-border/50 text-center text-sm text-muted-foreground">
             <p>&copy; 2025 UpDrift. All rights reserved.</p>
           </div>
         </div>
@@ -1212,15 +1156,4 @@ export default function Home() {
   )
 } 
 
-// --- Extra CSS for animations (add to global CSS or in a <style jsx global> block) ---
-/*
-.animate-pulse-slow { animation: pulse 6s ease-in-out infinite; }
-.animate-pulse-slower { animation: pulse 12s ease-in-out infinite; }
-@keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
-.animate-gradient-move { animation: gradientMove 16s ease-in-out infinite; }
-@keyframes gradientMove { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-.animate-cta-pulse { animation: ctaPulse 2.5s infinite alternate; }
-@keyframes ctaPulse { 0% { box-shadow: 0 0 0 0 rgba(236,72,153,0.2); } 100% { box-shadow: 0 0 24px 8px rgba(34,211,238,0.18); } }
-.animate-bounce-on-hover:hover { animation: bounce 0.7s; }
-@keyframes bounce { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(-8px); } 60% { transform: translateY(4px); } }
-*/ 
+ 
