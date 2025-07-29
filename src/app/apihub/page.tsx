@@ -14,7 +14,8 @@ import {
   ChartBarIcon,
   CogIcon,
   InformationCircleIcon,
-  CalendarIcon
+  CalendarIcon,
+  ServerIcon
 } from '@heroicons/react/24/outline';
 import { 
   CheckCircleIcon as CheckCircleSolidIcon,
@@ -103,6 +104,8 @@ export default function APIhubPage() {
   const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string>('');
+  const [testData, setTestData] = useState<any>({});
+  const [usageData, setUsageData] = useState<any>({});
 
   useEffect(() => {
     loadAPIStatuses();
@@ -124,6 +127,14 @@ export default function APIhubPage() {
       console.log('🧪 Test response status:', testResponse.status);
       const testData = testResponse.ok ? await testResponse.json() : {};
       console.log('🧪 Test data:', testData);
+      setTestData(testData);
+
+      // Get real usage statistics
+      const usageResponse = await fetch('/api/debug/api-usage');
+      console.log('📈 Usage response status:', usageResponse.status);
+      const usageData = usageResponse.ok ? await usageResponse.json() : {};
+      console.log('📈 Usage data:', usageData);
+      setUsageData(usageData);
 
       // Get quota information
       const adzunaQuota = quotaTrackerInstance.getMonthlyQuota('adzuna');
@@ -135,19 +146,19 @@ export default function APIhubPage() {
         {
           id: 'adzuna',
           name: 'Adzuna',
-          status: testData.adzuna?.status === 'success' ? 'active' : 'error',
+          status: testData.apis?.adzuna?.status === 'success' ? 'active' : 'error',
           logoUrl: '/logos/Adzuna.png',
           description: 'Comprehensive job search API with detailed job information, salary data, and company details.',
           usage: {
-            totalRequests: rateLimitData.adzuna?.totalRequests || 0,
-            successfulRequests: rateLimitData.adzuna?.successfulRequests || 0,
-            failedRequests: rateLimitData.adzuna?.failedRequests || 0,
-            averageResponseTime: rateLimitData.adzuna?.averageResponseTime || 0,
-            lastUsed: rateLimitData.adzuna?.lastUsed || 'Never',
+            totalRequests: usageData.stats?.adzuna?.totalRequests || 0,
+            successfulRequests: usageData.stats?.adzuna?.successfulRequests || 0,
+            failedRequests: usageData.stats?.adzuna?.failedRequests || 0,
+            averageResponseTime: usageData.stats?.adzuna?.averageResponseTime || 0,
+            lastUsed: usageData.stats?.adzuna?.lastUsed || 'Never',
             rateLimitRemaining: rateLimitData.adzuna?.remaining,
             rateLimitReset: rateLimitData.adzuna?.resetTime
           },
-          configStatus: testData.adzuna?.configured ? 'configured' : 'missing-key',
+          configStatus: testData.apis?.adzuna?.configured ? 'configured' : 'missing-key',
           features: [
             'Job search with location filtering',
             'Salary information',
@@ -166,19 +177,20 @@ export default function APIhubPage() {
         {
           id: 'jsearch',
           name: 'JSearch',
-          status: testData.jsearch?.status === 'success' ? 'active' : 'error',
+          status: testData.apis?.jsearch?.status === 'success' ? 'active' : 
+                  testData.apis?.jsearch?.status === 'quota-exceeded' ? 'error' : 'error',
           logoUrl: '/logos/jsearch-rapidapi.jpeg',
           description: 'RapidAPI-powered job search with real-time job listings and comprehensive search capabilities.',
           usage: {
-            totalRequests: rateLimitData.jsearch?.totalRequests || 0,
-            successfulRequests: rateLimitData.jsearch?.successfulRequests || 0,
-            failedRequests: rateLimitData.jsearch?.failedRequests || 0,
-            averageResponseTime: rateLimitData.jsearch?.averageResponseTime || 0,
-            lastUsed: rateLimitData.jsearch?.lastUsed || 'Never',
+            totalRequests: usageData.stats?.jsearch?.totalRequests || 0,
+            successfulRequests: usageData.stats?.jsearch?.successfulRequests || 0,
+            failedRequests: usageData.stats?.jsearch?.failedRequests || 0,
+            averageResponseTime: usageData.stats?.jsearch?.averageResponseTime || 0,
+            lastUsed: usageData.stats?.jsearch?.lastUsed || 'Never',
             rateLimitRemaining: rateLimitData.jsearch?.remaining,
             rateLimitReset: rateLimitData.jsearch?.resetTime
           },
-          configStatus: testData.jsearch?.configured ? 'configured' : 'missing-key',
+          configStatus: testData.apis?.jsearch?.configured ? 'configured' : 'missing-key',
           features: [
             'Real-time job listings',
             'Advanced search filters',
@@ -193,27 +205,6 @@ export default function APIhubPage() {
           },
           monthlyQuota: jsearchQuota,
           quotaEstimate: quotaTrackerInstance.getUsageEstimate('jsearch')
-        },
-        {
-          id: 'mock',
-          name: 'MockJobs',
-          status: 'testing',
-          logoUrl: '/logos/mock.png',
-          description: 'Testing API for development and demonstration purposes with sample job data.',
-          usage: {
-            totalRequests: rateLimitData.mock?.totalRequests || 0,
-            successfulRequests: rateLimitData.mock?.successfulRequests || 0,
-            failedRequests: rateLimitData.mock?.failedRequests || 0,
-            averageResponseTime: rateLimitData.mock?.averageResponseTime || 0,
-            lastUsed: rateLimitData.mock?.lastUsed || 'Never'
-          },
-          configStatus: 'configured',
-          features: [
-            'Sample job data',
-            'Development testing',
-            'Demo functionality',
-            'No API keys required'
-          ]
         }
       ];
 
@@ -357,12 +348,65 @@ export default function APIhubPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+    
+      {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">APIhub</h1>
-          <p className="text-lg text-muted-foreground mb-4">
-            All connected job API sources powering your UpDrift search. More sources = better results!
-          </p>
+          <p className="text-lg text-muted-foreground mb-4">All connected job API sources powering your UpDrift search. More sources = better results!</p>
+          
+          {/* Quota Status Banner */}
+          {apiStatuses.some(api => api.monthlyQuota && api.monthlyQuota.usagePercentage >= 75) && (
+            <div className="mb-6 p-4 bg-warning/10 border border-warning/20 rounded-lg">
+              <div className="flex items-center">
+                <ExclamationTriangleIcon className="h-5 w-5 text-warning mr-2" />
+                <div>
+                  <h3 className="text-sm font-medium text-warning">Monthly Quota Alert</h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Some APIs are approaching or have exceeded their monthly limits. This may affect search results.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* API Health Summary */}
+          <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-card p-4 rounded-lg border border-border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Active APIs</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {apiStatuses.filter(api => api.status === 'active').length}
+                  </p>
+                </div>
+                <CheckCircleIcon className="h-8 w-8 text-primary" />
+              </div>
+            </div>
+            
+            <div className="bg-card p-4 rounded-lg border border-border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Quota Issues</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {apiStatuses.filter(api => api.monthlyQuota && api.monthlyQuota.usagePercentage >= 75).length}
+                  </p>
+                </div>
+                <ExclamationTriangleIcon className="h-8 w-8 text-warning" />
+              </div>
+            </div>
+            
+            <div className="bg-card p-4 rounded-lg border border-border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Total APIs</p>
+                  <p className="text-2xl font-bold text-foreground">{apiStatuses.length}</p>
+                </div>
+                <ServerIcon className="h-8 w-8 text-muted-foreground" />
+              </div>
+            </div>
+          </div>
+
           <div className="flex items-center justify-between">
             <Link 
               href="/dashboard" 
@@ -431,11 +475,36 @@ export default function APIhubPage() {
 
               {/* Monthly Quota Section */}
               {api.monthlyQuota && (
-                <div className="mb-4 p-4 bg-muted rounded-lg">
+                <div className={`mb-4 p-4 rounded-lg border ${
+                  api.monthlyQuota.usagePercentage >= 90 ? 'bg-destructive/10 border-destructive/20' :
+                  api.monthlyQuota.usagePercentage >= 75 ? 'bg-warning/10 border-warning/20' :
+                  api.monthlyQuota.usagePercentage >= 50 ? 'bg-accent/10 border-accent/20' :
+                  'bg-muted border-border'
+                }`}>
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="text-sm font-medium text-foreground">Monthly Quota</h4>
                     {getQuotaStatusIcon(api.monthlyQuota.usagePercentage)}
                   </div>
+                  
+                  {/* Quota Status Message */}
+                  {api.monthlyQuota && api.monthlyQuota.usagePercentage >= 90 && (
+                    <div className="mb-3 p-2 bg-destructive/10 rounded text-xs text-destructive">
+                      ⚠️ Monthly quota exceeded! API calls will fail until quota resets.
+                    </div>
+                  )}
+                  {api.monthlyQuota && api.monthlyQuota.usagePercentage >= 75 && api.monthlyQuota.usagePercentage < 90 && (
+                    <div className="mb-3 p-2 bg-warning/10 rounded text-xs text-warning">
+                      ⚠️ Approaching monthly quota limit. Consider upgrading plan.
+                    </div>
+                  )}
+                  
+                  {/* Special message for JSearch quota exceeded */}
+                  {api.id === 'jsearch' && testData.apis?.jsearch?.status === 'quota-exceeded' && (
+                    <div className="mb-3 p-2 bg-destructive/10 rounded text-xs text-destructive">
+                      🚫 JSearch API: Monthly quota exceeded. API calls will fail until quota resets on {api.monthlyQuota?.resetDate.toLocaleDateString()}.
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 gap-4 mb-3">
                     <div>
                       <p className="text-xs text-muted-foreground">Used</p>
@@ -497,33 +566,51 @@ export default function APIhubPage() {
               )}
 
               {/* Usage Statistics */}
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-muted p-3 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Total Requests</p>
-                  <p className="text-lg font-semibold text-foreground">{api.usage.totalRequests}</p>
+              <div className="mb-4 p-4 bg-muted/50 rounded-lg">
+                <h4 className="text-sm font-medium text-foreground mb-3">Usage Statistics</h4>
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <p className="text-muted-foreground">Total Requests</p>
+                    <p className="text-lg font-semibold text-foreground">{api.usage.totalRequests}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Success Rate</p>
+                    <p className="text-lg font-semibold text-foreground">
+                      {api.usage.totalRequests > 0 
+                        ? `${Math.round((api.usage.successfulRequests / api.usage.totalRequests) * 100)}%`
+                        : '0%'
+                      }
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Avg Response Time</p>
+                    <p className="text-lg font-semibold text-foreground">{api.usage.averageResponseTime}ms</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Last Used</p>
+                    <p className="text-lg font-semibold text-foreground">{api.usage.lastUsed}</p>
+                  </div>
                 </div>
-                <div className="bg-muted p-3 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Success Rate</p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {api.usage.totalRequests > 0 
-                      ? Math.round((api.usage.successfulRequests / api.usage.totalRequests) * 100)
-                      : 0}%
-                  </p>
-                </div>
-                <div className="bg-muted p-3 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Avg Response Time</p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {api.usage.averageResponseTime > 0 
-                      ? `${Math.round(api.usage.averageResponseTime)}ms`
-                      : 'N/A'}
-                  </p>
-                </div>
-                <div className="bg-muted p-3 rounded-lg">
-                  <p className="text-xs text-muted-foreground">Last Used</p>
-                  <p className="text-sm font-semibold text-foreground">
-                    {api.usage.lastUsed === 'Never' ? 'Never' : new Date(api.usage.lastUsed).toLocaleDateString()}
-                  </p>
-                </div>
+                
+                {/* Recent Usage Breakdown */}
+                {usageData.stats?.[api.id] && (
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div>
+                        <p className="text-muted-foreground">Today</p>
+                        <p className="font-medium">{usageData.stats[api.id].todayRequests}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">This Week</p>
+                        <p className="font-medium">{usageData.stats[api.id].thisWeekRequests}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">This Month</p>
+                        <p className="font-medium">{usageData.stats[api.id].thisMonthRequests}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Rate Limits */}

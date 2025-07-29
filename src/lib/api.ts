@@ -5,6 +5,7 @@ import { errorHandler, errorUtils, ErrorType } from './errorHandling';
 
 // Import quota tracker for usage recording
 import { quotaTracker } from './quotaTracker';
+import { trackAPICall } from './apiUsageTracker';
 import { getCompanyLogoUrl } from '@/utils/jobUtils';
 
 // Adzuna API Configuration (much better than JSearch!)
@@ -238,140 +239,71 @@ function parseQuotaFromHeaders(headers: any, apiName: string): APIQuota | undefi
  * Search jobs using Adzuna API with quota tracking
  */
 export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSearchResponseWithQuota> {
-  return errorUtils.withFallback(
-    async () => {
-      const { query, location, radius = 25, remote_jobs_only, page = 1, num_pages = 1 } = params;
-      
-      // Build Adzuna API URL - US jobs
-      const country = 'us'; // Can be made configurable later
-      const searchUrl = `/${country}/search/${page}`;
-      
-      // Build query parameters
-      const queryParams: any = {
-        app_id: ADZUNA_APP_ID,
-        app_key: ADZUNA_APP_KEY,
-        results_per_page: 200, // Initial load of 200 jobs (increased from 20)
-        'content-type': 'application/json'
-      };
-      
-      // Add search query if provided
-      if (query?.trim()) {
-        queryParams.what = query.trim();
-      }
-      
-      // Add location with radius-based search approach
-      if (location?.trim()) {
-        let searchLocation = location.trim();
-        
-        // Clean location string to just get the city name
-        const cleanLocation = searchLocation
-          .replace(/,\s*California$/i, '')
-          .replace(/,\s*CA$/i, '')
-          .replace(/,\s*United States$/i, '')
-          .replace(/,\s*US$/i, '')
-          .replace(/,\s*[A-Z]{2}$/i, '') // Remove any state abbreviation
-          .replace(/\s+Bay\s+Area$/i, '') // Remove "Bay Area"
-          .replace(/^Greater\s+/i, '') // Remove "Greater"
-          .trim();
-        
-        queryParams.where = cleanLocation;
-        
-        console.log(`🎯 Location search: "${searchLocation}" → "${cleanLocation}" (will apply ${radius} mile radius filter client-side)`);
-      }
-      
-      // Add remote jobs filter
-      if (remote_jobs_only) {
-        queryParams.what = queryParams.what ? `${queryParams.what} remote` : 'remote';
-      }
-      
-      console.log('🔍 Searching jobs with Adzuna API:', searchUrl, queryParams);
-      
-      const response = await adzunaClient.get(searchUrl, { params: queryParams });
-      
-      // Parse quota information from response headers
-      const adzunaQuota = parseQuotaFromHeaders(response.headers, 'adzuna');
-      
-      if (response.data?.results) {
-        // Debug: Log the first job to see what fields are available
-        if (response.data.results.length > 0) {
-          const firstJob = response.data.results[0];
-          console.log('🔍 Adzuna API job structure:', {
-            id: firstJob.id,
-            company: firstJob.company,
-            title: firstJob.title,
-            // Log all available fields
-            allFields: Object.keys(firstJob),
-            // Log company object structure if it exists
-            companyFields: firstJob.company ? Object.keys(firstJob.company) : 'No company object',
-            // Log the entire first job for detailed inspection
-            fullJob: firstJob
-          });
-        }
-        const originalJobs = response.data.results.map(convertAdzunaJob);
-        let filteredJobs = originalJobs;
-        let radiusFiltered = false;
-        
-        // Apply radius filtering if location is provided
-        if (location?.trim()) {
-          const searchCoords = await getLocationCoordinates(location.trim());
-          if (searchCoords) {
-            const RADIUS_MILES = radius; // Dynamic radius from user selection
-            
-            filteredJobs = originalJobs.filter((job: Job) => {
-              // Check if job has coordinates (from adzunaJob.latitude and adzunaJob.longitude)
-              const jobData = response.data.results.find((r: any) => r.id?.toString() === job.job_id);
-              if (jobData && jobData.latitude && jobData.longitude) {
-                const distance = calculateDistance(
-                  searchCoords.lat, 
-                  searchCoords.lng, 
-                  jobData.latitude, 
-                  jobData.longitude
-                );
-                return distance <= RADIUS_MILES;
-              }
-              // Include jobs without coordinates (better to include than exclude)
-              return true;
-            });
-            
-            radiusFiltered = filteredJobs.length < originalJobs.length;
-            console.log(`🎯 Radius filter applied: ${originalJobs.length} → ${filteredJobs.length} jobs (within ${RADIUS_MILES} miles)`);
-          }
-        }
-        
-        console.log('✅ Adzuna API success:', filteredJobs.length, 'jobs found');
-        
-        // Record API usage for quota tracking
-        quotaTracker.recordUsage('adzuna', 1);
-        
-        return {
-          status: 'success',
-          request_id: 'adzuna-' + Date.now(),
-          parameters: params,
-          data: filteredJobs,
-          original_data: originalJobs,
-          num_pages: Math.ceil(response.data.count / 200),
-          client_filtered: radiusFiltered,
-          original_count: originalJobs.length,
-          filtered_count: filteredJobs.length,
-          total_count: response.data.count, // Total jobs available from API
-          quota: {
-            adzuna: adzunaQuota
-          }
-        } as JobSearchResponseWithQuota;
-      } else {
-        throw new Error('No results from Adzuna API');
-      }
-    },
-    async () => {
-      // Fallback to mock data
-      console.log('🔄 Falling back to mock data due to Adzuna API error');
-      return searchMockJobs(params);
-    },
-    {
-      endpoint: 'adzuna-search',
-      params: params
+  const startTime = Date.now();
+  let success = false;
+  let errorMessage: string | undefined;
+
+  try {
+    const appId = process.env.ADZUNA_APP_ID;
+    const appKey = process.env.ADZUNA_APP_KEY;
+    
+    if (!appId || !appKey) {
+      throw new Error('Adzuna API credentials not configured');
     }
-  );
+
+    const url = new URL('https://api.adzuna.com/v1/api/jobs/us/search/1');
+    url.searchParams.set('app_id', appId);
+    url.searchParams.set('app_key', appKey);
+    url.searchParams.set('results_per_page', '200');
+    url.searchParams.set('content-type', 'application/json');
+    
+    if (params.query) url.searchParams.set('what', params.query);
+    if (params.location) url.searchParams.set('where', params.location);
+    if (params.radius) url.searchParams.set('distance', params.radius.toString());
+    if (params.page) url.searchParams.set('page', params.page.toString());
+
+    const response = await fetch(url.toString());
+    
+    if (!response.ok) {
+      throw new Error(`Adzuna API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    success = true;
+
+    // Parse quota information from response headers
+    const adzunaQuota = parseQuotaFromHeaders(response.headers, 'adzuna');
+    
+    // Convert Adzuna jobs to our format
+    const convertedJobs = (data.results || []).map(convertAdzunaJob);
+    
+    // Record API usage for quota tracking
+    quotaTracker.recordUsage('adzuna', 1);
+    
+    console.log('✅ Adzuna API success:', convertedJobs.length, 'jobs found');
+    
+    return {
+      status: 'success',
+      request_id: data.request_id || '',
+      parameters: params,
+      data: convertedJobs,
+      original_data: convertedJobs,
+      num_pages: data.num_pages || 1,
+      client_filtered: false,
+      original_count: convertedJobs.length,
+      filtered_count: convertedJobs.length,
+      quota: {
+        adzuna: adzunaQuota
+      }
+    };
+  } catch (error) {
+    errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('❌ Adzuna API error:', errorMessage);
+    throw error;
+  } finally {
+    const responseTime = Date.now() - startTime;
+    trackAPICall('adzuna', success, responseTime, errorMessage);
+  }
 }
 
 /**
@@ -699,7 +631,12 @@ function convertJSearchJob(jsearchJob: any): Job {
 }
 
 export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSearchResponseWithQuota> {
+  const startTime = Date.now();
+  let success = false;
+  let errorMessage: string | undefined;
+
   const apiKey = process.env.JSEARCH_API_KEY || process.env.RAPIDAPI_KEY;
+  
   if (!apiKey) {
     console.warn('JSearch API key not configured - skipping JSearch API calls');
     throw new Error('JSearch API key not configured');
@@ -730,6 +667,7 @@ export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSea
     const jsearchQuota = parseQuotaFromHeaders(response.headers, 'jsearch');
     
     const data = await response.json();
+    success = true;
     
     // Debug: Log JSearch API response structure
     if (data.data && data.data.length > 0) {
@@ -766,7 +704,11 @@ export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSea
       }
     };
   } catch (error) {
-    console.warn('JSearch API call failed:', error instanceof Error ? error.message : String(error));
+    errorMessage = error instanceof Error ? error.message : String(error);
+    console.warn('JSearch API call failed:', errorMessage);
     throw error;
+  } finally {
+    const responseTime = Date.now() - startTime;
+    trackAPICall('jsearch', success, responseTime, errorMessage);
   }
 } 
