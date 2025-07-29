@@ -219,6 +219,12 @@ export const defaultRateLimits = {
     windowMs: 60 * 60 * 1000, // 1 hour
     maxRequests: 50,
     message: 'Too many test requests. Please try again later.'
+  },
+  // Quota status endpoints - 200 requests per hour (for API hub auto-refresh)
+  'quota-status': {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    maxRequests: 200,
+    message: 'Too many quota status requests. Please try again later.'
   }
 };
 

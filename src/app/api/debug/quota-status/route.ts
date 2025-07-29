@@ -43,4 +43,4 @@ async function getQuotaStatusHandler(request: NextRequest) {
 }
 
 // Export the rate-limited handler
-export const GET = withRateLimit('api-test')(getQuotaStatusHandler); 
+export const GET = withRateLimit('quota-status')(getQuotaStatusHandler); 
