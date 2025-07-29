@@ -981,9 +981,10 @@ export default function Home() {
                   const hasRealLogo = !!generatedLogoUrl
                   
                   return (
-                    <div
+                    <Link
                       key={job.job_id}
-                      className={`hero-job-card-float-${index} transition-all duration-500 hover:scale-105`}
+                      href={`/search?q=${encodeURIComponent(job.job_title)}&location=${job.job_is_remote ? 'Remote' : job.job_city}`}
+                      className={`hero-job-card-float-${index} transition-all duration-500 hover:scale-105 block`}
                     >
                       <Card className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
                         <CardContent className="p-6">
@@ -1002,20 +1003,13 @@ export default function Home() {
                                 {formatSalary(job.job_min_salary, job.job_max_salary)}
                               </p>
                             </div>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="text-sm text-muted-foreground hover:text-primary transition-colors opacity-60 hover:opacity-100"
-                              asChild
-                            >
-                              <Link href={`/search?q=${encodeURIComponent(job.job_title)}&location=${job.job_is_remote ? 'Remote' : job.job_city}`}>
-                                View →
-                              </Link>
-                            </Button>
+                            <div className="text-sm text-muted-foreground opacity-60 group-hover:opacity-100 transition-opacity">
+                              View →
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
-                    </div>
+                    </Link>
                   )
                 })}
               </div>
