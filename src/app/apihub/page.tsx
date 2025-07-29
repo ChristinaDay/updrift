@@ -124,6 +124,7 @@ export default function APIhubPage() {
       const jsearchQuota = quotaTrackerInstance.getMonthlyQuota('jsearch');
       console.log('📈 Adzuna quota from API hub:', adzunaQuota);
       console.log('📈 JSearch quota from API hub:', jsearchQuota);
+      console.log('📈 Quota tracker instance ID from API hub:', quotaTrackerInstance);
 
       // Update last updated timestamp
       setLastUpdated(new Date().toLocaleTimeString());
