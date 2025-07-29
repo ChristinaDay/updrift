@@ -186,6 +186,42 @@ Welcome to the Updrift Project Diary! This document summarizes the progress, key
   - Better organization of cache information in dedicated container
   - Improved feedback for system states (idle mode, cache status)
 
+### January 2025 — API Hub Quota Tracking & System Integration Fixes
+
+- **API Hub Quota Tracking Discrepancy Resolution:**
+  - **Problem Identified**: Monthly Quota and Usage Estimates showed 0/1000 while Usage Statistics correctly showed 3 requests
+  - **Root Cause Analysis**: Two separate tracking systems - `apiUsageTracker` (working) vs `quotaTracker` (not updating)
+  - **Server-Side vs Client-Side Issue**: API calls updated server-side quota tracker, but API hub page used client-side instance
+  - **Solution Implemented**: Created `/api/debug/quota-status` endpoint to fetch server-side quota data
+  - **System Integration**: Connected server-side quota tracking with client-side display for consistent data
+
+- **Technical Implementation Details:**
+  - **New API Endpoint**: `/api/debug/quota-status` returns quota data from server-side quota tracker
+  - **Client-Side Update**: API hub page now fetches quota data from server instead of using client-side tracker
+  - **Date Object Handling**: Fixed JSON serialization issues by converting string dates to Date objects
+  - **Error Handling**: Added proper null checks and fallbacks for missing quota data
+  - **Debug Logging**: Added comprehensive logging to track quota tracker instance sharing
+
+- **User Experience Improvements:**
+  - **Consistent Data Display**: All API hub sections now show accurate, synchronized data
+  - **Real-Time Updates**: Monthly Quota and Usage Estimates now reflect actual API usage
+  - **Error Resolution**: Fixed Date object conversion errors that prevented page loading
+  - **Auto-Refresh**: API hub page refreshes every 30 seconds to show updated usage
+  - **Manual Refresh**: Added refresh button with loading states and timestamps
+
+- **Key Technical Learnings:**
+  - **Singleton Pattern Limitations**: In-memory singletons don't persist between server/client boundaries
+  - **API Data Flow**: Server-side data needs dedicated endpoints for client-side consumption
+  - **JSON Serialization**: Date objects become strings when sent over HTTP, requiring conversion
+  - **System Architecture**: Separate tracking systems need explicit integration points
+  - **Debug Strategy**: Instance ID logging helps identify singleton sharing issues
+
+- **Development Process Insights:**
+  - **Problem-Solving Approach**: Systematic debugging with console logs and instance tracking
+  - **User Feedback Integration**: Direct user reports of data discrepancies led to root cause identification
+  - **Iterative Fixes**: Multiple attempts (import fixes, instance sharing, server endpoints) before resolution
+  - **Testing Strategy**: Real-time testing with actual API calls to verify quota tracking accuracy
+
 ### December 2024 — Responsive Design & Mobile-First Experience
 - **Mobile Filter System:**
   - Implemented collapsible filter sidebar for mobile devices with toggle button
