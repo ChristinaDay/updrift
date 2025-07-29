@@ -109,6 +109,13 @@ export default function APIhubPage() {
 
   useEffect(() => {
     loadAPIStatuses();
+    
+    // Auto-refresh every 30 seconds to show updated usage
+    const interval = setInterval(() => {
+      loadAPIStatuses();
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const loadAPIStatuses = async () => {
@@ -141,6 +148,9 @@ export default function APIhubPage() {
       const jsearchQuota = quotaTrackerInstance.getMonthlyQuota('jsearch');
       console.log('📈 Adzuna quota:', adzunaQuota);
       console.log('📈 JSearch quota:', jsearchQuota);
+
+      // Update last updated timestamp
+      setLastUpdated(new Date().toLocaleTimeString());
 
       const statuses: APIStatus[] = [
         {
