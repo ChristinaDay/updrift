@@ -1,44 +1,385 @@
 'use client';
 
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
-import { MagnifyingGlassIcon, BookmarkIcon, UserIcon } from '@heroicons/react/24/outline';
+import { 
+  MagnifyingGlassIcon, 
+  BookmarkIcon, 
+  UserIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  ClockIcon,
+  ChartBarIcon,
+  CogIcon,
+  InformationCircleIcon
+} from '@heroicons/react/24/outline';
+import { 
+  CheckCircleIcon as CheckCircleSolidIcon,
+  ExclamationTriangleIcon as ExclamationTriangleSolidIcon
+} from '@heroicons/react/24/solid';
 import { jobProviders } from '@/lib/apihub';
-import Header from '@/components/Header'
+import Header from '@/components/Header';
+
+interface APIUsage {
+  totalRequests: number;
+  successfulRequests: number;
+  failedRequests: number;
+  averageResponseTime: number;
+  lastUsed: string;
+  rateLimitRemaining?: number;
+  rateLimitReset?: string;
+}
+
+interface APIStatus {
+  id: string;
+  name: string;
+  status: 'active' | 'inactive' | 'error' | 'testing';
+  logoUrl?: string;
+  description: string;
+  usage: APIUsage;
+  configStatus: 'configured' | 'missing-key' | 'not-configured';
+  features: string[];
+  rateLimits?: {
+    requestsPerMinute: number;
+    requestsPerHour: number;
+    requestsPerDay: number;
+  };
+}
 
 export default function APIhubPage() {
   const { data: session } = useSession();
+  const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<string>('');
+
+  useEffect(() => {
+    loadAPIStatuses();
+  }, []);
+
+  const loadAPIStatuses = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Get rate limit information
+      const rateLimitResponse = await fetch('/api/debug/rate-limits');
+      const rateLimitData = rateLimitResponse.ok ? await rateLimitResponse.json() : {};
+      
+      // Get API test results
+      const testResponse = await fetch('/api/jobs/test');
+      const testData = testResponse.ok ? await testResponse.json() : {};
+
+      const statuses: APIStatus[] = [
+        {
+          id: 'adzuna',
+          name: 'Adzuna',
+          status: testData.adzuna?.status === 'success' ? 'active' : 'error',
+          logoUrl: '/logos/Adzuna.png',
+          description: 'Comprehensive job search API with detailed job information, salary data, and company details.',
+          usage: {
+            totalRequests: rateLimitData.adzuna?.totalRequests || 0,
+            successfulRequests: rateLimitData.adzuna?.successfulRequests || 0,
+            failedRequests: rateLimitData.adzuna?.failedRequests || 0,
+            averageResponseTime: rateLimitData.adzuna?.averageResponseTime || 0,
+            lastUsed: rateLimitData.adzuna?.lastUsed || 'Never',
+            rateLimitRemaining: rateLimitData.adzuna?.remaining,
+            rateLimitReset: rateLimitData.adzuna?.resetTime
+          },
+          configStatus: testData.adzuna?.configured ? 'configured' : 'missing-key',
+          features: [
+            'Job search with location filtering',
+            'Salary information',
+            'Company details and logos',
+            'Remote job filtering',
+            'Job descriptions and requirements'
+          ],
+          rateLimits: {
+            requestsPerMinute: 60,
+            requestsPerHour: 1000,
+            requestsPerDay: 10000
+          }
+        },
+        {
+          id: 'jsearch',
+          name: 'JSearch',
+          status: testData.jsearch?.status === 'success' ? 'active' : 'error',
+          logoUrl: '/logos/jsearch-rapidapi.jpeg',
+          description: 'RapidAPI-powered job search with real-time job listings and comprehensive search capabilities.',
+          usage: {
+            totalRequests: rateLimitData.jsearch?.totalRequests || 0,
+            successfulRequests: rateLimitData.jsearch?.successfulRequests || 0,
+            failedRequests: rateLimitData.jsearch?.failedRequests || 0,
+            averageResponseTime: rateLimitData.jsearch?.averageResponseTime || 0,
+            lastUsed: rateLimitData.jsearch?.lastUsed || 'Never',
+            rateLimitRemaining: rateLimitData.jsearch?.remaining,
+            rateLimitReset: rateLimitData.jsearch?.resetTime
+          },
+          configStatus: testData.jsearch?.configured ? 'configured' : 'missing-key',
+          features: [
+            'Real-time job listings',
+            'Advanced search filters',
+            'Job categorization',
+            'Company information',
+            'Application tracking'
+          ],
+          rateLimits: {
+            requestsPerMinute: 30,
+            requestsPerHour: 500,
+            requestsPerDay: 5000
+          }
+        },
+        {
+          id: 'mock',
+          name: 'MockJobs',
+          status: 'testing',
+          logoUrl: '/logos/mock.png',
+          description: 'Testing API for development and demonstration purposes with sample job data.',
+          usage: {
+            totalRequests: rateLimitData.mock?.totalRequests || 0,
+            successfulRequests: rateLimitData.mock?.successfulRequests || 0,
+            failedRequests: rateLimitData.mock?.failedRequests || 0,
+            averageResponseTime: rateLimitData.mock?.averageResponseTime || 0,
+            lastUsed: rateLimitData.mock?.lastUsed || 'Never'
+          },
+          configStatus: 'configured',
+          features: [
+            'Sample job data',
+            'Development testing',
+            'Demo functionality',
+            'No API keys required'
+          ]
+        }
+      ];
+
+      setApiStatuses(statuses);
+      setLastUpdated(new Date().toLocaleString());
+    } catch (error) {
+      console.error('Error loading API statuses:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <CheckCircleSolidIcon className="h-5 w-5 text-green-500" />;
+      case 'error':
+        return <ExclamationTriangleSolidIcon className="h-5 w-5 text-red-500" />;
+      case 'inactive':
+        return <ExclamationTriangleIcon className="h-5 w-5 text-yellow-500" />;
+      case 'testing':
+        return <CogIcon className="h-5 w-5 text-blue-500" />;
+      default:
+        return <InformationCircleIcon className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'Active';
+      case 'error':
+        return 'Error';
+      case 'inactive':
+        return 'Inactive';
+      case 'testing':
+        return 'Testing';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const getConfigStatusText = (status: string) => {
+    switch (status) {
+      case 'configured':
+        return 'Configured';
+      case 'missing-key':
+        return 'Missing API Key';
+      case 'not-configured':
+        return 'Not Configured';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const getConfigStatusColor = (status: string) => {
+    switch (status) {
+      case 'configured':
+        return 'text-green-600';
+      case 'missing-key':
+        return 'text-yellow-600';
+      case 'not-configured':
+        return 'text-red-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold text-foreground mb-2">APIhub</h1>
-        <p className="text-lg text-muted-foreground mb-8">
-          All connected job API sources powering your UpDrift search. More sources = better results!
-        </p>
-        <Link
-          href="/dashboard"
-          className="inline-block mb-8 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium shadow"
-        >
-          ← Return to Dashboard
-        </Link>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {jobProviders.map((provider) => (
-            <div key={provider.id} className="bg-card rounded-lg shadow border border-border p-6 flex items-center gap-4">
-              {provider.logoUrl && (
-                <img src={provider.logoUrl} alt={provider.displayName + ' logo'} className="w-12 h-12 rounded bg-muted object-contain" />
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-foreground mb-2">APIhub</h1>
+          <p className="text-lg text-muted-foreground mb-4">
+            All connected job API sources powering your UpDrift search. More sources = better results!
+          </p>
+          <div className="flex items-center justify-between">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium shadow"
+            >
+              ← Return to Dashboard
+            </Link>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={loadAPIStatuses}
+                disabled={isLoading}
+                className="inline-flex items-center px-4 py-2 border border-border text-foreground rounded-lg hover:bg-muted transition-colors font-medium"
+              >
+                <ChartBarIcon className="h-4 w-4 mr-2" />
+                {isLoading ? 'Refreshing...' : 'Refresh Status'}
+              </button>
+              {lastUpdated && (
+                <span className="text-sm text-muted-foreground">
+                  Last updated: {lastUpdated}
+                </span>
               )}
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold text-foreground">{provider.displayName}</h2>
-                <p className="text-sm text-muted-foreground">Status: <span className="text-green-600 font-medium">Active</span></p>
-                <p className="text-xs text-muted-foreground mt-1">Provider ID: {provider.id}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* API Status Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {apiStatuses.map((api) => (
+            <div key={api.id} className="bg-card rounded-lg shadow border border-border p-6">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  {api.logoUrl && (
+                    <img 
+                      src={api.logoUrl} 
+                      alt={`${api.name} logo`} 
+                      className="w-12 h-12 rounded bg-muted object-contain" 
+                    />
+                  )}
+                  <div>
+                    <h2 className="text-xl font-semibold text-foreground">{api.name}</h2>
+                    <div className="flex items-center space-x-2 mt-1">
+                      {getStatusIcon(api.status)}
+                      <span className="text-sm font-medium">{getStatusText(api.status)}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className={`text-sm font-medium ${getConfigStatusColor(api.configStatus)}`}>
+                    {getConfigStatusText(api.configStatus)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <p className="text-muted-foreground mb-4">{api.description}</p>
+
+              {/* Usage Statistics */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-muted p-3 rounded-lg">
+                  <p className="text-xs text-muted-foreground">Total Requests</p>
+                  <p className="text-lg font-semibold text-foreground">{api.usage.totalRequests}</p>
+                </div>
+                <div className="bg-muted p-3 rounded-lg">
+                  <p className="text-xs text-muted-foreground">Success Rate</p>
+                  <p className="text-lg font-semibold text-foreground">
+                    {api.usage.totalRequests > 0 
+                      ? Math.round((api.usage.successfulRequests / api.usage.totalRequests) * 100)
+                      : 0}%
+                  </p>
+                </div>
+                <div className="bg-muted p-3 rounded-lg">
+                  <p className="text-xs text-muted-foreground">Avg Response Time</p>
+                  <p className="text-lg font-semibold text-foreground">
+                    {api.usage.averageResponseTime > 0 
+                      ? `${Math.round(api.usage.averageResponseTime)}ms`
+                      : 'N/A'}
+                  </p>
+                </div>
+                <div className="bg-muted p-3 rounded-lg">
+                  <p className="text-xs text-muted-foreground">Last Used</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {api.usage.lastUsed === 'Never' ? 'Never' : new Date(api.usage.lastUsed).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+
+              {/* Rate Limits */}
+              {api.rateLimits && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-foreground mb-2">Rate Limits</h4>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="bg-blue-50 p-2 rounded">
+                      <p className="text-blue-600 font-medium">{api.rateLimits.requestsPerMinute}/min</p>
+                    </div>
+                    <div className="bg-green-50 p-2 rounded">
+                      <p className="text-green-600 font-medium">{api.rateLimits.requestsPerHour}/hour</p>
+                    </div>
+                    <div className="bg-purple-50 p-2 rounded">
+                      <p className="text-purple-600 font-medium">{api.rateLimits.requestsPerDay}/day</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Features */}
+              <div>
+                <h4 className="text-sm font-medium text-foreground mb-2">Features</h4>
+                <div className="flex flex-wrap gap-1">
+                  {api.features.map((feature, index) => (
+                    <span 
+                      key={index}
+                      className="inline-block px-2 py-1 bg-secondary text-secondary-foreground text-xs rounded"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Summary Stats */}
+        <div className="bg-card rounded-lg shadow border border-border p-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4">API Summary</h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-foreground">
+                {apiStatuses.filter(api => api.status === 'active').length}
+              </p>
+              <p className="text-sm text-muted-foreground">Active APIs</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-foreground">
+                {apiStatuses.reduce((total, api) => total + api.usage.totalRequests, 0)}
+              </p>
+              <p className="text-sm text-muted-foreground">Total Requests</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-foreground">
+                {apiStatuses.filter(api => api.configStatus === 'configured').length}
+              </p>
+              <p className="text-sm text-muted-foreground">Configured</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-foreground">
+                {apiStatuses.filter(api => api.configStatus === 'missing-key').length}
+              </p>
+              <p className="text-sm text-muted-foreground">Need Setup</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
