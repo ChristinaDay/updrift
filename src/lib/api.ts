@@ -368,6 +368,7 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
     // Record API usage for quota tracking
     if (success) {
       quotaTracker.recordUsage('adzuna', 1);
+      console.log('📊 Adzuna quota updated:', quotaTracker.getMonthlyQuota('adzuna'));
     }
   }
 }
