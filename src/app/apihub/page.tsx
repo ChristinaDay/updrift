@@ -524,7 +524,7 @@ export default function APIhubPage() {
                     <span>{Math.round(api.monthlyQuota.usagePercentage)}% used</span>
                     <span className="flex items-center">
                       <CalendarIcon className="h-3 w-3 mr-1" />
-                      Resets {api.monthlyQuota.resetDate.toLocaleDateString()}
+                      Resets {new Date(api.monthlyQuota.resetDate).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
