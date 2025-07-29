@@ -3,10 +3,10 @@ import { getJobDetail as getJobDetailFromDB, parseCompositeJobId } from '@/lib/j
 import { Job } from '@/types/job';
 import { errorHandler, errorUtils } from '@/lib/errorHandling';
 
-const getJobDetail = async (request: NextRequest, { params }: { params: { jobId: string } }) => {
+const getJobDetail = async (request: NextRequest, { params }: { params: Promise<{ jobId: string }> }) => {
   return errorUtils.withRetry(
     async () => {
-      const { jobId } = params;
+      const { jobId } = await params;
       
       console.log('🔍 Fetching job detail for:', jobId);
 

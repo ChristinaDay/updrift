@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Job } from '@/types/job'
+import { use } from 'react'
 import { 
   formatSalaryRange, 
   formatJobPostedDate, 
@@ -33,17 +34,19 @@ import { Skeleton } from '@/components/ui/skeleton'
 import Header from '@/components/Header'
 
 interface JobDetailPageProps {
-  params: { jobId: string }
+  params: Promise<{ jobId: string }>
 }
 
 export default function JobDetailPage({ params }: JobDetailPageProps) {
-  const { jobId } = params
+  const { jobId } = use(params)
   const router = useRouter()
   const { data: session } = useSession()
   const [job, setJob] = useState<Job | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isSaved, setIsSaved] = useState(false)
+  const [applicationStatus, setApplicationStatus] = useState<string | null>(null)
+  const [application, setApplication] = useState<any>(null)
 
   useEffect(() => {
     const fetchJobDetail = async () => {
@@ -54,6 +57,23 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
 
         if (data.status === 'success') {
           setJob(data.data)
+          
+          // Fetch application status if user is authenticated
+          if (session?.user) {
+            try {
+              const applicationsResponse = await fetch('/api/user/applications?limit=1000')
+              if (applicationsResponse.ok) {
+                              const applicationsData = await applicationsResponse.json()
+              const application = applicationsData.applications.find((app: any) => app.jobId === data.data.job_id)
+              if (application) {
+                setApplicationStatus(application.status)
+                setApplication(application)
+              }
+              }
+            } catch (err) {
+              console.error('Error fetching application status:', err)
+            }
+          }
         } else {
           setError(data.message || 'Failed to load job details')
         }
@@ -68,7 +88,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
     if (jobId) {
       fetchJobDetail()
     }
-  }, [jobId])
+  }, [jobId, session])
 
   const handleSaveJob = async () => {
     if (!session?.user?.email || !job) return
@@ -148,21 +168,21 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
           {/* Breadcrumb */}
           <nav className="mb-6">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               onClick={() => router.back()}
-              className="text-muted-foreground hover:text-foreground"
+              className="bg-background text-foreground border-border hover:bg-muted hover:text-foreground"
             >
               ← Back to Search
             </Button>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
               {/* Job Header */}
               <Card className="mb-6">
                 <CardHeader>
-                  <div className="flex items-start gap-4">
+                  <div className="flex flex-col sm:flex-row items-start gap-4">
                     {companyLogo && (
                       <div className="flex-shrink-0">
                         <Image
@@ -178,38 +198,45 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                         />
                       </div>
                     )}
-                    <div className="flex-1">
-                      <CardTitle className="text-2xl font-bold mb-2">
-                        {job.job_title}
-                      </CardTitle>
-                      <div className="flex items-center gap-4 text-muted-foreground mb-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <CardTitle className="text-xl sm:text-2xl font-bold break-words">
+                          {job.job_title}
+                        </CardTitle>
+                        {applicationStatus === 'VIEWED' && (
+                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 border-yellow-300">
+                            Last viewed {application?.updatedAt ? new Date(application.updatedAt).toLocaleDateString() : ''}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground mb-4">
                         <div className="flex items-center gap-1">
-                          <BuildingOfficeIcon className="h-4 w-4" />
-                          <span>{job.employer_name}</span>
+                          <BuildingOfficeIcon className="h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{job.employer_name}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <MapPinIcon className="h-4 w-4" />
-                          <span>{formatJobLocation(job)}</span>
+                          <MapPinIcon className="h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{formatJobLocation(job)}</span>
                         </div>
                         {job.job_is_remote && (
-                          <Badge variant="secondary">
+                          <Badge variant="secondary" className="flex-shrink-0">
                             <ComputerDesktopIcon className="h-3 w-3 mr-1" />
                             Remote
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                                 <div className="flex items-center gap-1">
-                           <ClockIcon className="h-4 w-4" />
-                           <span>Posted {formatJobPostedDate(job.job_posted_at_timestamp.toString())}</span>
-                         </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
-                          <BriefcaseIcon className="h-4 w-4" />
+                          <ClockIcon className="h-4 w-4 flex-shrink-0" />
+                          <span>Posted {formatJobPostedDate(job.job_posted_at_timestamp.toString())}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <BriefcaseIcon className="h-4 w-4 flex-shrink-0" />
                           <span>{formatEmploymentType(job.job_employment_type)}</span>
                         </div>
                         {job.job_min_salary && job.job_max_salary && (
                           <div className="flex items-center gap-1">
-                            <CurrencyDollarIcon className="h-4 w-4" />
+                            <CurrencyDollarIcon className="h-4 w-4 flex-shrink-0" />
                             <span>{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
                           </div>
                         )}
@@ -227,7 +254,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                 <CardContent>
                   <div className="prose prose-sm max-w-none">
                     <div 
-                      className="whitespace-pre-wrap text-foreground"
+                      className="whitespace-pre-wrap text-foreground break-words"
                       dangerouslySetInnerHTML={{ 
                         __html: job.job_description.replace(/\n/g, '<br>') 
                       }}
@@ -266,7 +293,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
                       {job.job_required_skills.map((skill, index) => (
-                        <Badge key={index} variant="outline">
+                        <Badge key={index} variant="outline" className="break-words">
                           {skill}
                         </Badge>
                       ))}
@@ -277,11 +304,11 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-4">
+            <div className="space-y-4 lg:space-y-6">
               {/* Apply Card */}
               <Card>
                 <CardContent className="pt-6">
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <Button 
                       onClick={handleApply}
                       className="w-full"
@@ -320,18 +347,18 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
-                    <h4 className="font-semibold">{job.employer_name}</h4>
+                    <h4 className="font-semibold break-words">{job.employer_name}</h4>
                     <p className="text-sm text-muted-foreground">{formatJobLocation(job)}</p>
                   </div>
                   
                   {job.employer_website && (
                     <div className="flex items-center gap-2">
-                      <GlobeAltIcon className="h-4 w-4 text-muted-foreground" />
+                      <GlobeAltIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <a 
                         href={job.employer_website} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:underline"
+                        className="text-sm text-blue-600 hover:underline break-all"
                       >
                         Company Website
                       </a>
@@ -357,25 +384,25 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                   <CardTitle>Job Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
                     <span className="text-muted-foreground">Employment Type</span>
-                    <span>{formatEmploymentType(job.job_employment_type)}</span>
+                    <span className="break-words">{formatEmploymentType(job.job_employment_type)}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
                     <span className="text-muted-foreground">Location</span>
-                    <span>{formatJobLocation(job)}</span>
+                    <span className="break-words">{formatJobLocation(job)}</span>
                   </div>
-                                     <div className="flex justify-between">
-                     <span className="text-muted-foreground">Posted</span>
-                     <span>{formatJobPostedDate(job.job_posted_at_timestamp.toString())}</span>
-                   </div>
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
+                    <span className="text-muted-foreground">Posted</span>
+                    <span>{formatJobPostedDate(job.job_posted_at_timestamp.toString())}</span>
+                  </div>
                   {job.job_min_salary && job.job_max_salary && (
-                    <div className="flex justify-between">
+                    <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
                       <span className="text-muted-foreground">Salary</span>
-                      <span>{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
+                      <span className="break-words">{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
                     <span className="text-muted-foreground">Source</span>
                     <span className="capitalize">{job.job_publisher}</span>
                   </div>

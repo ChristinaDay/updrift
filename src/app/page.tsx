@@ -535,6 +535,17 @@ export default function Home() {
           if (logoUrl) {
             const hasWorkingLogo = await testLogoUrl(logoUrl);
             if (hasWorkingLogo) {
+              // Store job data for internal job detail pages
+              try {
+                await fetch('/api/jobs/store', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ job })
+                });
+              } catch (error) {
+                console.error('Error storing hero job:', error);
+              }
+              
               jobsWithWorkingLogos.push(job);
               if (jobsWithWorkingLogos.length >= 4) break; // Stop once we have 4
             }
@@ -872,20 +883,20 @@ export default function Home() {
         {/* Foreground River Particles */}
         {isClient && <div className="absolute left-0 top-1/2 w-full h-[180px] -translate-y-1/2 pointer-events-none z-10"><RiverParticles width={typeof window !== 'undefined' ? window.innerWidth : 1920} height={180} /></div>}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Left: Hero Content */}
-            <div className="space-y-8">
-              <div className="space-y-6">
+            <div className="space-y-6 lg:space-y-8">
+              <div className="space-y-4 lg:space-y-6">
                 <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
                   Smart Job Matching
                 </Badge>
-                <h1 className="text-6xl lg:text-7xl font-bold text-foreground leading-tight">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground leading-tight">
                   Happy with your
                   <span className="block bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
                     current position?
                   </span>
                 </h1>
-                <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
+                <p className="text-lg sm:text-xl text-muted-foreground max-w-lg leading-relaxed">
                   UpDrift finds jobs that actually match what you're looking for. No more scrolling through irrelevant listings or applying into the void.
                 </p>
               </div>
@@ -894,7 +905,7 @@ export default function Home() {
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-secondary rounded-2xl blur opacity-30 animate-pulse"></div>
                 <div className="relative bg-card/70 backdrop-blur-xl rounded-2xl p-6 border border-primary/20 shadow-xl">
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div className="relative group">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
                         <div className="relative">
@@ -904,7 +915,7 @@ export default function Home() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyPress={handleKeyPress}
-                            className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-primary/50"
+                            className="pl-12 h-12 sm:h-14 text-base sm:text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-primary/50"
                           />
                         </div>
                       </div>
@@ -919,7 +930,7 @@ export default function Home() {
                             onKeyPress={handleKeyPress}
                             onFocus={() => setShowLocationSuggestions(locationSuggestions.length > 0)}
                             onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 200)}
-                            className="pl-12 h-14 text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-accent/50"
+                            className="pl-12 h-12 sm:h-14 text-base sm:text-lg bg-background/50 border-0 rounded-xl focus:ring-2 focus:ring-accent/50"
                           />
                           {showLocationSuggestions && locationSuggestions.length > 0 && (
                             <Card className="absolute z-10 w-full mt-1 shadow-lg max-h-60 overflow-y-auto bg-card/90 backdrop-blur-xl border-primary/30">
@@ -946,7 +957,7 @@ export default function Home() {
                     <Button 
                       onClick={handleSearch} 
                       size="lg" 
-                      className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-fuchsia-600 to-cyan-500 hover:from-fuchsia-500 hover:to-cyan-400 transform hover:scale-105 transition-all shadow-lg"
+                      className="w-full h-12 sm:h-14 text-base sm:text-lg rounded-xl bg-gradient-to-r from-fuchsia-600 to-cyan-500 hover:from-fuchsia-500 hover:to-cyan-400 transform hover:scale-105 transition-all shadow-lg"
                     >
                       Search Jobs
                     </Button>
@@ -972,7 +983,7 @@ export default function Home() {
             </div>
             {/* Right: Flowing Job Cards */}
             <div className="relative">
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {heroJobs.map((job, index) => {
                   // Use the same logo logic as JobCard component
                   const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
@@ -983,7 +994,7 @@ export default function Home() {
                   return (
                     <Link
                       key={job.job_id}
-                      href={`/search?q=${encodeURIComponent(job.job_title)}&location=${job.job_is_remote ? 'Remote' : job.job_city}`}
+                      href={`/jobs/${job.job_publisher.toLowerCase()}-${job.job_id}`}
                       className="block"
                     >
                       <Card 
@@ -995,23 +1006,23 @@ export default function Home() {
                         }}
                       >
                         <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 rounded-xl blur opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
-                        <CardContent className="p-6">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
+                        <CardContent className="p-4 sm:p-6">
+                          <div className="flex items-center space-x-3 sm:space-x-4">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl flex-shrink-0">
                               <img 
                                 src={generatedLogoUrl || ''} 
                                 alt={job.employer_name}
-                                className="w-8 h-8 object-contain"
+                                className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
                               />
                             </div>
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-foreground">{job.job_title}</h3>
-                              <p className="text-sm text-muted-foreground">{job.employer_name}</p>
-                              <p className="text-sm font-medium text-primary">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-foreground text-sm sm:text-base break-words">{job.job_title}</h3>
+                              <p className="text-xs sm:text-sm text-muted-foreground truncate">{job.employer_name}</p>
+                              <p className="text-xs sm:text-sm font-medium text-primary">
                                 {formatSalary(job.job_min_salary, job.job_max_salary)}
                               </p>
                             </div>
-                            <div className="text-sm text-muted-foreground opacity-60 group-hover:opacity-100 transition-opacity">
+                            <div className="text-xs sm:text-sm text-muted-foreground opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0">
                               View →
                             </div>
                           </div>

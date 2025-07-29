@@ -124,10 +124,30 @@ export default function JobCard({
     }
   }
 
-  const handleViewJob = () => {
+  const handleViewJob = async () => {
     if (onApply) {
       onApply(job)
     } else {
+      // Mark job as viewed if we have the callback
+      if (onUpdateApplicationStatus) {
+        onUpdateApplicationStatus(job.job_id, 'VIEWED')
+      }
+      
+      // Store job data for internal job detail pages
+      try {
+        await fetch('/api/jobs/store', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ job })
+        })
+        console.log('✅ Stored job data for internal page:', job.job_id)
+        
+        // Small delay to ensure storage completes
+        await new Promise(resolve => setTimeout(resolve, 100))
+      } catch (error) {
+        console.error('❌ Error storing job data:', error)
+      }
+      
       // Create composite job ID for internal routing
       const compositeJobId = `${job.job_publisher.toLowerCase()}-${job.job_id}`
       window.location.href = `/jobs/${compositeJobId}`
@@ -180,7 +200,7 @@ export default function JobCard({
           </Badge>
         ) : <div />}
         {/* Application Status Badge - exclude VIEWED since it's shown in the button */}
-        {applicationStatus && applicationStatus !== 'VIEWED' && (
+        {applicationStatus && !['VIEWED'].includes(applicationStatus) && (
           <Badge 
             variant="secondary" 
             className={`${getApplicationStatusColor(applicationStatus)} border font-medium px-3 py-1 text-sm shadow-sm flex items-center gap-1`}

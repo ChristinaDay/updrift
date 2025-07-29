@@ -667,7 +667,17 @@ function SearchPage() {
 
   const handleUpdateApplicationStatus = async (jobId: string, status: string) => {
     try {
-      const application = applications.find(app => app.jobId === jobId)
+      let application = applications.find(app => app.jobId === jobId)
+      
+      if (!application && status === 'VIEWED') {
+        // Create a new application record for VIEWED status
+        const job = initialFilteredJobs.find(j => j.job_id === jobId)
+        if (job) {
+          await applyToJob(jobId, job, job.job_apply_link)
+          application = applications.find(app => app.jobId === jobId)
+        }
+      }
+      
       if (application) {
         await updateApplicationStatus(application.id, status as any)
         setSaveMessage('Application status updated!')
@@ -1341,7 +1351,6 @@ function SearchPage() {
                       job={job}
                       isSaved={savedJobs.has(job.job_id)}
                       onSave={handleSaveJob}
-                      onApply={handleApplyToJob}
                       applicationStatus={getApplicationStatus(job.job_id)}
                       onUpdateApplicationStatus={handleUpdateApplicationStatus}
                       showMatchScore={true}
