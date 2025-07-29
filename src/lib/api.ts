@@ -364,6 +364,11 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
   } finally {
     const responseTime = Date.now() - startTime;
     trackAPICall('adzuna', success, responseTime, errorMessage);
+    
+    // Record API usage for quota tracking
+    if (success) {
+      quotaTracker.recordUsage('adzuna', 1);
+    }
   }
 }
 
