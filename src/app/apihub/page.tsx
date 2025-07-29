@@ -20,9 +20,35 @@ import {
   CheckCircleIcon as CheckCircleSolidIcon,
   ExclamationTriangleIcon as ExclamationTriangleSolidIcon
 } from '@heroicons/react/24/solid';
-import { jobProviders } from '@/lib/apihub';
-import { quotaTracker, MonthlyQuota, QuotaEstimate } from '@/lib/quotaTracker';
 import Header from '@/components/Header';
+
+// Import quota tracker with error handling
+let quotaTrackerInstance: any = null;
+try {
+  const { quotaTracker } = require('@/lib/quotaTracker');
+  quotaTrackerInstance = quotaTracker;
+} catch (error) {
+  console.error('Failed to import quota tracker:', error);
+  // Create a fallback quota tracker
+  quotaTrackerInstance = {
+    getMonthlyQuota: (apiName: string) => ({
+      apiName,
+      monthlyLimit: 1000,
+      currentUsage: 0,
+      remainingQuota: 1000,
+      usagePercentage: 0,
+      resetDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+      lastUpdated: new Date()
+    }),
+    getUsageEstimate: (apiName: string) => ({
+      dailyUsage: 0,
+      weeklyUsage: 0,
+      monthlyUsage: 0,
+      estimatedMonthlyTotal: 0,
+      daysUntilReset: 30
+    })
+  };
+}
 
 interface APIUsage {
   totalRequests: number;
@@ -32,6 +58,24 @@ interface APIUsage {
   lastUsed: string;
   rateLimitRemaining?: number;
   rateLimitReset?: string;
+}
+
+interface MonthlyQuota {
+  apiName: string;
+  monthlyLimit: number;
+  currentUsage: number;
+  remainingQuota: number;
+  usagePercentage: number;
+  resetDate: Date;
+  lastUpdated: Date;
+}
+
+interface QuotaEstimate {
+  dailyUsage: number;
+  weeklyUsage: number;
+  monthlyUsage: number;
+  estimatedMonthlyTotal: number;
+  daysUntilReset: number;
 }
 
 interface APIStatus {
@@ -53,6 +97,8 @@ interface APIStatus {
 }
 
 export default function APIhubPage() {
+  console.log('🚀 APIhubPage component loading...');
+  
   const { data: session } = useSession();
   const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,14 +111,25 @@ export default function APIhubPage() {
   const loadAPIStatuses = async () => {
     try {
       setIsLoading(true);
+      console.log('🔄 Loading API statuses...');
       
       // Get rate limit information
       const rateLimitResponse = await fetch('/api/debug/rate-limits');
+      console.log('📊 Rate limit response status:', rateLimitResponse.status);
       const rateLimitData = rateLimitResponse.ok ? await rateLimitResponse.json() : {};
+      console.log('📊 Rate limit data:', rateLimitData);
       
       // Get API test results
       const testResponse = await fetch('/api/jobs/test');
+      console.log('🧪 Test response status:', testResponse.status);
       const testData = testResponse.ok ? await testResponse.json() : {};
+      console.log('🧪 Test data:', testData);
+
+      // Get quota information
+      const adzunaQuota = quotaTrackerInstance.getMonthlyQuota('adzuna');
+      const jsearchQuota = quotaTrackerInstance.getMonthlyQuota('jsearch');
+      console.log('📈 Adzuna quota:', adzunaQuota);
+      console.log('📈 JSearch quota:', jsearchQuota);
 
       const statuses: APIStatus[] = [
         {
@@ -103,8 +160,8 @@ export default function APIhubPage() {
             requestsPerHour: 1000,
             requestsPerDay: 10000
           },
-          monthlyQuota: quotaTracker.getMonthlyQuota('adzuna'),
-          quotaEstimate: quotaTracker.getUsageEstimate('adzuna')
+          monthlyQuota: adzunaQuota,
+          quotaEstimate: quotaTrackerInstance.getUsageEstimate('adzuna')
         },
         {
           id: 'jsearch',
@@ -134,8 +191,8 @@ export default function APIhubPage() {
             requestsPerHour: 500,
             requestsPerDay: 5000
           },
-          monthlyQuota: quotaTracker.getMonthlyQuota('jsearch'),
-          quotaEstimate: quotaTracker.getUsageEstimate('jsearch')
+          monthlyQuota: jsearchQuota,
+          quotaEstimate: quotaTrackerInstance.getUsageEstimate('jsearch')
         },
         {
           id: 'mock',
@@ -160,10 +217,68 @@ export default function APIhubPage() {
         }
       ];
 
+      console.log('✅ API statuses loaded:', statuses);
       setApiStatuses(statuses);
       setLastUpdated(new Date().toLocaleString());
     } catch (error) {
-      console.error('Error loading API statuses:', error);
+      console.error('❌ Error loading API statuses:', error);
+      // Set some default statuses if there's an error
+      setApiStatuses([
+        {
+          id: 'adzuna',
+          name: 'Adzuna',
+          status: 'error',
+          logoUrl: '/logos/Adzuna.png',
+          description: 'Comprehensive job search API with detailed job information, salary data, and company details.',
+          usage: {
+            totalRequests: 0,
+            successfulRequests: 0,
+            failedRequests: 0,
+            averageResponseTime: 0,
+            lastUsed: 'Never'
+          },
+          configStatus: 'not-configured',
+          features: [
+            'Job search with location filtering',
+            'Salary information',
+            'Company details and logos',
+            'Remote job filtering',
+            'Job descriptions and requirements'
+          ],
+          rateLimits: {
+            requestsPerMinute: 60,
+            requestsPerHour: 1000,
+            requestsPerDay: 10000
+          }
+        },
+        {
+          id: 'jsearch',
+          name: 'JSearch',
+          status: 'error',
+          logoUrl: '/logos/jsearch-rapidapi.jpeg',
+          description: 'RapidAPI-powered job search with real-time job listings and comprehensive search capabilities.',
+          usage: {
+            totalRequests: 0,
+            successfulRequests: 0,
+            failedRequests: 0,
+            averageResponseTime: 0,
+            lastUsed: 'Never'
+          },
+          configStatus: 'not-configured',
+          features: [
+            'Real-time job listings',
+            'Advanced search filters',
+            'Job categorization',
+            'Company information',
+            'Application tracking'
+          ],
+          rateLimits: {
+            requestsPerMinute: 30,
+            requestsPerHour: 500,
+            requestsPerDay: 5000
+          }
+        }
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -242,8 +357,6 @@ export default function APIhubPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
-      {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">APIhub</h1>
@@ -251,20 +364,29 @@ export default function APIhubPage() {
             All connected job API sources powering your UpDrift search. More sources = better results!
           </p>
           <div className="flex items-center justify-between">
-            <Link
-              href="/dashboard"
+            <Link 
+              href="/dashboard" 
               className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium shadow"
             >
               ← Return to Dashboard
             </Link>
             <div className="flex items-center space-x-4">
-              <button
+              <button 
                 onClick={loadAPIStatuses}
                 disabled={isLoading}
                 className="inline-flex items-center px-4 py-2 border border-border text-foreground rounded-lg hover:bg-muted transition-colors font-medium"
               >
-                <ChartBarIcon className="h-4 w-4 mr-2" />
-                {isLoading ? 'Refreshing...' : 'Refresh Status'}
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                    Refreshing...
+                  </>
+                ) : (
+                  <>
+                    <ChartBarIcon className="h-4 w-4 mr-2" />
+                    Refresh Status
+                  </>
+                )}
               </button>
               {lastUpdated && (
                 <span className="text-sm text-muted-foreground">
