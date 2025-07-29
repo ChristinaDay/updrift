@@ -118,6 +118,19 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 async function getLocationCoordinates(location: string): Promise<{lat: number, lng: number} | null> {
   try {
     const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`);
+    
+    // Check if response is OK and content type is JSON
+    if (!response.ok) {
+      console.warn(`Geocoding service returned ${response.status}: ${response.statusText}`);
+      return null;
+    }
+    
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.warn('Geocoding service returned non-JSON response, skipping location filtering');
+      return null;
+    }
+    
     const data = await response.json();
     if (data && data.length > 0) {
       return {
@@ -126,7 +139,7 @@ async function getLocationCoordinates(location: string): Promise<{lat: number, l
       };
     }
   } catch (error) {
-    console.error('Error getting location coordinates:', error);
+    console.warn('Error getting location coordinates:', error);
   }
   return null;
 }
@@ -687,7 +700,10 @@ function convertJSearchJob(jsearchJob: any): Job {
 
 export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSearchResponseWithQuota> {
   const apiKey = process.env.JSEARCH_API_KEY || process.env.RAPIDAPI_KEY;
-  if (!apiKey) throw new Error('JSearch API key not set');
+  if (!apiKey) {
+    console.warn('JSearch API key not configured - skipping JSearch API calls');
+    throw new Error('JSearch API key not configured');
+  }
 
   const url = new URL('https://jsearch.p.rapidapi.com/search');
   url.searchParams.set('query', params.query || '');
@@ -696,52 +712,61 @@ export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSea
   if (params.page) url.searchParams.set('page', params.page.toString());
   if (params.num_pages) url.searchParams.set('num_pages', params.num_pages.toString());
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      'X-RapidAPI-Key': apiKey,
-      'X-RapidAPI-Host': 'jsearch.p.rapidapi.com',
-    },
-  });
-  
-  if (!response.ok) throw new Error('JSearch API error');
-  
-  // Parse quota information from response headers
-  const jsearchQuota = parseQuotaFromHeaders(response.headers, 'jsearch');
-  
-  const data = await response.json();
-  
-  // Debug: Log JSearch API response structure
-  if (data.data && data.data.length > 0) {
-    const firstJob = data.data[0];
-    console.log('🔍 JSearch API job structure:', {
-      id: firstJob.job_id,
-      employer_name: firstJob.employer_name,
-      title: firstJob.job_title,
-      // Log all available fields
-      allFields: Object.keys(firstJob),
-      // Log the entire first job for detailed inspection
-      fullJob: firstJob
+  try {
+    const response = await fetch(url.toString(), {
+      headers: {
+        'X-RapidAPI-Key': apiKey,
+        'X-RapidAPI-Host': 'jsearch.p.rapidapi.com',
+      },
     });
-  }
-  
-  // Convert JSearch jobs to our format
-  const convertedJobs = (data.data || []).map(convertJSearchJob);
-  
-  // Record API usage for quota tracking
-  quotaTracker.recordUsage('jsearch', 1);
-  
-  return {
-    status: data.status || 'success',
-    request_id: data.request_id || '',
-    parameters: params,
-    data: convertedJobs,
-    original_data: convertedJobs,
-    num_pages: data.num_pages || 1,
-    client_filtered: false,
-    original_count: convertedJobs.length,
-    filtered_count: convertedJobs.length,
-    quota: {
-      jsearch: jsearchQuota
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.warn(`JSearch API error (${response.status}): ${errorText}`);
+      throw new Error(`JSearch API error: ${response.status} ${response.statusText}`);
     }
-  };
+    
+    // Parse quota information from response headers
+    const jsearchQuota = parseQuotaFromHeaders(response.headers, 'jsearch');
+    
+    const data = await response.json();
+    
+    // Debug: Log JSearch API response structure
+    if (data.data && data.data.length > 0) {
+      const firstJob = data.data[0];
+      console.log('🔍 JSearch API job structure:', {
+        id: firstJob.job_id,
+        employer_name: firstJob.employer_name,
+        title: firstJob.job_title,
+        // Log all available fields
+        allFields: Object.keys(firstJob),
+        // Log the entire first job for detailed inspection
+        fullJob: firstJob
+      });
+    }
+    
+    // Convert JSearch jobs to our format
+    const convertedJobs = (data.data || []).map(convertJSearchJob);
+    
+    // Record API usage for quota tracking
+    quotaTracker.recordUsage('jsearch', 1);
+    
+    return {
+      status: data.status || 'success',
+      request_id: data.request_id || '',
+      parameters: params,
+      data: convertedJobs,
+      original_data: convertedJobs,
+      num_pages: data.num_pages || 1,
+      client_filtered: false,
+      original_count: convertedJobs.length,
+      filtered_count: convertedJobs.length,
+      quota: {
+        jsearch: jsearchQuota
+      }
+    };
+  } catch (error) {
+    console.warn('JSearch API call failed:', error instanceof Error ? error.message : String(error));
+    throw error;
+  }
 } 
