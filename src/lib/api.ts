@@ -129,9 +129,99 @@ async function getLocationCoordinates(location: string): Promise<{lat: number, l
 }
 
 /**
- * Search jobs using Adzuna API
+ * Interface for API quota information
  */
-export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSearchResponse> {
+export interface APIQuota {
+  remaining: number;
+  limit: number;
+  resetTime?: string;
+  resetDate?: Date;
+  usagePercentage: number;
+}
+
+/**
+ * Enhanced response interface with quota information
+ */
+export interface JobSearchResponseWithQuota extends JobSearchResponse {
+  quota?: {
+    adzuna?: APIQuota;
+    jsearch?: APIQuota;
+  };
+}
+
+/**
+ * Parse quota information from response headers
+ */
+function parseQuotaFromHeaders(headers: any, apiName: string): APIQuota | undefined {
+  const quota: APIQuota = {
+    remaining: -1,
+    limit: -1,
+    usagePercentage: 0
+  };
+
+  // Common header patterns for quota information
+  const headerPatterns = {
+    remaining: [
+      'x-ratelimit-remaining',
+      'x-remaining-requests',
+      'x-quota-remaining',
+      'x-remaining',
+      'remaining'
+    ],
+    limit: [
+      'x-ratelimit-limit',
+      'x-total-requests',
+      'x-quota-limit',
+      'x-limit',
+      'limit'
+    ],
+    reset: [
+      'x-ratelimit-reset',
+      'x-quota-reset',
+      'x-reset',
+      'reset'
+    ]
+  };
+
+  // Try to find quota information in headers
+  for (const pattern of headerPatterns.remaining) {
+    const value = headers[pattern] || headers[pattern.toLowerCase()];
+    if (value) {
+      quota.remaining = parseInt(value);
+      break;
+    }
+  }
+
+  for (const pattern of headerPatterns.limit) {
+    const value = headers[pattern] || headers[pattern.toLowerCase()];
+    if (value) {
+      quota.limit = parseInt(value);
+      break;
+    }
+  }
+
+  for (const pattern of headerPatterns.reset) {
+    const value = headers[pattern] || headers[pattern.toLowerCase()];
+    if (value) {
+      quota.resetTime = value;
+      quota.resetDate = new Date(parseInt(value) * 1000);
+      break;
+    }
+  }
+
+  // Calculate usage percentage
+  if (quota.limit > 0 && quota.remaining >= 0) {
+    quota.usagePercentage = ((quota.limit - quota.remaining) / quota.limit) * 100;
+  }
+
+  // Only return quota if we found some information
+  return (quota.remaining >= 0 || quota.limit > 0) ? quota : undefined;
+}
+
+/**
+ * Search jobs using Adzuna API with quota tracking
+ */
+export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSearchResponseWithQuota> {
   return errorUtils.withFallback(
     async () => {
       const { query, location, radius = 25, remote_jobs_only, page = 1, num_pages = 1 } = params;
@@ -181,6 +271,9 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
       console.log('🔍 Searching jobs with Adzuna API:', searchUrl, queryParams);
       
       const response = await adzunaClient.get(searchUrl, { params: queryParams });
+      
+      // Parse quota information from response headers
+      const adzunaQuota = parseQuotaFromHeaders(response.headers, 'adzuna');
       
       if (response.data?.results) {
         // Debug: Log the first job to see what fields are available
@@ -241,8 +334,11 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
           client_filtered: radiusFiltered,
           original_count: originalJobs.length,
           filtered_count: filteredJobs.length,
-          total_count: response.data.count // Total jobs available from API
-        } as JobSearchResponse;
+          total_count: response.data.count, // Total jobs available from API
+          quota: {
+            adzuna: adzunaQuota
+          }
+        } as JobSearchResponseWithQuota;
       } else {
         throw new Error('No results from Adzuna API');
       }
@@ -583,7 +679,7 @@ function convertJSearchJob(jsearchJob: any): Job {
   };
 }
 
-export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSearchResponse> {
+export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSearchResponseWithQuota> {
   const apiKey = process.env.JSEARCH_API_KEY || process.env.RAPIDAPI_KEY;
   if (!apiKey) throw new Error('JSearch API key not set');
 
@@ -600,7 +696,12 @@ export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSea
       'X-RapidAPI-Host': 'jsearch.p.rapidapi.com',
     },
   });
+  
   if (!response.ok) throw new Error('JSearch API error');
+  
+  // Parse quota information from response headers
+  const jsearchQuota = parseQuotaFromHeaders(response.headers, 'jsearch');
+  
   const data = await response.json();
   
   // Debug: Log JSearch API response structure
@@ -630,5 +731,8 @@ export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSea
     client_filtered: false,
     original_count: convertedJobs.length,
     filtered_count: convertedJobs.length,
+    quota: {
+      jsearch: jsearchQuota
+    }
   };
 } 

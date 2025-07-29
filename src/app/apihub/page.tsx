@@ -13,13 +13,15 @@ import {
   ClockIcon,
   ChartBarIcon,
   CogIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  CalendarIcon
 } from '@heroicons/react/24/outline';
 import { 
   CheckCircleIcon as CheckCircleSolidIcon,
   ExclamationTriangleIcon as ExclamationTriangleSolidIcon
 } from '@heroicons/react/24/solid';
 import { jobProviders } from '@/lib/apihub';
+import { quotaTracker, MonthlyQuota, QuotaEstimate } from '@/lib/quotaTracker';
 import Header from '@/components/Header';
 
 interface APIUsage {
@@ -46,6 +48,8 @@ interface APIStatus {
     requestsPerHour: number;
     requestsPerDay: number;
   };
+  monthlyQuota?: MonthlyQuota;
+  quotaEstimate?: QuotaEstimate;
 }
 
 export default function APIhubPage() {
@@ -98,7 +102,9 @@ export default function APIhubPage() {
             requestsPerMinute: 60,
             requestsPerHour: 1000,
             requestsPerDay: 10000
-          }
+          },
+          monthlyQuota: quotaTracker.getMonthlyQuota('adzuna'),
+          quotaEstimate: quotaTracker.getUsageEstimate('adzuna')
         },
         {
           id: 'jsearch',
@@ -127,7 +133,9 @@ export default function APIhubPage() {
             requestsPerMinute: 30,
             requestsPerHour: 500,
             requestsPerDay: 5000
-          }
+          },
+          monthlyQuota: quotaTracker.getMonthlyQuota('jsearch'),
+          quotaEstimate: quotaTracker.getUsageEstimate('jsearch')
         },
         {
           id: 'mock',
@@ -217,6 +225,20 @@ export default function APIhubPage() {
     }
   };
 
+  const getQuotaStatusColor = (percentage: number) => {
+    if (percentage >= 90) return 'text-red-600';
+    if (percentage >= 75) return 'text-yellow-600';
+    if (percentage >= 50) return 'text-orange-600';
+    return 'text-green-600';
+  };
+
+  const getQuotaStatusIcon = (percentage: number) => {
+    if (percentage >= 90) return <ExclamationTriangleSolidIcon className="h-4 w-4 text-red-500" />;
+    if (percentage >= 75) return <ExclamationTriangleIcon className="h-4 w-4 text-yellow-500" />;
+    if (percentage >= 50) return <ClockIcon className="h-4 w-4 text-orange-500" />;
+    return <CheckCircleIcon className="h-4 w-4 text-green-500" />;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -284,6 +306,73 @@ export default function APIhubPage() {
 
               {/* Description */}
               <p className="text-muted-foreground mb-4">{api.description}</p>
+
+              {/* Monthly Quota Section */}
+              {api.monthlyQuota && (
+                <div className="mb-4 p-4 bg-muted rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-medium text-foreground">Monthly Quota</h4>
+                    {getQuotaStatusIcon(api.monthlyQuota.usagePercentage)}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Used</p>
+                      <p className="text-lg font-semibold text-foreground">
+                        {api.monthlyQuota.currentUsage} / {api.monthlyQuota.monthlyLimit}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Remaining</p>
+                      <p className={`text-lg font-semibold ${getQuotaStatusColor(api.monthlyQuota.usagePercentage)}`}>
+                        {api.monthlyQuota.remainingQuota}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="w-full bg-background rounded-full h-2 mb-2">
+                    <div 
+                      className={`h-2 rounded-full transition-all ${
+                        api.monthlyQuota.usagePercentage >= 90 ? 'bg-red-500' :
+                        api.monthlyQuota.usagePercentage >= 75 ? 'bg-yellow-500' :
+                        api.monthlyQuota.usagePercentage >= 50 ? 'bg-orange-500' :
+                        'bg-green-500'
+                      }`}
+                      style={{ width: `${Math.min(api.monthlyQuota.usagePercentage, 100)}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{Math.round(api.monthlyQuota.usagePercentage)}% used</span>
+                    <span className="flex items-center">
+                      <CalendarIcon className="h-3 w-3 mr-1" />
+                      Resets {api.monthlyQuota.resetDate.toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Usage Estimates */}
+              {api.quotaEstimate && (
+                <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                  <h4 className="text-sm font-medium text-foreground mb-2">Usage Estimates</h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <p className="text-muted-foreground">Daily Average</p>
+                      <p className="font-medium">{api.quotaEstimate.dailyUsage} requests</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Weekly Total</p>
+                      <p className="font-medium">{api.quotaEstimate.weeklyUsage} requests</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Monthly Total</p>
+                      <p className="font-medium">{api.quotaEstimate.monthlyUsage} requests</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Projected Monthly</p>
+                      <p className="font-medium">{api.quotaEstimate.estimatedMonthlyTotal} requests</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Usage Statistics */}
               <div className="grid grid-cols-2 gap-4 mb-4">
