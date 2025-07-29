@@ -330,28 +330,28 @@ export default function APIhubPage() {
   const getConfigStatusColor = (status: string) => {
     switch (status) {
       case 'configured':
-        return 'text-green-600';
+        return 'text-primary';
       case 'missing-key':
-        return 'text-yellow-600';
+        return 'text-warning';
       case 'not-configured':
-        return 'text-red-600';
+        return 'text-destructive';
       default:
-        return 'text-gray-600';
+        return 'text-muted-foreground';
     }
   };
 
   const getQuotaStatusColor = (percentage: number) => {
-    if (percentage >= 90) return 'text-red-600';
-    if (percentage >= 75) return 'text-yellow-600';
-    if (percentage >= 50) return 'text-orange-600';
-    return 'text-green-600';
+    if (percentage >= 90) return 'text-destructive';
+    if (percentage >= 75) return 'text-warning';
+    if (percentage >= 50) return 'text-accent';
+    return 'text-primary';
   };
 
   const getQuotaStatusIcon = (percentage: number) => {
-    if (percentage >= 90) return <ExclamationTriangleSolidIcon className="h-4 w-4 text-red-500" />;
-    if (percentage >= 75) return <ExclamationTriangleIcon className="h-4 w-4 text-yellow-500" />;
-    if (percentage >= 50) return <ClockIcon className="h-4 w-4 text-orange-500" />;
-    return <CheckCircleIcon className="h-4 w-4 text-green-500" />;
+    if (percentage >= 90) return <ExclamationTriangleSolidIcon className="h-4 w-4 text-destructive" />;
+    if (percentage >= 75) return <ExclamationTriangleIcon className="h-4 w-4 text-warning" />;
+    if (percentage >= 50) return <ClockIcon className="h-4 w-4 text-accent" />;
+    return <CheckCircleIcon className="h-4 w-4 text-primary" />;
   };
 
   return (
@@ -378,7 +378,7 @@ export default function APIhubPage() {
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
                     Refreshing...
                   </>
                 ) : (
@@ -453,10 +453,10 @@ export default function APIhubPage() {
                   <div className="w-full bg-background rounded-full h-2 mb-2">
                     <div 
                       className={`h-2 rounded-full transition-all ${
-                        api.monthlyQuota.usagePercentage >= 90 ? 'bg-red-500' :
-                        api.monthlyQuota.usagePercentage >= 75 ? 'bg-yellow-500' :
-                        api.monthlyQuota.usagePercentage >= 50 ? 'bg-orange-500' :
-                        'bg-green-500'
+                        api.monthlyQuota.usagePercentage >= 90 ? 'bg-destructive' :
+                        api.monthlyQuota.usagePercentage >= 75 ? 'bg-warning' :
+                        api.monthlyQuota.usagePercentage >= 50 ? 'bg-accent' :
+                        'bg-primary'
                       }`}
                       style={{ width: `${Math.min(api.monthlyQuota.usagePercentage, 100)}%` }}
                     ></div>
@@ -473,7 +473,7 @@ export default function APIhubPage() {
 
               {/* Usage Estimates */}
               {api.quotaEstimate && (
-                <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                <div className="mb-4 p-4 bg-muted/50 rounded-lg">
                   <h4 className="text-sm font-medium text-foreground mb-2">Usage Estimates</h4>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
@@ -531,14 +531,14 @@ export default function APIhubPage() {
                 <div className="mb-4">
                   <h4 className="text-sm font-medium text-foreground mb-2">Rate Limits</h4>
                   <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div className="bg-blue-50 p-2 rounded">
-                      <p className="text-blue-600 font-medium">{api.rateLimits.requestsPerMinute}/min</p>
+                    <div className="bg-muted p-2 rounded">
+                      <p className="text-foreground font-medium">{api.rateLimits.requestsPerMinute}/min</p>
                     </div>
-                    <div className="bg-green-50 p-2 rounded">
-                      <p className="text-green-600 font-medium">{api.rateLimits.requestsPerHour}/hour</p>
+                    <div className="bg-muted p-2 rounded">
+                      <p className="text-foreground font-medium">{api.rateLimits.requestsPerHour}/hour</p>
                     </div>
-                    <div className="bg-purple-50 p-2 rounded">
-                      <p className="text-purple-600 font-medium">{api.rateLimits.requestsPerDay}/day</p>
+                    <div className="bg-muted p-2 rounded">
+                      <p className="text-foreground font-medium">{api.rateLimits.requestsPerDay}/day</p>
                     </div>
                   </div>
                 </div>
