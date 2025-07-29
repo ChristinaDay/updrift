@@ -2,6 +2,9 @@ import axios from 'axios';
 import { Job, JobSearchParams, JobSearchResponse } from '@/types/job';
 import { searchAllProviders } from './apihub';
 import { errorHandler, errorUtils, ErrorType } from './errorHandling';
+
+// Import quota tracker for usage recording
+import { quotaTracker } from './quotaTracker';
 import { getCompanyLogoUrl } from '@/utils/jobUtils';
 
 // Adzuna API Configuration (much better than JSearch!)
@@ -323,6 +326,9 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
         }
         
         console.log('✅ Adzuna API success:', filteredJobs.length, 'jobs found');
+        
+        // Record API usage for quota tracking
+        quotaTracker.recordUsage('adzuna', 1);
         
         return {
           status: 'success',
@@ -720,6 +726,9 @@ export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSea
   
   // Convert JSearch jobs to our format
   const convertedJobs = (data.data || []).map(convertJSearchJob);
+  
+  // Record API usage for quota tracking
+  quotaTracker.recordUsage('jsearch', 1);
   
   return {
     status: data.status || 'success',
