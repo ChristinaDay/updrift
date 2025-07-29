@@ -313,8 +313,8 @@ export default function JobCard({
         >
           {/* Debug info */}
           {applicationStatus && (
-            <div className="hidden">
-              Debug: applicationStatus = {applicationStatus}, disabled = {String(applicationStatus && ['APPLIED', 'INTERVIEWING', 'REJECTED', 'HIRED'].includes(applicationStatus))}
+            <div className="text-xs text-red-500 bg-red-100 p-1 mb-2 rounded">
+              DEBUG: Status={applicationStatus}, Disabled={String(applicationStatus && ['APPLIED', 'INTERVIEWING', 'REJECTED', 'HIRED'].includes(applicationStatus))}
             </div>
           )}
           {applicationStatus === 'VIEWED' ? (
