@@ -197,6 +197,56 @@ Welcome to the Updrift Project Diary! This document summarizes the progress, key
   - Transformed search history into interactive dropdown with clickable items
   - Implemented per-search throttling (each unique search combination has its own timer)
   - Added instant cache loading when clicking on search history items
+
+### January 2025 — Job Card Interaction UX Fix & Search Results Counter Enhancement
+- **Viewed Job Card Interaction Problem:**
+  - **Issue Identified**: Jobs with "VIEWED" status had greyed-out, unclickable buttons
+  - **User Impact**: Users couldn't return to view job details after marking jobs as viewed
+  - **UX Problem**: "Viewed" button was disabled, creating a dead-end interaction
+  - **Visual Confusion**: Button showed "Viewed" text but was completely unclickable
+
+- **Comprehensive UX Solution:**
+  - **Made "VIEWED" jobs clickable**: Removed disabled state for VIEWED status
+  - **Changed button text**: "Viewed" → "View Again" to indicate it's clickable
+  - **Updated styling**: Yellow theme to distinguish from other statuses
+  - **Removed redundant tag**: Eliminated "VIEWED" tag from top of card (cleaner design)
+  - **Maintained other statuses**: APPLIED, INTERVIEWING, REJECTED, HIRED remain disabled
+
+- **Technical Implementation Details:**
+  - Modified `JobCard.tsx` component to handle VIEWED status differently
+  - Updated button styling logic to exclude VIEWED from disabled states
+  - Added conditional rendering for application status badges (exclude VIEWED from top)
+  - Implemented yellow color scheme for "View Again" button
+  - Added arrow icon to "View Again" button for clear call-to-action
+
+- **UX Psychology Insights:**
+  - **Button Language Clarity**: "View Again" clearly indicates the action is available
+  - **Visual Hierarchy**: Yellow styling distinguishes viewed jobs without being intrusive
+  - **Redundancy Elimination**: Removed duplicate "VIEWED" indicators for cleaner design
+  - **Consistency**: Other application statuses maintain their disabled state appropriately
+  - **User Flow**: Seamless return to job details without breaking the interaction chain
+
+- **Search Results Counter Enhancement:**
+  - **Problem**: Results counter only showed loaded jobs (e.g., 50) instead of total available
+  - **Solution**: Enhanced API aggregation to sum total counts from all providers
+  - **Technical Changes**: Modified `searchAllProviders` to aggregate `total_count` values
+  - **API Improvements**: Increased Adzuna `results_per_page` from 50 to 200 for better accuracy
+  - **JSearch Fix**: Added missing `total_count` field to JSearch API response
+  - **Result**: Counter now shows total available jobs, not just loaded subset
+
+- **Development Process & Problem-Solving Methodology:**
+  - **Iterative Debugging**: Used console logs and debug indicators to trace data flow
+  - **User-Centric Approach**: Prioritized user experience over technical convenience
+  - **Visual Testing**: Used debug indicators to verify changes were applied correctly
+  - **Branch Management**: Created dedicated feature branch for focused development
+  - **Clean Code**: Removed debug code after confirming fixes worked
+
+- **Key UX Learnings for Case Study:**
+  - **Interaction Dead-Ends**: Disabled buttons create frustrating user experiences
+  - **Button Language**: Text should match the actual action available
+  - **Visual Feedback**: Color coding helps users understand system states
+  - **Redundancy**: Multiple indicators for same state can create visual clutter
+  - **Data Accuracy**: Users expect counters to reflect total available, not loaded subset
   - Created comprehensive cache entry display with search parameters and timestamps
   - Fixed API throttling to allow different searches without waiting periods
 

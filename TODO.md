@@ -37,6 +37,14 @@
 - ✅ Updated all API routes to use correct model names
 - ✅ Build now passes successfully on Vercel
 
+### **User Experience & Interaction Fixes**
+- ✅ Fixed viewed job card interaction - made "VIEWED" jobs clickable with "View Again" button
+- ✅ Removed redundant "VIEWED" tag from top of job cards for cleaner design
+- ✅ Enhanced search results counter to show total available jobs instead of just loaded subset
+- ✅ Improved API aggregation to properly sum total counts from all providers
+- ✅ Added yellow styling for "View Again" button to distinguish from other statuses
+- ✅ Maintained disabled state for other application statuses (APPLIED, INTERVIEWING, etc.)
+
 ## 🚧 **In Progress**
 
 ### **Enhanced Job Tracking Features**
@@ -87,6 +95,14 @@
 - [ ] Add more API integrations beyond Adzuna
 - [ ] Implement API usage analytics
 - [ ] Create API documentation and examples
+
+### **7. UX & Interaction Improvements**
+- [ ] Review all button states for consistency and clarity
+- [ ] Audit disabled states to ensure they don't create dead-end interactions
+- [ ] Improve visual feedback for all user actions
+- [ ] Add loading states for better user experience
+- [ ] Implement progressive disclosure for complex features
+- [ ] Review color coding for accessibility and clarity
 
 ## 🎯 **Current Focus**
 
