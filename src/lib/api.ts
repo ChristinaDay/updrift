@@ -83,18 +83,29 @@ function convertAdzunaJob(adzunaJob: any): Job {
  * Search jobs using all providers (Adzuna, JSearch, etc.)
  */
 export async function searchJobs(params: JobSearchParams): Promise<JobSearchResponse> {
+  console.log('🔍 searchJobs called with params:', params);
+  
   // Aggregate jobs from all providers
-  const allJobs = await searchAllProviders(params);
+  const result = await searchAllProviders(params);
+  
+  console.log('🔍 searchJobs - Final result:', {
+    status: 'success',
+    jobsCount: result.jobs.length,
+    totalCount: result.totalCount,
+    firstJob: result.jobs[0]?.job_title || 'No jobs'
+  });
+  
   return {
     status: 'success',
     request_id: 'multi-' + Date.now(),
     parameters: params,
-    data: allJobs,
-    original_data: allJobs,
+    data: result.jobs,
+    original_data: result.jobs,
+    total_count: result.totalCount, // Use aggregated total count
     num_pages: 1, // For now, pagination is not aggregated
     client_filtered: false,
-    original_count: allJobs.length,
-    filtered_count: allJobs.length
+    original_count: result.jobs.length,
+    filtered_count: result.jobs.length
   };
 }
 
@@ -247,6 +258,13 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
     const appId = process.env.ADZUNA_APP_ID;
     const appKey = process.env.ADZUNA_APP_KEY;
     
+    console.log('🔍 Adzuna API credentials check:', {
+      hasAppId: !!appId,
+      hasAppKey: !!appKey,
+      appIdLength: appId?.length || 0,
+      appKeyLength: appKey?.length || 0
+    });
+    
     if (!appId || !appKey) {
       throw new Error('Adzuna API credentials not configured');
     }
@@ -254,22 +272,45 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
     const url = new URL('https://api.adzuna.com/v1/api/jobs/us/search/1');
     url.searchParams.set('app_id', appId);
     url.searchParams.set('app_key', appKey);
-    url.searchParams.set('results_per_page', '200');
-    url.searchParams.set('content-type', 'application/json');
+    url.searchParams.set('results_per_page', '200'); // Request more results to get better total count
     
     if (params.query) url.searchParams.set('what', params.query);
     if (params.location) url.searchParams.set('where', params.location);
-    if (params.radius) url.searchParams.set('distance', params.radius.toString());
-    if (params.page) url.searchParams.set('page', params.page.toString());
+    // Temporarily remove page parameter to see if that's causing issues
+    // if (params.page) url.searchParams.set('page', params.page.toString());
+
+    console.log('🔍 Adzuna API URL:', url.toString());
+    console.log('🔍 Adzuna API params:', params);
 
     const response = await fetch(url.toString());
     
+    console.log('🔍 Adzuna API response status:', response.status, response.statusText);
+    
     if (!response.ok) {
-      throw new Error(`Adzuna API error: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('❌ Adzuna API error details:', errorText);
+      throw new Error(`Adzuna API error: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
     success = true;
+
+    console.log('🔍 Adzuna API raw response:', {
+      hasResults: !!data.results,
+      resultsLength: data.results?.length || 0,
+      firstResult: data.results?.[0]?.title || 'No results',
+      totalResults: data.count,
+      numPages: data.num_pages,
+      requestId: data.request_id,
+      fullResponseKeys: Object.keys(data),
+      fullResponse: data // Log the full response to see what's available
+    });
+    
+    console.log('🔍 Adzuna total count debug:', {
+      dataCount: data.count,
+      resultsLength: data.results?.length || 0,
+      willSetTotalCount: data.count || (data.results?.length || 0)
+    });
 
     // Parse quota information from response headers
     const adzunaQuota = parseQuotaFromHeaders(response.headers, 'adzuna');
@@ -277,10 +318,29 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
     // Convert Adzuna jobs to our format
     const convertedJobs = (data.results || []).map(convertAdzunaJob);
     
+    console.log('🔍 Adzuna converted jobs:', {
+      convertedLength: convertedJobs.length,
+      firstConvertedJob: convertedJobs[0]?.job_title || 'No converted jobs'
+    });
+    
     // Record API usage for quota tracking
     quotaTracker.recordUsage('adzuna', 1);
     
     console.log('✅ Adzuna API success:', convertedJobs.length, 'jobs found');
+    
+    // Calculate num_pages based on total results if not provided by API
+    const resultsPerPage = 200; // Match our API setting
+    const totalResults = data.count || convertedJobs.length;
+    const calculatedNumPages = Math.ceil(totalResults / resultsPerPage);
+    const numPages = data.num_pages || calculatedNumPages;
+    
+    console.log('🔍 Pagination calculation:', {
+      totalResults,
+      resultsPerPage,
+      calculatedNumPages,
+      apiNumPages: data.num_pages,
+      finalNumPages: numPages
+    });
     
     return {
       status: 'success',
@@ -288,7 +348,8 @@ export async function searchAdzunaJobs(params: JobSearchParams): Promise<JobSear
       parameters: params,
       data: convertedJobs,
       original_data: convertedJobs,
-      num_pages: data.num_pages || 1,
+      total_count: data.count || convertedJobs.length, // Add total_count field
+      num_pages: numPages,
       client_filtered: false,
       original_count: convertedJobs.length,
       filtered_count: convertedJobs.length,
@@ -648,6 +709,8 @@ export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSea
   if (params.radius) url.searchParams.set('radius', params.radius.toString());
   if (params.page) url.searchParams.set('page', params.page.toString());
   if (params.num_pages) url.searchParams.set('num_pages', params.num_pages.toString());
+  url.searchParams.set('num_pages', '1'); // Request more results per page
+  url.searchParams.set('page', '1'); // Start from first page
 
   try {
     const response = await fetch(url.toString(), {
@@ -686,6 +749,12 @@ export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSea
     // Convert JSearch jobs to our format
     const convertedJobs = (data.data || []).map(convertJSearchJob);
     
+    console.log('🔍 JSearch total count debug:', {
+      dataTotalCount: data.total_count,
+      dataLength: data.data?.length || 0,
+      willSetTotalCount: data.total_count || (data.data?.length || 0)
+    });
+    
     // Record API usage for quota tracking
     quotaTracker.recordUsage('jsearch', 1);
     
@@ -695,6 +764,7 @@ export async function searchJSearchJobs(params: JobSearchParams): Promise<JobSea
       parameters: params,
       data: convertedJobs,
       original_data: convertedJobs,
+      total_count: data.total_count || convertedJobs.length, // Add total_count field
       num_pages: data.num_pages || 1,
       client_filtered: false,
       original_count: convertedJobs.length,

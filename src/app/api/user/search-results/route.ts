@@ -95,5 +95,38 @@ async function getSearchResultsHandler(request: NextRequest) {
   }
 }
 
+async function deleteSearchHistoryHandler(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Delete all search results for the current user
+    const deletedCount = await prisma.searchResult.deleteMany({
+      where: { 
+        userId: session.user.id
+      }
+    })
+
+    console.log(`🗑️ Deleted ${deletedCount.count} search history entries for user ${session.user.id}`)
+
+    return NextResponse.json({
+      success: true,
+      message: `Cleared ${deletedCount.count} search history entries`,
+      deletedCount: deletedCount.count
+    })
+
+  } catch (error) {
+    console.error('Error deleting search history:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
 export const POST = createSearchResultHandler
-export const GET = getSearchResultsHandler 
+export const GET = getSearchResultsHandler
+export const DELETE = deleteSearchHistoryHandler 

@@ -98,9 +98,25 @@ export function useSearchJobs(): UseSearchJobsReturn {
     // Check cache first
     const cachedResult = searchCache.getCachedResult(query, normalizedLocation, radius);
     const cacheEntry = searchCache.getCacheEntry(query, normalizedLocation, radius);
+    console.log('🔍 Cache check:', {
+      hasCachedResult: !!cachedResult,
+      cachedJobsLength: cachedResult?.data?.length || 0,
+      cachedOriginalLength: cachedResult?.original_data?.length || 0,
+      isSameSearch,
+      cacheSize: Object.keys(searchCache['cache'] || {}).length
+    });
+    
     if (cachedResult) {
-      setJobs(cachedResult.original_data || cachedResult.data || []);
-      setFilteredJobs(cachedResult.data || []);
+      const originalJobs = cachedResult.original_data || cachedResult.data || [];
+      const filteredJobs = cachedResult.data || [];
+      
+      console.log('🔍 Using cached result:', {
+        originalJobsLength: originalJobs.length,
+        filteredJobsLength: filteredJobs.length
+      });
+      
+      setJobs(originalJobs);
+      setFilteredJobs(filteredJobs);
       setDataSource(cachedResult.status === 'mock' ? 'mock' : 'real');
       setLocationFilterResults(cachedResult.client_filtered ? {
         applied: true,
@@ -187,12 +203,28 @@ export function useSearchJobs(): UseSearchJobsReturn {
       }
       
       // Store original and filtered jobs
-      setJobs(data.original_data || data.data || []);
-      setFilteredJobs(data.data || []);
+      const originalJobs = data.original_data || data.data || [];
+      const filteredJobs = data.data || [];
+      
+      console.log('🔍 useSearchJobs - Setting jobs:', {
+        originalJobsLength: originalJobs.length,
+        filteredJobsLength: filteredJobs.length,
+        totalCount: data.total_count || 0,
+        firstJob: originalJobs[0]?.job_title || 'No jobs'
+      });
+      
+      setJobs(originalJobs);
+      setFilteredJobs(filteredJobs);
       setTotalCount(data.total_count || 0); // Update totalCount
       
-      // Check if there are more pages available
-      setHasMorePages(data.num_pages > 1);
+      // Check if there are more jobs available from the API
+      const totalAvailable = data.total_count || 0;
+      const jobsLoaded = (data.original_data || data.data || []).length;
+      const hasMoreAvailable = totalAvailable > jobsLoaded;
+      setHasMorePages(hasMoreAvailable);
+      
+      // Reset pagination for new search
+      setCurrentPage(1);
 
       // Track location filtering results
       if (data.client_filtered) {
@@ -235,7 +267,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
       const remainingJobs = totalAvailable - jobsLoaded;
       
       // Calculate how many pages we need to load to get all remaining jobs
-      const jobsPerPage = 200;
+      const jobsPerPage = 200; // Match the API's results_per_page setting
       const pagesNeeded = Math.ceil(remainingJobs / jobsPerPage);
       
       console.log(`🔍 Loading ALL remaining jobs: ${remainingJobs} jobs across ${pagesNeeded} pages`);
@@ -268,7 +300,7 @@ export function useSearchJobs(): UseSearchJobsReturn {
         // Add all new jobs to existing ones
         setJobs(prev => [...prev, ...allNewJobs]);
         setFilteredJobs(prev => [...prev, ...allNewJobs]);
-        setCurrentPage(pagesNeeded + 1);
+        setCurrentPage(1); // Reset to first page after loading all jobs
         setHasMorePages(false); // No more pages after loading all
         console.log(`✅ Loaded ALL remaining jobs: ${allNewJobs.length} total new jobs`);
       } else {

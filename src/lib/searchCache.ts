@@ -47,6 +47,13 @@ class SearchCacheManager {
     
     if (entry && this.isCacheValid(entry)) {
       console.log('📦 Using cached search result for:', key);
+      console.log('📦 Cached data structure:', {
+        hasData: !!entry.data,
+        dataKeys: entry.data ? Object.keys(entry.data) : [],
+        dataLength: entry.data?.data?.length || 0,
+        originalDataLength: entry.data?.original_data?.length || 0,
+        status: entry.data?.status
+      });
       return entry.data;
     }
     
@@ -72,6 +79,13 @@ class SearchCacheManager {
       searchParams: key
     };
     console.log('💾 Cached search result for:', key);
+    console.log('💾 Cached data structure:', {
+      hasData: !!data,
+      dataKeys: data ? Object.keys(data) : [],
+      dataLength: data?.data?.length || 0,
+      originalDataLength: data?.original_data?.length || 0,
+      status: data?.status
+    });
   }
 
   shouldMakeApiCall(searchQuery: string, location: string, radius: number): boolean {
@@ -101,9 +115,10 @@ class SearchCacheManager {
   }
 
   clearCache(): void {
+    console.log('🗑️ Clearing cache - before:', Object.keys(this.cache).length, 'entries');
     this.cache = {};
     this.lastCallTimes = {}; // Reset throttling when cache is cleared
-    console.log('🗑️ Search cache cleared and throttling reset');
+    console.log('🗑️ Search cache cleared and throttling reset - after:', Object.keys(this.cache).length, 'entries');
   }
 
   getCacheStats(): { size: number; keys: string[] } {

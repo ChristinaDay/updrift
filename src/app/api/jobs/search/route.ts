@@ -23,6 +23,7 @@ const searchHandler = async (request: NextRequest) => {
       console.log('🔍 Job search request:', { query, location, radius, remote_jobs_only, page });
 
       // Use the new Adzuna API implementation
+      console.log('🔍 Calling searchJobs function...');
       const searchResults = await searchJobs({
         query,
         location,
@@ -35,8 +36,16 @@ const searchHandler = async (request: NextRequest) => {
         page,
         num_pages,
       });
+      console.log('🔍 searchJobs function completed');
 
       console.log('✅ Job search successful:', searchResults.data?.length || 0, 'jobs found');
+      console.log('🔍 Search results structure:', {
+        status: searchResults.status,
+        dataLength: searchResults.data?.length || 0,
+        originalDataLength: searchResults.original_data?.length || 0,
+        totalCount: searchResults.total_count,
+        firstJob: searchResults.data?.[0]?.job_title || 'No jobs'
+      });
       
       return NextResponse.json(searchResults);
     },

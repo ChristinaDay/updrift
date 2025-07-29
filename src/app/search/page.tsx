@@ -122,13 +122,11 @@ function SearchPage() {
   
 
 
-  // Local filtered jobs state (for client-side filtering)
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>([])
-
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
-  const [jobsPerPage] = useState(20) // Show 20 jobs per page
+  const [jobsPerPage] = useState(10) // Show 10 jobs per page
   const [displayedJobs, setDisplayedJobs] = useState<Job[]>([])
+  const [filteredJobsForPagination, setFilteredJobsForPagination] = useState<Job[]>([])
 
   // Database search history state
   const [dbSearchHistory, setDbSearchHistory] = useState<Array<{
@@ -237,13 +235,25 @@ function SearchPage() {
     }
   }, [session]);
 
-  // Update displayed jobs when filteredJobs changes (pagination logic)
+  // Debug search history rendering
   useEffect(() => {
-    const startIndex = (currentPage - 1) * jobsPerPage;
-    const endIndex = startIndex + jobsPerPage;
-    const jobsToShow = filteredJobs.slice(startIndex, endIndex);
-    setDisplayedJobs(jobsToShow);
-  }, [filteredJobs, currentPage, jobsPerPage]);
+    console.log('🔍 Search history state:', {
+      dbSearchHistoryLength: dbSearchHistory.length,
+      showSearchHistory,
+      loadingSearchHistory
+    });
+  }, [dbSearchHistory, showSearchHistory, loadingSearchHistory]);
+
+  // Debug total count
+  useEffect(() => {
+    console.log('🔍 Total count debug:', {
+      totalCount,
+      initialFilteredJobsLength: initialFilteredJobs.length,
+      loading
+    });
+  }, [totalCount, initialFilteredJobs.length, loading]);
+
+
 
   // Reset to page 1 when starting a new search
   useEffect(() => {
@@ -541,20 +551,27 @@ function SearchPage() {
     }
   }
 
-  // Apply filters and sorting
+  // Apply filters and sorting to displayed jobs
   useEffect(() => {
-    let filtered = filterJobs(initialFilteredJobs, {
-      remote: filters.remote || undefined,
-      salaryMin: filters.salaryMin ? parseInt(filters.salaryMin) : undefined,
-      salaryMax: filters.salaryMax ? parseInt(filters.salaryMax) : undefined,
-      employmentTypes: filters.employmentTypes.length > 0 ? filters.employmentTypes : undefined,
-      datePosted: filters.datePosted !== 'all' ? filters.datePosted : undefined,
-      experience: filters.experience !== 'all' ? filters.experience : undefined
-    })
-
-    filtered = sortJobs(filtered, sortBy)
-    setFilteredJobs(filtered)
-  }, [initialFilteredJobs, filters, sortBy])
+    console.log('🔍 Updating displayed jobs:', {
+      filteredJobsLength: filteredJobsForPagination.length,
+      currentPage,
+      jobsPerPage
+    });
+    
+    // Update displayed jobs from filtered results
+    const startIndex = (currentPage - 1) * jobsPerPage;
+    const endIndex = startIndex + jobsPerPage;
+    const jobsToShow = filteredJobsForPagination.slice(startIndex, endIndex);
+    setDisplayedJobs(jobsToShow);
+    
+    console.log('🔍 Displayed jobs:', {
+      totalFiltered: filteredJobsForPagination.length,
+      displayed: jobsToShow.length,
+      startIndex,
+      endIndex
+    });
+  }, [filteredJobsForPagination, currentPage, jobsPerPage])
 
   const handleSaveJob = async (jobId: string) => {
     if (!session?.user) {
@@ -685,8 +702,21 @@ function SearchPage() {
     })
   }
 
-  // Pagination functions
-  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage)
+  // Update filtered jobs for pagination when filters change
+  useEffect(() => {
+    let filtered = filterJobs(initialFilteredJobs, {
+      remote: filters.remote || undefined,
+      salaryMin: filters.salaryMin ? parseInt(filters.salaryMin) : undefined,
+      salaryMax: filters.salaryMax ? parseInt(filters.salaryMax) : undefined,
+      employmentTypes: filters.employmentTypes.length > 0 ? filters.employmentTypes : undefined,
+      datePosted: filters.datePosted !== 'all' ? filters.datePosted : undefined,
+      experience: filters.experience !== 'all' ? filters.experience : undefined
+    })
+    filtered = sortJobs(filtered, sortBy)
+    setFilteredJobsForPagination(filtered)
+  }, [initialFilteredJobs, filters, sortBy])
+  
+  const totalPages = Math.ceil(filteredJobsForPagination.length / jobsPerPage)
   
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -705,8 +735,6 @@ function SearchPage() {
       setCurrentPage(currentPage - 1)
     }
   }
-
-
 
   if (loading) {
     return (
@@ -736,15 +764,13 @@ function SearchPage() {
         
         {/* Search Row */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-          {/* Intro blurb */}
-          {!searchQuery && !location && (
-            <div className="flex-1 min-w-0">
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                Search for jobs by title, skills, or company. Add a location to find opportunities near you, or browse remote positions. 
-                Your search history is automatically saved for quick access.
-              </p>
-            </div>
-          )}
+          {/* Intro blurb - always visible */}
+          <div className="flex-1 min-w-0">
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Search for jobs by title, skills, or company. Add a location to find opportunities near you, or browse remote positions. 
+              Your search history is automatically saved for quick access.
+            </p>
+          </div>
           
           {/* Search inputs */}
           <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-end lg:flex-shrink-0">
@@ -853,6 +879,9 @@ function SearchPage() {
                 className="absolute top-full left-0 right-0 mt-1 bg-card rounded-xl shadow-lg border border-input z-10 max-h-64 overflow-y-auto"
                 role="listbox"
                 aria-label="Search history list"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
               >
                 <div className="p-2">
                   {dbSearchHistory.length > 0 ? (
@@ -867,7 +896,10 @@ function SearchPage() {
                             key={entry.id} 
                             className={`p-2 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${isCurrent ? 'bg-primary/5 border-primary/20' : 'bg-muted/30 border-muted'}`} 
                             role="listitem"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              
                               // Update form fields
                               setInputQuery(entry.query);
                               setInputLocation(entry.location);
@@ -882,7 +914,8 @@ function SearchPage() {
                               if (entry.radius) params.append('radius', entry.radius.toString());
                               router.push(`/search?${params.toString()}`);
                               
-                              // Load cached results or make new API call
+                              // Force a fresh search by clearing cache first
+                              clearCache();
                               searchJobs(entry.query, entry.location, entry.radius);
                               
                               // Close dropdown
@@ -939,6 +972,37 @@ function SearchPage() {
                       </button>
                     </div>
                   )}
+                  
+                  {dbSearchHistory.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-muted">
+                      <button
+                        onClick={async () => {
+                          try {
+                            const response = await fetch('/api/user/search-results', {
+                              method: 'DELETE'
+                            });
+                            
+                            if (response.ok) {
+                              const data = await response.json();
+                              console.log('🗑️ Search history cleared:', data.message);
+                              setDbSearchHistory([]); // Clear local state
+                              setShowSearchHistory(false); // Close dropdown
+                            } else {
+                              console.error('Failed to clear search history');
+                            }
+                          } catch (error) {
+                            console.error('Error clearing search history:', error);
+                          }
+                        }}
+                        className="w-full text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-50 p-2 rounded transition-colors"
+                        title="Clear search history"
+                      >
+                        Clear Search History
+                      </button>
+                    </div>
+                  )}
+                  
+
                 </div>
               </div>
             )}
@@ -962,14 +1026,6 @@ function SearchPage() {
                     This suggests the job search API is not properly filtering by location.
                   </p>
                   <div className="flex space-x-4 mt-3">
-                    <button
-                      onClick={() => {
-                        setFilteredJobs(jobs);
-                      }}
-                      className="text-amber-800 hover:text-amber-900 font-medium underline"
-                    >
-                      Show All {locationFilterResults.originalCount} Jobs
-                    </button>
                     <button
                       onClick={() => {
                         const newLocation = '';
@@ -1181,7 +1237,16 @@ function SearchPage() {
               <div className="flex items-center space-x-4">
                 {/* Summary Text */}
                 <p className="text-muted-foreground text-sm">
-                  {filteredJobs.length === 0 && !loading ? '0' : (totalCount > 0 ? totalCount : 'many')} results
+                  {(() => {
+                    const displayCount = initialFilteredJobs.length === 0 && !loading ? 0 : (totalCount > 0 ? totalCount : initialFilteredJobs.length);
+                    console.log('🔍 Results count debug:', {
+                      initialFilteredJobsLength: initialFilteredJobs.length,
+                      totalCount,
+                      loading,
+                      displayCount
+                    });
+                    return `${displayCount} results`;
+                  })()}
                   {isUserIdle && ' • Idle mode (API calls disabled)'}
                 </p>
                 
@@ -1218,7 +1283,7 @@ function SearchPage() {
 
             {/* Results content */}
             <div className="min-h-[400px]">
-              {filteredJobs.length === 0 ? (
+              {initialFilteredJobs.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
                     <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
@@ -1243,7 +1308,7 @@ function SearchPage() {
                       <div className="flex flex-col sm:flex-row gap-2 justify-center">
                         <button
                           onClick={() => {
-                            setFilteredJobs(jobs);
+                            // This functionality is no longer needed since we removed the local filteredJobs state
                           }}
                           className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                         >
@@ -1278,7 +1343,7 @@ function SearchPage() {
                   ))}
                   
                   {/* Pagination */}
-                  {filteredJobs.length > 0 && (
+                  {initialFilteredJobs.length > 0 && (
                     <div className="mt-8">
                       {/* Client-side pagination for loaded jobs */}
                       {totalPages > 1 && (
@@ -1331,14 +1396,14 @@ function SearchPage() {
                         </div>
                       )}
                       
-                      {/* Load remaining jobs from API */}
-                      {hasMorePages && (
+                      {/* Load all remaining results from API */}
+                      {hasMorePages && currentPage === totalPages && (
                         <div className="text-center">
                           <button 
                             onClick={loadMoreJobs}
                             className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium transition-colors"
                           >
-                            Load All Remaining Jobs
+                            Load All Results
                           </button>
                         </div>
                       )}
