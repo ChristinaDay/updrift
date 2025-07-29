@@ -510,22 +510,39 @@ export default function Home() {
   }>>([])
 
   // Fetch real job examples for hero section
+  // Function to test if a logo URL actually loads
+  const testLogoUrl = async (url: string): Promise<boolean> => {
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      return response.ok && !!response.headers.get('content-type')?.startsWith('image/');
+    } catch {
+      return false;
+    }
+  };
+
   const fetchHeroJobs = async () => {
     try {
-      // Fetch a single large batch of jobs
+      // Fetch a larger batch to have more options
       const response = await fetch(`/api/jobs/search?query=software engineer&location=Remote&num_pages=1`);
       const data = await response.json();
       
       if (data.status === 'success' && data.data) {
-        // Filter for jobs that have generated logos (Adzuna doesn't provide API logos)
-        const jobsWithLogos = data.data.filter((job: Job) => {
-          const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
-          return !!generatedLogoUrl
-        });
+        const jobsWithWorkingLogos: Job[] = [];
         
-        // Take the first 4 jobs with logos
-        const jobsToShow = jobsWithLogos.slice(0, 4);
-        setHeroJobs(jobsToShow);
+        // Test each job's logo and only include those with working logos
+        for (const job of data.data) {
+          const logoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website);
+          if (logoUrl) {
+            const hasWorkingLogo = await testLogoUrl(logoUrl);
+            if (hasWorkingLogo) {
+              jobsWithWorkingLogos.push(job);
+              if (jobsWithWorkingLogos.length >= 4) break; // Stop once we have 4
+            }
+          }
+        }
+        
+        console.log('Hero jobs with working logos:', jobsWithWorkingLogos.map((job: Job) => job.employer_name));
+        setHeroJobs(jobsWithWorkingLogos);
       } else {
         setHeroJobs([]);
       }
@@ -959,7 +976,7 @@ export default function Home() {
             <div className="relative">
               <div className="space-y-6">
                 {heroJobs.map((job, index) => {
-                  // Only use generated logos since Adzuna doesn't provide API logos
+                  // Use the same logo logic as JobCard component
                   const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
                   const hasRealLogo = !!generatedLogoUrl
                   
@@ -972,21 +989,11 @@ export default function Home() {
                         <CardContent className="p-6">
                           <div className="flex items-center space-x-4">
                             <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl">
-                              {hasRealLogo ? (
-                                <img 
-                                  src={generatedLogoUrl} 
-                                  alt={job.employer_name}
-                                  className="w-8 h-8 object-contain"
-                                  onError={(e) => {
-                                    // Hide logo on error, show initial instead
-                                    e.currentTarget.style.display = 'none'
-                                    e.currentTarget.nextElementSibling?.classList.remove('hidden')
-                                  }}
-                                />
-                              ) : null}
-                              <span className={`text-lg ${hasRealLogo ? 'hidden' : ''}`}>
-                                {job.employer_name.charAt(0).toUpperCase()}
-                              </span>
+                              <img 
+                                src={generatedLogoUrl || ''} 
+                                alt={job.employer_name}
+                                className="w-8 h-8 object-contain"
+                              />
                             </div>
                             <div className="flex-1">
                               <h3 className="font-semibold text-foreground">{job.job_title}</h3>
