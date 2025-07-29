@@ -208,6 +208,7 @@ Welcome to the Updrift Project Diary! This document summarizes the progress, key
   - **Error Resolution**: Fixed Date object conversion errors that prevented page loading
   - **Auto-Refresh**: API hub page refreshes every 30 seconds to show updated usage
   - **Manual Refresh**: Added refresh button with loading states and timestamps
+  - **Rate Limiting Fix**: Resolved rate limiting errors by adding proper quota-status endpoint configuration (200 requests/hour)
 
 - **Key Technical Learnings:**
   - **Singleton Pattern Limitations**: In-memory singletons don't persist between server/client boundaries
@@ -215,12 +216,14 @@ Welcome to the Updrift Project Diary! This document summarizes the progress, key
   - **JSON Serialization**: Date objects become strings when sent over HTTP, requiring conversion
   - **System Architecture**: Separate tracking systems need explicit integration points
   - **Debug Strategy**: Instance ID logging helps identify singleton sharing issues
+  - **Rate Limiting Configuration**: New endpoints need proper rate limit configurations to avoid conflicts
 
 - **Development Process Insights:**
   - **Problem-Solving Approach**: Systematic debugging with console logs and instance tracking
   - **User Feedback Integration**: Direct user reports of data discrepancies led to root cause identification
   - **Iterative Fixes**: Multiple attempts (import fixes, instance sharing, server endpoints) before resolution
   - **Testing Strategy**: Real-time testing with actual API calls to verify quota tracking accuracy
+  - **Rate Limiting Resolution**: Identified that quota-status endpoint was using restrictive 'api-test' rate limiter (50/hour) instead of appropriate limit for auto-refresh functionality
 
 ### December 2024 — Responsive Design & Mobile-First Experience
 - **Mobile Filter System:**

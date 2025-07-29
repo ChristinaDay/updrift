@@ -54,6 +54,7 @@
 - ✅ Fixed webpack chunk loading errors by clearing build cache and rebuilding
 - ✅ Enhanced debug logging to track quota tracker instance sharing between server and client
 - ✅ Connected separate tracking systems (`apiUsageTracker` and `quotaTracker`) for consistent data display
+- ✅ Fixed rate limiting for quota-status endpoint - added proper rate limit configuration (200 requests/hour)
 
 ## 🚧 **In Progress**
 
