@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import ThemeToggle from "@/components/ThemeToggle";
-import { UserIcon, MagnifyingGlassIcon, BookmarkIcon, ChevronDownIcon, ChartBarIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
+import { UserIcon, MagnifyingGlassIcon, BookmarkIcon, ChevronDownIcon, ChartBarIcon, DocumentTextIcon, CogIcon } from "@heroicons/react/24/outline";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { usePathname } from "next/navigation";
@@ -61,6 +61,17 @@ export default function Header() {
                   <BookmarkIcon className="h-4 w-4" />
                   <span>My Jobs</span>
                 </Link>
+                <Link
+                  href="/apihub"
+                  className={`flex items-center space-x-1 px-1.5 border-b-2 transition-colors duration-200 ${
+                    pathname.startsWith("/apihub")
+                      ? "text-primary border-primary"
+                      : "text-muted-foreground border-transparent hover:text-primary"
+                  }`}
+                >
+                  <CogIcon className="h-4 w-4" />
+                  <span>API Hub</span>
+                </Link>
                 </>
               )}
             </nav>
@@ -107,6 +118,13 @@ export default function Header() {
                           <BookmarkIcon className="h-5 w-5" />
                           <span>My Jobs</span>
                         </Link>
+                        <Link
+                          href="/apihub"
+                          className={`flex items-center space-x-2 px-2 py-2 rounded-md ${pathname.startsWith("/apihub") ? "text-primary bg-accent" : "text-foreground hover:bg-accent/50"}`}
+                        >
+                          <CogIcon className="h-5 w-5" />
+                          <span>API Hub</span>
+                        </Link>
                       </>
                     )}
                   </nav>
@@ -118,6 +136,10 @@ export default function Header() {
                         <Link href="/profile" className="flex items-center gap-2 px-2 py-2 rounded-md text-foreground hover:bg-accent/50">
                           <UserIcon className="h-5 w-5" />
                           <span>Profile</span>
+                        </Link>
+                        <Link href="/apihub" className="flex items-center gap-2 px-2 py-2 rounded-md text-foreground hover:bg-accent/50">
+                          <CogIcon className="h-5 w-5" />
+                          <span>API Hub</span>
                         </Link>
                         <Button variant="outline" onClick={() => signOut()}>Sign out</Button>
                       </>
@@ -160,6 +182,9 @@ export default function Header() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
                     <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/apihub">API Hub</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut()}>Sign out</DropdownMenuItem>

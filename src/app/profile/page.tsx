@@ -281,7 +281,7 @@ export default function ProfilePage() {
               <h3 className="text-lg font-semibold text-card-foreground">Experience Level</h3>
             </div>
             <select
-              value={preferences.experienceLevel}
+              value={preferences.experienceLevel || ''}
               onChange={(e) => setPreferences(prev => ({ ...prev, experienceLevel: e.target.value }))}
               className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
             >
