@@ -135,8 +135,7 @@ export default function Header() {
                 </DialogContent>
               </Dialog>
             </div>
-            {/* Desktop ThemeToggle and session actions */}
-            <ThemeToggle />
+            {/* Desktop session actions */}
             {status === "loading" ? (
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
             ) : session ? (
@@ -176,6 +175,8 @@ export default function Header() {
                 </Link>
               </>
             )}
+            {/* Theme toggle - positioned at the far right */}
+            <ThemeToggle />
           </div>
         </div>
       </div>

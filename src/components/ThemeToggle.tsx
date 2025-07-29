@@ -15,20 +15,16 @@ export default function ThemeToggle() {
     setTheme(isDark ? 'light' : 'dark');
   };
 
-  // For testing: use extremely dark gradient colors in both modes
-  const gradientClass = 'bg-gradient-to-r from-black via-gray-900 to-gray-800 text-white shadow-lg hover:from-gray-900 hover:via-gray-800 hover:to-black transform hover:scale-105 transition-all rounded-xl';
-
   return (
     <Button
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className={`w-9 h-9 p-0 border-0 ${gradientClass}`}
+      className="w-9 h-9 p-0 border-0 text-muted-foreground hover:text-foreground transition-colors group"
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      style={{ color: 'white' }}
     >
       {isDark ? (
-        <SunIcon className="h-4 w-4" />
+        <SunIcon className="h-4 w-4 group-hover:text-black" />
       ) : (
         <MoonIcon className="h-4 w-4" />
       )}
