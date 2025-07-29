@@ -177,8 +177,8 @@ export default function JobCard({
             {matchScore}% Match
           </Badge>
         ) : <div />}
-        {/* Application Status Badge */}
-        {applicationStatus && (
+        {/* Application Status Badge - exclude VIEWED since it's shown in the button */}
+        {applicationStatus && applicationStatus !== 'VIEWED' && (
           <Badge 
             variant="secondary" 
             className={`${getApplicationStatusColor(applicationStatus)} border font-medium px-3 py-1 text-sm shadow-sm flex items-center gap-1`}
