@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { BookmarkIcon, MagnifyingGlassIcon, UserIcon, SparklesIcon, PaperAirplaneIcon, BriefcaseIcon } from '@heroicons/react/24/outline'
+import { BookmarkIcon, MagnifyingGlassIcon, UserIcon, SparklesIcon, PaperAirplaneIcon, BriefcaseIcon, CheckCircleIcon, EyeIcon, ClockIcon, XCircleIcon, TrophyIcon } from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { capitalizeLocation } from '@/utils/jobUtils'
 import ThemeToggle from '@/components/ThemeToggle'
@@ -15,6 +15,13 @@ export default function Dashboard() {
   const router = useRouter()
   const [savedJobs, setSavedJobs] = useState([])
   const [searchHistory, setSearchHistory] = useState([])
+  const [applicationStats, setApplicationStats] = useState({
+    total: 0,
+    applied: 0,
+    interviewing: 0,
+    rejected: 0,
+    hired: 0
+  })
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -45,6 +52,20 @@ export default function Dashboard() {
       if (savedJobsResponse.ok) {
         const savedJobsData = await savedJobsResponse.json()
         setSavedJobs(savedJobsData.savedJobs || [])
+      }
+
+      // Load application statistics
+      const applicationsResponse = await fetch('/api/user/applications')
+      if (applicationsResponse.ok) {
+        const applicationsData = await applicationsResponse.json()
+        const apps = applicationsData.applications || []
+        setApplicationStats({
+          total: apps.length,
+          applied: apps.filter((app: any) => app.status === 'APPLIED').length,
+          interviewing: apps.filter((app: any) => app.status === 'INTERVIEWING').length,
+          rejected: apps.filter((app: any) => app.status === 'REJECTED').length,
+          hired: apps.filter((app: any) => app.status === 'HIRED').length
+        })
       }
       
     } catch (error) {
@@ -81,46 +102,76 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Link href="/saved-jobs" className="group bg-card p-6 rounded-lg shadow-sm border border-border transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex flex-col h-full justify-between">
-            <div className="flex items-center">
-              <div className="p-2 bg-secondary rounded-lg">
-                <BookmarkSolidIcon className="h-6 w-6 text-primary" />
-              </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-muted-foreground">Saved Jobs</p>
-                <p className="text-2xl font-bold text-foreground">{savedJobs.length}</p>
+        {/* My Jobs Overview */}
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground flex items-center">
+                <BriefcaseIcon className="h-6 w-6 text-primary mr-2" />
+                My Jobs
+              </h2>
+              <p className="text-muted-foreground mt-1">
+                Track your saved jobs and applications in one place
+              </p>
+            </div>
+            <Link 
+              href="/saved-jobs"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-background bg-primary hover:bg-primary/90"
+            >
+              View All Jobs
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Saved Jobs */}
+            <div className="bg-background p-4 rounded-lg border border-border">
+              <div className="flex items-center">
+                <div className="p-2 bg-secondary rounded-lg">
+                  <BookmarkSolidIcon className="h-5 w-5 text-primary" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-muted-foreground">Saved Jobs</p>
+                  <p className="text-2xl font-bold text-foreground">{savedJobs.length}</p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-end mt-6">
-              <span className="text-primary text-sm font-medium">View</span>
-            </div>
-          </Link>
-          
-          <Link href="/saved-jobs" className="group bg-card p-6 rounded-lg shadow-sm border border-border transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex flex-col h-full justify-between">
-            <div className="flex items-center">
-              <div className="p-2 bg-secondary rounded-lg">
-                <BriefcaseIcon className="h-6 w-6 text-secondary" />
-              </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-muted-foreground">My Jobs</p>
-                <p className="text-2xl font-bold text-foreground">0</p>
+
+            {/* Applied */}
+            <div className="bg-background p-4 rounded-lg border border-border">
+              <div className="flex items-center">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <PaperAirplaneIcon className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-muted-foreground">Applied</p>
+                  <p className="text-2xl font-bold text-foreground">{applicationStats.applied}</p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-end mt-6">
-              <span className="text-primary text-sm font-medium">View</span>
-            </div>
-          </Link>
-          
-          <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
-            <div className="flex items-center">
-              <div className="p-2 bg-secondary rounded-lg">
-                <UserIcon className="h-6 w-6 text-secondary" />
+
+            {/* Interviewing */}
+            <div className="bg-background p-4 rounded-lg border border-border">
+              <div className="flex items-center">
+                <div className="p-2 bg-yellow-100 rounded-lg">
+                  <ClockIcon className="h-5 w-5 text-yellow-600" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-muted-foreground">Interviewing</p>
+                  <p className="text-2xl font-bold text-foreground">{applicationStats.interviewing}</p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-muted-foreground">Profile Views</p>
-                <p className="text-2xl font-bold text-foreground">--</p>
+            </div>
+
+            {/* Hired */}
+            <div className="bg-background p-4 rounded-lg border border-border">
+              <div className="flex items-center">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <TrophyIcon className="h-5 w-5 text-green-600" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-muted-foreground">Hired</p>
+                  <p className="text-2xl font-bold text-foreground">{applicationStats.hired}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -163,7 +214,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Saved Jobs Section */}
+        {/* Recent Saved Jobs Section */}
         <div className="bg-card rounded-lg shadow-sm border border-border">
           <div className="px-6 py-4 border-b border-border">
             <div className="flex items-center justify-between">
