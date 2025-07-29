@@ -119,12 +119,15 @@ export default function APIhubPage() {
       console.log('📈 Usage data:', usageData);
       setUsageData(usageData);
 
-      // Get quota information
-      const adzunaQuota = quotaTrackerInstance.getMonthlyQuota('adzuna');
-      const jsearchQuota = quotaTrackerInstance.getMonthlyQuota('jsearch');
-      console.log('📈 Adzuna quota from API hub:', adzunaQuota);
-      console.log('📈 JSearch quota from API hub:', jsearchQuota);
-      console.log('📈 Quota tracker instance ID from API hub:', quotaTrackerInstance);
+      // Get quota information from server
+      const quotaResponse = await fetch('/api/debug/quota-status');
+      const quotaData = quotaResponse.ok ? await quotaResponse.json() : {};
+      console.log('📈 Quota data from server:', quotaData);
+      
+      const adzunaQuota = quotaData.quotas?.adzuna?.quota;
+      const jsearchQuota = quotaData.quotas?.jsearch?.quota;
+      const adzunaEstimate = quotaData.quotas?.adzuna?.estimate;
+      const jsearchEstimate = quotaData.quotas?.jsearch?.estimate;
 
       // Update last updated timestamp
       setLastUpdated(new Date().toLocaleTimeString());
@@ -159,7 +162,7 @@ export default function APIhubPage() {
             requestsPerDay: 10000
           },
           monthlyQuota: adzunaQuota,
-          quotaEstimate: quotaTrackerInstance.getUsageEstimate('adzuna')
+          quotaEstimate: adzunaEstimate
         },
         {
           id: 'jsearch',
@@ -191,7 +194,7 @@ export default function APIhubPage() {
             requestsPerDay: 5000
           },
           monthlyQuota: jsearchQuota,
-          quotaEstimate: quotaTrackerInstance.getUsageEstimate('jsearch')
+          quotaEstimate: jsearchEstimate
         }
       ];
 
