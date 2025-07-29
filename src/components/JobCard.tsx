@@ -101,6 +101,16 @@ export default function JobCard({
   applicationStatus,
   onUpdateApplicationStatus
   }: JobCardProps) {
+  
+  // Debug logging
+  if (applicationStatus) {
+    console.log(`🔍 JobCard debug for ${job.job_title}:`, {
+      jobId: job.job_id,
+      applicationStatus,
+      isDisabled: applicationStatus && ['APPLIED', 'INTERVIEWING', 'REJECTED', 'HIRED'].includes(applicationStatus),
+      buttonText: applicationStatus === 'VIEWED' ? 'View Again' : applicationStatus
+    })
+  }
   const [imageError, setImageError] = useState(false)
   
   const skills = extractSkills(job)
@@ -301,6 +311,12 @@ export default function JobCard({
           }`}
           disabled={applicationStatus && ['APPLIED', 'INTERVIEWING', 'REJECTED', 'HIRED'].includes(applicationStatus)}
         >
+          {/* Debug info */}
+          {applicationStatus && (
+            <div className="hidden">
+              Debug: applicationStatus = {applicationStatus}, disabled = {String(applicationStatus && ['APPLIED', 'INTERVIEWING', 'REJECTED', 'HIRED'].includes(applicationStatus))}
+            </div>
+          )}
           {applicationStatus === 'VIEWED' ? (
             <>
               View Again
