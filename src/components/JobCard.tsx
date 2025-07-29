@@ -293,16 +293,22 @@ export default function JobCard({
         <Button 
           onClick={handleViewJob} 
           className={`w-full font-bold text-lg flex items-center justify-center gap-2 ${
-            applicationStatus 
+            applicationStatus === 'VIEWED'
+              ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 border-2 border-yellow-300' 
+              : applicationStatus && ['APPLIED', 'INTERVIEWING', 'REJECTED', 'HIRED'].includes(applicationStatus)
               ? 'bg-muted text-muted-foreground hover:bg-muted/80' 
               : 'bg-primary/90 hover:bg-primary'
           }`}
-          disabled={!!applicationStatus}
+          disabled={applicationStatus && ['APPLIED', 'INTERVIEWING', 'REJECTED', 'HIRED'].includes(applicationStatus)}
         >
-          {applicationStatus ? (
+          {applicationStatus === 'VIEWED' ? (
+            <>
+              View Again
+              <ArrowTopRightOnSquareIcon className="w-5 h-5" />
+            </>
+          ) : applicationStatus ? (
             <>
               {applicationStatus === 'APPLIED' && 'Applied'}
-              {applicationStatus === 'VIEWED' && 'Viewed'}
               {applicationStatus === 'INTERVIEWING' && 'Interviewing'}
               {applicationStatus === 'REJECTED' && 'Rejected'}
               {applicationStatus === 'HIRED' && 'Hired'}
