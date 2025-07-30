@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import Header from '@/components/Header'
+import SimilarJobs from '@/components/SimilarJobs'
 
 interface JobDetailPageProps {
   params: Promise<{ jobId: string }>
@@ -408,6 +409,9 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Similar Jobs */}
+              {job && <SimilarJobs currentJob={job} maxJobs={4} />}
             </div>
           </div>
         </div>
