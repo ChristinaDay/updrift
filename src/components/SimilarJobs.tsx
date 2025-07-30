@@ -212,7 +212,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                     {/* Job Info Container */}
                     <div className="w-full">
                       {/* Title and Company - Flexible to scoot over when logo appears */}
-                      <div className={`${generatedLogoUrl && validLogos.has(job.job_id) ? 'ml-16' : ''}`}>
+                      <div className={`${generatedLogoUrl && validLogos.has(job.job_id) ? 'ml-12 sm:ml-16' : ''}`}>
                         <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
                           {job.job_title}
                         </h4>
@@ -247,11 +247,11 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
 
                     {/* Company Logo - Positioned absolutely to not affect layout */}
                     {generatedLogoUrl && validLogos.has(job.job_id) && (
-                      <div className="absolute top-4 left-4 w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
-                        <img 
-                          src={generatedLogoUrl} 
-                          alt={job.employer_name}
-                          className="w-8 h-8 object-contain"
+                      <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
+                                                  <img 
+                            src={generatedLogoUrl} 
+                            alt={job.employer_name}
+                            className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
                           onError={(e) => {
                             // If image fails to load, hide the entire container
                             const parentElement = e.currentTarget.parentElement
