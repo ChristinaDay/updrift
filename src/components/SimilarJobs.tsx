@@ -219,7 +219,10 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                             className="w-8 h-8 object-contain"
                             onError={(e) => {
                               // If image fails to load, hide the entire container
-                              e.currentTarget.parentElement?.style.display = 'none'
+                              const parentElement = e.currentTarget.parentElement
+                              if (parentElement) {
+                                parentElement.style.display = 'none'
+                              }
                             }}
                           />
                         </div>
