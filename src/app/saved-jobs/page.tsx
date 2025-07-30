@@ -523,7 +523,12 @@ export default function SavedJobsPage() {
                           <div className="flex-1">
                             <div className="flex items-center space-x-3 mb-2">
                               <h3 className="text-lg font-semibold text-foreground">
-                                {savedJob.jobData.job_title}
+                                <Link 
+                                  href={`/jobs/${savedJob.jobData.job_id}`}
+                                  className="hover:text-primary hover:underline transition-colors cursor-pointer"
+                                >
+                                  {savedJob.jobData.job_title}
+                                </Link>
                               </h3>
                               {application && (
                                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(application.status)}`}>
@@ -775,7 +780,12 @@ export default function SavedJobsPage() {
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="text-lg font-semibold text-foreground">
-                              {application.jobData.job_title}
+                              <Link 
+                                href={`/jobs/${application.jobId}`}
+                                className="hover:text-primary hover:underline transition-colors cursor-pointer"
+                              >
+                                {application.jobData.job_title}
+                              </Link>
                             </h3>
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(application.status)}`}>
                               {application.status}
