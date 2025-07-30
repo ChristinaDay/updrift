@@ -1079,7 +1079,7 @@ export default function Home() {
                             <div className="h-3 bg-muted rounded animate-pulse w-3/4"></div>
                             <div className="h-3 bg-muted rounded animate-pulse w-1/2"></div>
                           </div>
-                          <div className="text-xs sm:text-sm text-muted-foreground opacity-60 flex-shrink-0">
+                          <div className="text-xs sm:text-sm text-primary/70 opacity-80 flex-shrink-0 animate-pulse">
                             Loading job...
                           </div>
                         </div>
