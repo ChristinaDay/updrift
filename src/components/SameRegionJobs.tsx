@@ -1,12 +1,11 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import { Job } from '@/types/job'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { 
+import {
   MapPinIcon,
   CurrencyDollarIcon,
   ClockIcon,
@@ -15,135 +14,104 @@ import {
 import { formatSalaryRange, formatJobLocation, formatJobPostedDate, getCompanyLogoUrl, validateLogoUrl } from '@/utils/jobUtils'
 import Link from 'next/link'
 
-interface SimilarJobsProps {
+interface SameRegionJobsProps {
   currentJob: Job
   maxJobs?: number
 }
 
-export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProps) {
-  const [similarJobs, setSimilarJobs] = useState<Job[]>([])
+export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJobsProps) {
+  const [sameRegionJobs, setSameRegionJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [validLogos, setValidLogos] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    const fetchSimilarJobs = async () => {
+    const fetchSameRegionJobs = async () => {
       try {
         setLoading(true)
-        
-        // Extract key terms from current job for similar search
         const jobTitle = currentJob.job_title
         const location = currentJob.job_city || currentJob.job_country || ''
         
-        // Create search query based on job title keywords
-        const titleWords = jobTitle.toLowerCase().split(' ').filter(word => 
-          word.length > 2 && !['the', 'and', 'or', 'for', 'with', 'in', 'at', 'to', 'of', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being'].includes(word)
-        )
-        
-        // Use first 2-3 meaningful words from title, or fallback to full title if too short
-        const searchQuery = titleWords.length >= 2 
-          ? titleWords.slice(0, 3).join(' ')
-          : jobTitle.toLowerCase().split(' ').slice(0, 2).join(' ')
-        
-        if (!searchQuery || searchQuery.trim().length < 2) {
+        if (!location) {
           setLoading(false)
           return
         }
 
-        console.log('🔍 Similar Jobs Debug:', { searchQuery, location, titleWords })
+        console.log('🌍 Same Region Jobs Debug:', { jobTitle, location })
+
+        // Extract keywords from job title
+        const titleWords = jobTitle.toLowerCase().split(' ').filter(word => 
+          word.length > 2 && !['the', 'and', 'or', 'for', 'with', 'in', 'at', 'to', 'of', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being'].includes(word)
+        )
         
-        // Try multiple search strategies for broader results (not location-focused)
-        const searchStrategies = [
-          // Strategy 1: Use just the main keywords without location (broader search)
-          { query: searchQuery, location: '' },
-          // Strategy 2: Use just the first meaningful word (very broad)
-          { query: titleWords[0] || searchQuery, location: '' },
-          // Strategy 3: Use extracted keywords with location as fallback
-          { query: searchQuery, location }
-        ]
+        const searchQuery = titleWords.length >= 2 
+          ? titleWords.slice(0, 3).join(' ')
+          : jobTitle.toLowerCase().split(' ').slice(0, 2).join(' ')
 
-        let allJobs: Job[] = []
-        
-        // Try each strategy until we get enough results
-        for (const strategy of searchStrategies) {
-          if (allJobs.length >= maxJobs * 2) break // Stop if we have enough candidates
-          
-          try {
-            console.log('🔍 Trying strategy:', strategy)
-            const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1`)
-            const data = await response.json()
-
-            console.log('🔍 Strategy result:', { status: data.status, jobsCount: data.data?.length || 0 })
-
-            if (data.status === 'success' && data.data) {
-              const newJobs = data.data.filter((job: Job) => 
-                job.job_id !== currentJob.job_id && 
-                !allJobs.some(existingJob => existingJob.job_id === job.job_id)
-              )
-              allJobs = [...allJobs, ...newJobs]
-              console.log('🔍 Added jobs:', newJobs.length, 'Total:', allJobs.length)
-            }
-          } catch (err) {
-            console.error('Error with search strategy:', err)
-          }
+        if (!searchQuery) {
+          setLoading(false)
+          return
         }
 
-        console.log('🔍 Total jobs found:', allJobs.length)
-        
-        // Sort by title similarity (simple word overlap)
-        const sortedJobs = allJobs.sort((a, b) => {
-          const currentWords = new Set(currentJob.job_title.toLowerCase().split(' '))
-          const aWords = new Set(a.job_title.toLowerCase().split(' '))
-          const bWords = new Set(b.job_title.toLowerCase().split(' '))
-          
-          const aOverlap = [...currentWords].filter(word => aWords.has(word)).length
-          const bOverlap = [...currentWords].filter(word => bWords.has(word)).length
-          
-          return bOverlap - aOverlap
-        })
+        // Search for jobs in the same location
+        const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(searchQuery)}&location=${encodeURIComponent(location)}&num_pages=1`)
+        const data = await response.json()
 
-        console.log('🔍 Final sorted jobs:', sortedJobs.length)
-        console.log('🔍 Error state:', sortedJobs.length === 0 ? 'No similar jobs found' : 'Jobs found')
+        console.log('🌍 Same Region result:', { status: data.status, jobsCount: data.data?.length || 0 })
 
-        if (sortedJobs.length === 0) {
-          setError('No similar jobs found')
-        } else {
-          const finalJobs = sortedJobs.slice(0, maxJobs)
-          setSimilarJobs(finalJobs)
+        if (data.status === 'success' && data.data) {
+          const filteredJobs = data.data.filter((job: Job) => 
+            job.job_id !== currentJob.job_id && 
+            // Check if job is in the same city or state
+            (job.job_city === currentJob.job_city || 
+             job.job_state === currentJob.job_state ||
+             job.job_country === currentJob.job_country)
+          )
+
+          console.log('🌍 Same Region filtered jobs:', filteredJobs.length)
           
-          // Validate logos for the jobs we're showing
-          const validateLogos = async () => {
-            const validLogosSet = new Set<string>()
+          if (filteredJobs.length === 0) {
+            setError('No jobs found in the same region')
+          } else {
+            const finalJobs = filteredJobs.slice(0, maxJobs)
+            setSameRegionJobs(finalJobs)
             
-            for (const job of finalJobs) {
-              const logoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
-              if (logoUrl) {
-                try {
-                  const isValid = await validateLogoUrl(logoUrl)
-                  if (isValid) {
-                    validLogosSet.add(job.job_id)
+            // Validate logos for the jobs we're showing
+            const validateLogos = async () => {
+              const validLogosSet = new Set<string>()
+              
+              for (const job of finalJobs) {
+                const logoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
+                if (logoUrl) {
+                  try {
+                    const isValid = await validateLogoUrl(logoUrl)
+                    if (isValid) {
+                      validLogosSet.add(job.job_id)
+                    }
+                  } catch (err) {
+                    console.error('Error validating logo for job:', job.job_id, err)
                   }
-                } catch (err) {
-                  console.error('Error validating logo for job:', job.job_id, err)
                 }
               }
+              
+              setValidLogos(validLogosSet)
             }
             
-            setValidLogos(validLogosSet)
+            validateLogos()
           }
-          
-          validateLogos()
+        } else {
+          setError('Failed to load same region jobs')
         }
       } catch (err) {
-        console.error('Error fetching similar jobs:', err)
-        setError('Failed to load similar jobs')
+        console.error('Error fetching same region jobs:', err)
+        setError('Failed to load same region jobs')
       } finally {
         setLoading(false)
       }
     }
 
     if (currentJob) {
-      fetchSimilarJobs()
+      fetchSameRegionJobs()
     }
   }, [currentJob, maxJobs])
 
@@ -151,46 +119,46 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Similar Jobs</CardTitle>
+          <CardTitle>Jobs in {currentJob.job_city || currentJob.job_state || currentJob.job_country}</CardTitle>
         </CardHeader>
-              <CardContent className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: maxJobs }).map((_, index) => (
-            <Card key={index} className="h-full">
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-3">
-                  <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                    <div className="flex justify-between">
-                      <Skeleton className="h-3 w-1/3" />
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: maxJobs }).map((_, index) => (
+              <Card key={index} className="h-full">
+                <CardContent className="p-4">
+                  <div className="flex items-start space-x-3">
+                    <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                      <div className="flex justify-between">
+                        <Skeleton className="h-3 w-1/3" />
+                        <Skeleton className="h-3 w-1/4" />
+                      </div>
                       <Skeleton className="h-3 w-1/4" />
                     </div>
-                    <Skeleton className="h-3 w-1/4" />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </CardContent>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
       </Card>
     )
   }
 
-  if (error || similarJobs.length === 0) {
-    return null // Don't show anything if no similar jobs found
+  if (error || sameRegionJobs.length === 0) {
+    return null // Don't show anything if no same region jobs found
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Similar Jobs (Anywhere)</CardTitle>
+        <CardTitle>Jobs in {currentJob.job_city || currentJob.job_state || currentJob.job_country}</CardTitle>
       </CardHeader>
       <CardContent className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {similarJobs.map((job) => {
+          {sameRegionJobs.map((job) => {
             const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
             
             return (
@@ -240,10 +208,10 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                     {/* Company Logo - Positioned absolutely to not affect layout */}
                     {generatedLogoUrl && validLogos.has(job.job_id) && (
                       <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
-                                                  <img 
-                            src={generatedLogoUrl} 
-                            alt={job.employer_name}
-                            className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+                        <img 
+                          src={generatedLogoUrl} 
+                          alt={job.employer_name}
+                          className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
                           onError={(e) => {
                             // If image fails to load, hide the entire container
                             const parentElement = e.currentTarget.parentElement
@@ -261,11 +229,11 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           })}
         </div>
         
-        {/* View All Similar Jobs Button */}
-        {similarJobs.length > 0 && (
+        {/* View All Same Region Jobs Button */}
+        {sameRegionJobs.length > 0 && (
           <div className="pt-3 border-t border-border/50 mt-4">
             <Link
-              href={`/search?query=${encodeURIComponent(currentJob.job_title)}&location=${encodeURIComponent(currentJob.job_city || currentJob.job_country || '')}`}
+              href={`/search?query=${encodeURIComponent(currentJob.job_title)}&location=${encodeURIComponent(currentJob.job_city || currentJob.job_state || currentJob.job_country || '')}`}
               className="block"
             >
               <Button 
@@ -273,7 +241,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                 size="sm"
                 className="w-full"
               >
-                View All Similar Jobs (Anywhere)
+                View All Jobs in {currentJob.job_city || currentJob.job_state || currentJob.job_country}
               </Button>
             </Link>
           </div>

@@ -33,6 +33,7 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import Header from '@/components/Header'
 import SimilarJobs from '@/components/SimilarJobs'
+import SameRegionJobs from '@/components/SameRegionJobs'
 
 interface JobDetailPageProps {
   params: Promise<{ jobId: string }>
@@ -413,10 +414,14 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
             </div>
           </div>
 
-          {/* Similar Jobs - Full Width */}
+          {/* Job Suggestions - Full Width */}
           {job && (
-            <div className="mt-8">
-              <SimilarJobs currentJob={job} maxJobs={6} />
+            <div className="mt-8 space-y-8">
+              {/* Same Region Jobs */}
+              <SameRegionJobs currentJob={job} maxJobs={4} />
+              
+              {/* Similar Jobs (Anywhere) */}
+              <SimilarJobs currentJob={job} maxJobs={4} />
             </div>
           )}
         </div>
