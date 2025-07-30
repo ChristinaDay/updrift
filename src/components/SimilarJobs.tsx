@@ -36,30 +36,72 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
         
         // Create search query based on job title keywords
         const titleWords = jobTitle.toLowerCase().split(' ').filter(word => 
-          word.length > 2 && !['the', 'and', 'or', 'for', 'with', 'in', 'at', 'to', 'of', 'a', 'an'].includes(word)
+          word.length > 2 && !['the', 'and', 'or', 'for', 'with', 'in', 'at', 'to', 'of', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being'].includes(word)
         )
         
-        // Use first 2-3 meaningful words from title
-        const searchQuery = titleWords.slice(0, 3).join(' ')
+        // Use first 2-3 meaningful words from title, or fallback to full title if too short
+        const searchQuery = titleWords.length >= 2 
+          ? titleWords.slice(0, 3).join(' ')
+          : jobTitle.toLowerCase().split(' ').slice(0, 2).join(' ')
         
         if (!searchQuery) {
           setLoading(false)
           return
         }
 
-        const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(searchQuery)}&location=${encodeURIComponent(location)}&num_pages=1`)
-        const data = await response.json()
+        // Try multiple search strategies for better results
+        const searchStrategies = [
+          // Strategy 1: Use extracted keywords with location
+          { query: searchQuery, location },
+          // Strategy 2: Use just the main keywords without location (broader search)
+          { query: searchQuery, location: '' },
+          // Strategy 3: Use just the first meaningful word (very broad)
+          { query: titleWords[0] || searchQuery, location: '' }
+        ]
 
-        if (data.status === 'success' && data.jobs) {
-          // Filter out the current job and limit results
-          const filteredJobs = data.jobs
-            .filter((job: Job) => job.job_id !== currentJob.job_id)
-            .slice(0, maxJobs)
+        let allJobs: Job[] = []
+        
+        // Try each strategy until we get enough results
+        for (const strategy of searchStrategies) {
+          if (allJobs.length >= maxJobs * 2) break // Stop if we have enough candidates
           
-          setSimilarJobs(filteredJobs)
-        } else {
-          setError('Failed to load similar jobs')
+          try {
+            const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1`)
+            const data = await response.json()
+
+            if (data.status === 'success' && data.jobs) {
+              const newJobs = data.jobs.filter((job: Job) => 
+                job.job_id !== currentJob.job_id && 
+                !allJobs.some(existingJob => existingJob.job_id === job.job_id)
+              )
+              allJobs = [...allJobs, ...newJobs]
+            }
+          } catch (err) {
+            console.error('Error with search strategy:', err)
+          }
         }
+
+        // Sort by relevance (jobs with same location first, then by title similarity)
+        const sortedJobs = allJobs.sort((a, b) => {
+          // Prioritize jobs in the same location
+          const aSameLocation = (a.job_city === currentJob.job_city) || (a.job_country === currentJob.job_country)
+          const bSameLocation = (b.job_city === currentJob.job_city) || (b.job_country === currentJob.job_country)
+          
+          if (aSameLocation && !bSameLocation) return -1
+          if (!aSameLocation && bSameLocation) return 1
+          
+          // Then sort by title similarity (simple word overlap)
+          const currentWords = new Set(currentJob.job_title.toLowerCase().split(' '))
+          const aWords = new Set(a.job_title.toLowerCase().split(' '))
+          const bWords = new Set(b.job_title.toLowerCase().split(' '))
+          
+          const aOverlap = [...currentWords].filter(word => aWords.has(word)).length
+          const bOverlap = [...currentWords].filter(word => bWords.has(word)).length
+          
+          return bOverlap - aOverlap
+        })
+
+        setSimilarJobs(sortedJobs.slice(0, maxJobs))
       } catch (err) {
         console.error('Error fetching similar jobs:', err)
         setError('Failed to load similar jobs')
@@ -174,6 +216,24 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
               </Link>
             )
           })}
+          
+          {/* View All Similar Jobs Button */}
+          {similarJobs.length > 0 && (
+            <div className="pt-2">
+              <Link
+                href={`/search?query=${encodeURIComponent(currentJob.job_title)}&location=${encodeURIComponent(currentJob.job_city || currentJob.job_country || '')}`}
+                className="block"
+              >
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="w-full"
+                >
+                  View All Similar Jobs
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
