@@ -209,7 +209,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
               >
                 <Card className="h-full hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
-                    <div className="flex items-start space-x-3">
+                    <div className={`${generatedLogoUrl && validLogos.has(job.job_id) ? 'flex items-start space-x-3' : ''}`}>
                       {/* Company Logo - Only show if we have a valid logo */}
                       {generatedLogoUrl && validLogos.has(job.job_id) && (
                         <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
