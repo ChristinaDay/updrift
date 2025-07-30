@@ -1076,8 +1076,8 @@ export default function Home() {
                           <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex-shrink-0 animate-pulse"></div>
                           <div className="flex-1 min-w-0 space-y-2">
                             <div className="h-4 bg-muted rounded animate-pulse"></div>
-                            <div className="h-3 bg-muted rounded animate-pulse w-3/4"></div>
-                            <div className="h-3 bg-muted rounded animate-pulse w-1/2"></div>
+                            <div className="h-3 bg-muted rounded animate-pulse w-2/3 sm:w-3/4"></div>
+                            <div className="h-3 bg-muted rounded animate-pulse w-1/2 sm:w-1/2"></div>
                           </div>
                           <div className="text-xs sm:text-sm text-primary/70 opacity-90 flex-shrink-0 animate-pulse">
                             Loading job...
