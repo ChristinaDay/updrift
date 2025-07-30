@@ -235,25 +235,24 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
             )
           })}
         </div>
-          
-          {/* View All Similar Jobs Button */}
-          {similarJobs.length > 0 && (
-            <div className="pt-3 border-t border-border/50">
-              <Link
-                href={`/search?query=${encodeURIComponent(currentJob.job_title)}&location=${encodeURIComponent(currentJob.job_city || currentJob.job_country || '')}`}
-                className="block"
+        
+        {/* View All Similar Jobs Button */}
+        {similarJobs.length > 0 && (
+          <div className="pt-3 border-t border-border/50 mt-4">
+            <Link
+              href={`/search?query=${encodeURIComponent(currentJob.job_title)}&location=${encodeURIComponent(currentJob.job_city || currentJob.job_country || '')}`}
+              className="block"
+            >
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="w-full"
               >
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="w-full"
-                >
-                  View All Similar Jobs
-                </Button>
-              </Link>
-            </div>
-          )}
-        </div>
+                View All Similar Jobs
+              </Button>
+            </Link>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
