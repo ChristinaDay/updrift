@@ -137,20 +137,24 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           <CardTitle>Similar Jobs</CardTitle>
         </CardHeader>
               <CardContent className="p-4">
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: maxJobs }).map((_, index) => (
-            <div key={index} className="flex items-start space-x-3">
-              <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
-              <div className="flex-1 space-y-2 pr-2">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-1/2" />
-                <div className="flex justify-between">
-                  <Skeleton className="h-3 w-1/3" />
-                  <Skeleton className="h-3 w-1/4" />
+            <Card key={index} className="h-full">
+              <CardContent className="p-4">
+                <div className="flex items-start space-x-3">
+                  <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                    <div className="flex justify-between">
+                      <Skeleton className="h-3 w-1/3" />
+                      <Skeleton className="h-3 w-1/4" />
+                    </div>
+                    <Skeleton className="h-3 w-1/4" />
+                  </div>
                 </div>
-                <Skeleton className="h-3 w-1/4" />
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </CardContent>
@@ -168,7 +172,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
         <CardTitle>Similar Jobs</CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {similarJobs.map((job) => {
             const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
             
@@ -178,63 +182,59 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                 href={`/jobs/${job.job_publisher.toLowerCase()}-${job.job_id}`}
                 className="block group"
               >
-                <div className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                  {/* Company Logo */}
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                    {generatedLogoUrl ? (
-                      <img 
-                        src={generatedLogoUrl} 
-                        alt={job.employer_name}
-                        className="w-8 h-8 object-contain"
-                      />
-                    ) : (
-                      <BuildingOfficeIcon className="w-6 h-6 text-muted-foreground" />
-                    )}
-                  </div>
-
-                  {/* Job Info */}
-                  <div className="flex-1 min-w-0 pr-2">
-                    <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                      {job.job_title}
-                    </h4>
-                    <p className="text-xs text-muted-foreground mt-1 truncate">
-                      {job.employer_name}
-                    </p>
-                    
-                    {/* Job Details */}
-                    <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1 flex-1 min-w-0">
-                        <MapPinIcon className="w-3 h-3 flex-shrink-0" />
-                        <span className="truncate">{formatJobLocation(job)}</span>
+                <Card className="h-full hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start space-x-3">
+                      {/* Company Logo */}
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                        {generatedLogoUrl ? (
+                          <img 
+                            src={generatedLogoUrl} 
+                            alt={job.employer_name}
+                            className="w-8 h-8 object-contain"
+                          />
+                        ) : (
+                          <BuildingOfficeIcon className="w-6 h-6 text-muted-foreground" />
+                        )}
                       </div>
-                      
-                      {job.job_min_salary && job.job_max_salary && (
-                        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                          <CurrencyDollarIcon className="w-3 h-3" />
-                          <span className="text-xs">{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
+
+                      {/* Job Info */}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                          {job.job_title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-1 truncate">
+                          {job.employer_name}
+                        </p>
+                        
+                        {/* Job Details */}
+                        <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1 flex-1 min-w-0">
+                            <MapPinIcon className="w-3 h-3 flex-shrink-0" />
+                            <span className="truncate">{formatJobLocation(job)}</span>
+                          </div>
+                          
+                          {job.job_min_salary && job.job_max_salary && (
+                            <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                              <CurrencyDollarIcon className="w-3 h-3" />
+                              <span className="text-xs">{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
 
-                    {/* Posted Date */}
-                    <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                      <ClockIcon className="w-3 h-3 flex-shrink-0" />
-                      <span>{formatJobPostedDate(job.job_posted_at_timestamp.toString())}</span>
+                        {/* Posted Date */}
+                        <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                          <ClockIcon className="w-3 h-3 flex-shrink-0" />
+                          <span>{formatJobPostedDate(job.job_posted_at_timestamp.toString())}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* View Button */}
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-                  >
-                    View
-                  </Button>
-                </div>
+                  </CardContent>
+                </Card>
               </Link>
             )
           })}
+        </div>
           
           {/* View All Similar Jobs Button */}
           {similarJobs.length > 0 && (

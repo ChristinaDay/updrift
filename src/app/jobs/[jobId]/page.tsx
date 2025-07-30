@@ -410,10 +410,15 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
                 </CardContent>
               </Card>
 
-              {/* Similar Jobs */}
-              {job && <SimilarJobs currentJob={job} maxJobs={4} />}
             </div>
           </div>
+
+          {/* Similar Jobs - Full Width */}
+          {job && (
+            <div className="mt-8">
+              <SimilarJobs currentJob={job} maxJobs={6} />
+            </div>
+          )}
         </div>
       </div>
     </div>
