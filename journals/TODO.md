@@ -107,6 +107,7 @@ Create internal job detail pages (`/jobs/[jobId]`) to keep users in the UpDrift 
 - [x] Fixed location filtering in SameRegionJobs component
 - [x] Improved search strategies for finding jobs in same area
 - [x] Added better error handling and debugging
+- [x] Fixed job ID filtering issue where same job appeared in similar jobs
 
 #### Planned Enhancements
 - [ ] Add "Jobs from Same Company" row

@@ -7,6 +7,7 @@ import { errorHandler, errorUtils, ErrorType } from './errorHandling';
 import { quotaTracker } from './quotaTracker';
 import { trackAPICall } from './apiUsageTracker';
 import { getCompanyLogoUrl } from '@/utils/jobUtils';
+import { parseCompositeJobId } from './jobStorage';
 
 // Adzuna API Configuration (much better than JSearch!)
 const ADZUNA_BASE_URL = 'https://api.adzuna.com/v1/api/jobs';
@@ -74,8 +75,29 @@ export async function searchJobs(params: JobSearchParams): Promise<JobSearchResp
   // Filter out the excluded job if specified
   let filteredJobs = result.jobs;
   if (params.excludeJobId) {
-    filteredJobs = result.jobs.filter(job => job.job_id !== params.excludeJobId);
-    console.log('🔍 Filtered out job ID:', params.excludeJobId, 'Jobs before:', result.jobs.length, 'Jobs after:', filteredJobs.length);
+    console.log('🔍 Filtering out job ID:', params.excludeJobId);
+    console.log('🔍 Jobs before filtering:', result.jobs.length);
+    console.log('🔍 Sample job IDs before filtering:', result.jobs.slice(0, 3).map(job => job.job_id));
+    
+    // Parse composite job ID to get provider and original ID
+    const parsed = parseCompositeJobId(params.excludeJobId);
+    
+    filteredJobs = result.jobs.filter(job => {
+      // Check against composite ID
+      const jobCompositeId = `${job.job_publisher.toLowerCase()}-${job.job_id}`;
+      
+      // Also check against original ID and provider match
+      const isSameJob = jobCompositeId === params.excludeJobId || 
+                       (parsed && job.job_id === parsed.originalId && 
+                        job.job_publisher.toLowerCase() === parsed.provider);
+      
+      return !isSameJob;
+    });
+    
+    console.log('🔍 Jobs after filtering:', filteredJobs.length);
+    console.log('🔍 Sample job IDs after filtering:', filteredJobs.slice(0, 3).map(job => job.job_id));
+  } else {
+    console.log('🔍 No excludeJobId provided, skipping filtering');
   }
   
   console.log('🔍 searchJobs - Final result:', {

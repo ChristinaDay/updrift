@@ -21,7 +21,7 @@ const searchHandler = async (request: NextRequest) => {
       const num_pages = parseInt(searchParams.get('num_pages') || '1');
       const excludeJobId = searchParams.get('excludeJobId') || ''; // New parameter to exclude current job
 
-      console.log('�� Job search request:', { query, location, radius, remote_jobs_only, page });
+      console.log('🔍 Job search request:', { query, location, radius, remote_jobs_only, page, excludeJobId });
 
       // Use the new Adzuna API implementation
       console.log('🔍 Calling searchJobs function...');
