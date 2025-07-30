@@ -1079,7 +1079,9 @@ export default function Home() {
                             <div className="h-3 bg-muted rounded animate-pulse w-3/4"></div>
                             <div className="h-3 bg-muted rounded animate-pulse w-1/2"></div>
                           </div>
-                          <div className="w-8 h-3 bg-muted rounded animate-pulse flex-shrink-0"></div>
+                          <div className="text-xs sm:text-sm text-muted-foreground opacity-60 flex-shrink-0">
+                            Loading...
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
