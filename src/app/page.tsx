@@ -498,6 +498,7 @@ export default function Home() {
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const [heroJobs, setHeroJobs] = useState<Job[]>([])
+  const [heroJobsLoading, setHeroJobsLoading] = useState(true)
   const [particles, setParticles] = useState<Array<{
     id: string;
     x: number;
@@ -521,6 +522,7 @@ export default function Home() {
   };
 
   const fetchHeroJobs = async () => {
+    setHeroJobsLoading(true);
     try {
       // Define diverse job queries to represent different industries
       const jobQueries = [
@@ -534,42 +536,54 @@ export default function Home() {
         'chef'              // Hospitality/Food
       ];
       
-      const allJobs: Job[] = [];
-      
-      // Fetch jobs from different industries
-      for (const query of jobQueries) {
+      // Fetch all industry queries in parallel for much faster loading
+      const fetchPromises = jobQueries.map(async (query) => {
         try {
           const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(query)}&location=Remote&num_pages=1`);
           const data = await response.json();
           
-          if (data.status === 'success' && data.data) {
-            // Test each job's logo and only include those with working logos
-            for (const job of data.data) {
+          if (data.status === 'success' && data.data && data.data.length > 0) {
+            // Take the first job with a logo (optimized for speed)
+            for (const job of data.data.slice(0, 3)) { // Only check first 3 jobs for speed
               const logoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website);
               if (logoUrl) {
-                const hasWorkingLogo = await testLogoUrl(logoUrl);
-                if (hasWorkingLogo) {
-                  // Store job data for internal job detail pages
-                  try {
-                    await fetch('/api/jobs/store', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ job })
-                    });
-                  } catch (error) {
-                    console.error('Error storing hero job:', error);
-                  }
+                // Quick logo validation (skip if it takes too long)
+                try {
+                  const hasWorkingLogo = await Promise.race([
+                    testLogoUrl(logoUrl),
+                    new Promise(resolve => setTimeout(() => resolve(false), 1000)) // 1 second timeout
+                  ]);
                   
-                  allJobs.push(job);
-                  break; // Take one job from each industry
+                  if (hasWorkingLogo) {
+                    // Store job data for internal job detail pages
+                    try {
+                      await fetch('/api/jobs/store', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ job })
+                      });
+                    } catch (error) {
+                      console.error('Error storing hero job:', error);
+                    }
+                    
+                    return job;
+                  }
+                } catch (error) {
+                  console.error('Logo validation timeout for:', job.employer_name);
                 }
               }
             }
           }
+          return null;
         } catch (error) {
           console.error(`Error fetching ${query} jobs:`, error);
+          return null;
         }
-      }
+      });
+      
+      // Wait for all parallel requests to complete
+      const results = await Promise.all(fetchPromises);
+      const allJobs = results.filter(job => job !== null);
       
       // If we don't have enough diverse jobs, fill with software engineering jobs
       if (allJobs.length < 4) {
@@ -583,20 +597,28 @@ export default function Home() {
               
               const logoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website);
               if (logoUrl) {
-                const hasWorkingLogo = await testLogoUrl(logoUrl);
-                if (hasWorkingLogo) {
-                  // Store job data for internal job detail pages
-                  try {
-                    await fetch('/api/jobs/store', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ job })
-                    });
-                  } catch (error) {
-                    console.error('Error storing hero job:', error);
-                  }
+                try {
+                  const hasWorkingLogo = await Promise.race([
+                    testLogoUrl(logoUrl),
+                    new Promise(resolve => setTimeout(() => resolve(false), 1000))
+                  ]);
                   
-                  allJobs.push(job);
+                  if (hasWorkingLogo) {
+                    // Store job data for internal job detail pages
+                    try {
+                      await fetch('/api/jobs/store', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ job })
+                      });
+                    } catch (error) {
+                      console.error('Error storing hero job:', error);
+                    }
+                    
+                    allJobs.push(job);
+                  }
+                } catch (error) {
+                  console.error('Logo validation timeout for fallback job:', job.employer_name);
                 }
               }
             }
@@ -611,6 +633,8 @@ export default function Home() {
     } catch (error) {
       console.error('Error fetching hero jobs:', error);
       setHeroJobs([]);
+    } finally {
+      setHeroJobsLoading(false);
     }
   };
 
@@ -1035,53 +1059,78 @@ export default function Home() {
             {/* Right: Flowing Job Cards */}
             <div className="relative">
               <div className="space-y-4 sm:space-y-6">
-                {heroJobs.map((job, index) => {
-                  // Use the same logo logic as JobCard component
-                  const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
-                  const hasRealLogo = !!generatedLogoUrl
-                  
-
-                  
-                  return (
-                    <Link
-                      key={job.job_id}
-                      href={`/jobs/${job.job_publisher.toLowerCase()}-${job.job_id}`}
-                      className="block"
+                {heroJobsLoading ? (
+                  // Skeleton loading cards
+                  Array.from({ length: 4 }).map((_, index) => (
+                    <Card 
+                      key={`skeleton-${index}`}
+                      className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl animate-pulse"
+                      style={{
+                        animation: `heroCardFloat ${6.2 + index * 0.5}s ease-in-out infinite`,
+                        animationDelay: `${index * 0.8}s`,
+                        willChange: 'transform'
+                      }}
                     >
-                      <Card 
-                        className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer group/card"
-                        style={{
-                          animation: `heroCardFloat ${6.2 + index * 0.5}s ease-in-out infinite`,
-                          animationDelay: `${index * 0.8}s`,
-                          willChange: 'transform'
-                        }}
-                      >
-                        <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 rounded-xl blur opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
-                        <CardContent className="p-4 sm:p-6">
-                          <div className="flex items-center space-x-3 sm:space-x-4">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl flex-shrink-0">
-                              <img 
-                                src={generatedLogoUrl || ''} 
-                                alt={job.employer_name}
-                                className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-foreground text-sm sm:text-base break-words">{job.job_title}</h3>
-                              <p className="text-xs sm:text-sm text-muted-foreground truncate">{job.employer_name}</p>
-                              <p className="text-xs sm:text-sm font-medium text-primary">
-                                {formatSalary(job.job_min_salary, job.job_max_salary)}
-                              </p>
-                            </div>
-                            <div className="text-xs sm:text-sm text-muted-foreground opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                              View →
-                            </div>
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex-shrink-0 animate-pulse"></div>
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <div className="h-4 bg-muted rounded animate-pulse"></div>
+                            <div className="h-3 bg-muted rounded animate-pulse w-3/4"></div>
+                            <div className="h-3 bg-muted rounded animate-pulse w-1/2"></div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  )
-                })}
+                          <div className="w-8 h-3 bg-muted rounded animate-pulse flex-shrink-0"></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  heroJobs.map((job, index) => {
+                    // Use the same logo logic as JobCard component
+                    const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
+                    const hasRealLogo = !!generatedLogoUrl
+                    
+                    return (
+                      <Link
+                        key={job.job_id}
+                        href={`/jobs/${job.job_publisher.toLowerCase()}-${job.job_id}`}
+                        className="block"
+                      >
+                        <Card 
+                          className="bg-card/80 backdrop-blur-xl border-primary/20 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer group/card"
+                          style={{
+                            animation: `heroCardFloat ${6.2 + index * 0.5}s ease-in-out infinite`,
+                            animationDelay: `${index * 0.8}s`,
+                            willChange: 'transform'
+                          }}
+                        >
+                          <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 rounded-xl blur opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
+                          <CardContent className="p-4 sm:p-6">
+                            <div className="flex items-center space-x-3 sm:space-x-4">
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center text-xl backdrop-blur-xl flex-shrink-0">
+                                <img 
+                                  src={generatedLogoUrl || ''} 
+                                  alt={job.employer_name}
+                                  className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-semibold text-foreground text-sm sm:text-base break-words">{job.job_title}</h3>
+                                <p className="text-xs sm:text-sm text-muted-foreground truncate">{job.employer_name}</p>
+                                <p className="text-xs sm:text-sm font-medium text-primary">
+                                  {formatSalary(job.job_min_salary, job.job_max_salary)}
+                                </p>
+                              </div>
+                              <div className="text-xs sm:text-sm text-muted-foreground opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                                View →
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    )
+                  })
+                )}
               </div>
             </div>
           </div>
