@@ -154,27 +154,27 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           <CardTitle>Similar Jobs</CardTitle>
         </CardHeader>
               <CardContent className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: maxJobs }).map((_, index) => (
-            <Card key={index} className="h-full">
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-3">
-                  <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                    <div className="flex justify-between">
-                      <Skeleton className="h-3 w-1/3" />
+          <div className="flex flex-wrap gap-4">
+            {Array.from({ length: maxJobs }).map((_, index) => (
+              <Card key={index} className="w-80 h-full">
+                <CardContent className="p-4">
+                  <div className="flex items-start space-x-3">
+                    <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                      <div className="flex justify-between">
+                        <Skeleton className="h-3 w-1/3" />
+                        <Skeleton className="h-3 w-1/4" />
+                      </div>
                       <Skeleton className="h-3 w-1/4" />
                     </div>
-                    <Skeleton className="h-3 w-1/4" />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </CardContent>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
       </Card>
     )
   }
@@ -189,7 +189,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
         <CardTitle>Similar Jobs (Anywhere)</CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-wrap gap-4">
           {similarJobs.map((job) => {
             const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
             
@@ -199,7 +199,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                 href={`/jobs/${job.job_publisher.toLowerCase()}-${job.job_id}`}
                 className="block group"
               >
-                <Card className="h-full hover:shadow-md transition-shadow relative">
+                <Card className="w-80 h-full hover:shadow-md transition-shadow relative">
                   <CardContent className="p-4">
                     {/* Job Info Container */}
                     <div className="w-full">
@@ -238,12 +238,12 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                     </div>
 
                     {/* Company Logo - Positioned absolutely to not affect layout */}
-                    {generatedLogoUrl && validLogos.has(job.job_id) && (
+                    {generatedLogoUrl && (
                       <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
-                                                  <img 
-                            src={generatedLogoUrl} 
-                            alt={job.employer_name}
-                            className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+                        <img 
+                          src={generatedLogoUrl} 
+                          alt={job.employer_name}
+                          className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
                           onError={(e) => {
                             // If image fails to load, hide the entire container
                             const parentElement = e.currentTarget.parentElement

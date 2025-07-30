@@ -53,24 +53,100 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
           return
         }
 
-        // Search for jobs in the same location
-        const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(searchQuery)}&location=${encodeURIComponent(location)}&num_pages=1`)
-        const data = await response.json()
+        // Try multiple search strategies to find jobs in the same area
+        const searchStrategies = [
+          // Strategy 1: Use job title keywords + exact location
+          { query: searchQuery, location },
+          // Strategy 2: Use broader job title + location
+          { query: titleWords[0] || searchQuery, location },
+          // Strategy 3: Use just location to find any jobs in the area
+          { query: '', location },
+          // Strategy 4: Use common job terms + location
+          { query: 'job', location }
+        ]
 
-        console.log('🌍 Same Region result:', { status: data.status, jobsCount: data.data?.length || 0 })
+        let allJobs: Job[] = []
+        
+        // Try each strategy until we get enough results
+        for (const strategy of searchStrategies) {
+          if (allJobs.length >= maxJobs * 3) break // Stop if we have enough candidates
+          
+          try {
+            console.log('🌍 Trying strategy:', strategy)
+            const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1`)
+            const data = await response.json()
 
-        if (data.status === 'success' && data.data) {
-          const filteredJobs = data.data.filter((job: Job) => 
-            job.job_id !== currentJob.job_id && 
-            // Check if job is in the same city or state
-            (job.job_city === currentJob.job_city || 
-             job.job_state === currentJob.job_state ||
-             job.job_country === currentJob.job_country)
-          )
+            console.log('🌍 Strategy result:', { status: data.status, jobsCount: data.data?.length || 0 })
 
-          console.log('🌍 Same Region filtered jobs:', filteredJobs.length)
+            if (data.status === 'success' && data.data) {
+              const newJobs = data.data.filter((job: Job) => 
+                job.job_id !== currentJob.job_id && 
+                !allJobs.some(existingJob => existingJob.job_id === job.job_id)
+              )
+              allJobs = [...allJobs, ...newJobs]
+              console.log('🌍 Added jobs:', newJobs.length, 'Total:', allJobs.length)
+            }
+          } catch (err) {
+            console.error('Error with search strategy:', err)
+          }
+        }
+
+        console.log('🌍 Total jobs found:', allJobs.length)
+        
+        if (allJobs.length === 0) {
+          setError('No jobs found in the same region')
+        } else {
+          const filteredJobs = allJobs.filter((job: Job) => {
+            // Skip the current job
+            if (job.job_id === currentJob.job_id) return false;
+            
+            // Get location info from current job
+            const currentCity = currentJob.job_city?.toLowerCase().trim();
+            const currentState = currentJob.job_state?.toLowerCase().trim();
+            const currentCountry = currentJob.job_country?.toLowerCase().trim();
+            
+            // Get location info from candidate job
+            const jobCity = job.job_city?.toLowerCase().trim();
+            const jobState = job.job_state?.toLowerCase().trim();
+            const jobCountry = job.job_country?.toLowerCase().trim();
+            
+            // More flexible location matching
+            const cityMatch = currentCity && jobCity && (
+              currentCity === jobCity ||
+              jobCity.includes(currentCity) ||
+              currentCity.includes(jobCity)
+            );
+            
+            const stateMatch = currentState && jobState && (
+              currentState === jobState ||
+              jobState.includes(currentState) ||
+              currentState.includes(jobState)
+            );
+            
+            const countryMatch = currentCountry && jobCountry && (
+              currentCountry === jobCountry ||
+              jobCountry.includes(currentCountry) ||
+              currentCountry.includes(jobCountry)
+            );
+            
+            // Return true if any location level matches
+            return cityMatch || stateMatch || countryMatch;
+          });
+
+          console.log('🌍 Same Region filtered jobs:', filteredJobs.length);
+          console.log('🌍 Current job location:', { 
+            city: currentJob.job_city, 
+            state: currentJob.job_state, 
+            country: currentJob.job_country 
+          });
+          console.log('🌍 Sample filtered job location:', filteredJobs[0] ? {
+            city: filteredJobs[0].job_city,
+            state: filteredJobs[0].job_state,
+            country: filteredJobs[0].job_country
+          } : 'No jobs found');
           
           if (filteredJobs.length === 0) {
+            console.log('🌍 No jobs matched location criteria');
             setError('No jobs found in the same region')
           } else {
             const finalJobs = filteredJobs.slice(0, maxJobs)
@@ -99,8 +175,6 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
             
             validateLogos()
           }
-        } else {
-          setError('Failed to load same region jobs')
         }
       } catch (err) {
         console.error('Error fetching same region jobs:', err)
@@ -122,9 +196,9 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
           <CardTitle>Jobs in {currentJob.job_city || currentJob.job_state || currentJob.job_country}</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="flex flex-wrap gap-4">
             {Array.from({ length: maxJobs }).map((_, index) => (
-              <Card key={index} className="h-full">
+              <Card key={index} className="w-80 h-full">
                 <CardContent className="p-4">
                   <div className="flex items-start space-x-3">
                     <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
@@ -157,7 +231,7 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
         <CardTitle>Jobs in {currentJob.job_city || currentJob.job_state || currentJob.job_country}</CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-wrap gap-4">
           {sameRegionJobs.map((job) => {
             const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
             
@@ -167,7 +241,7 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
                 href={`/jobs/${job.job_publisher.toLowerCase()}-${job.job_id}`}
                 className="block group"
               >
-                <Card className="h-full hover:shadow-md transition-shadow relative">
+                <Card className="w-80 h-full hover:shadow-md transition-shadow relative">
                   <CardContent className="p-4">
                     {/* Job Info Container */}
                     <div className="w-full">
@@ -206,7 +280,7 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
                     </div>
 
                     {/* Company Logo - Positioned absolutely to not affect layout */}
-                    {generatedLogoUrl && validLogos.has(job.job_id) && (
+                    {generatedLogoUrl && (
                       <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
                         <img 
                           src={generatedLogoUrl} 
