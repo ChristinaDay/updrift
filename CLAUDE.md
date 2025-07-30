@@ -69,6 +69,7 @@ The application uses a provider pattern for job APIs:
 - **Job Storage**: `JobDetail` model for caching job data with expiration
 - **Search Caching**: `SearchResult` model caches API responses for 24 hours
 - **User Data**: `SavedJob`, `JobApplication`, `SavedSearch` models for user interactions
+- **Job Filtering**: `excludedJobCategories` field in User model for filtering unwanted job types
 
 #### Error Handling & Rate Limiting
 - **Centralized Error Handling**: `src/lib/errorHandling.ts`
@@ -120,3 +121,20 @@ The application uses a provider pattern for job APIs:
 3. Add provider to `jobProviders` array
 4. Normalize API response to `Job` interface
 5. Test with APIhub page (`/apihub`) for debugging
+
+## Recent Updates
+
+### July 30, 2025 - Job Category Exclusion Filter
+- **Feature**: Added user preference system to exclude unwanted job categories
+- **Implementation**: 
+  - Added `excludedJobCategories` field to User model (JSON string array)
+  - Updated preferences API endpoints to handle excluded categories
+  - Implemented inline filtering logic in search page to avoid webpack issues
+  - Created comprehensive UI in profile preferences with common exclusions
+- **Usage**: Users can now filter out military jobs, MLM positions, commission-only roles, etc.
+- **Files Modified**:
+  - `prisma/schema.prisma`: Added excludedJobCategories field
+  - `src/app/api/user/preferences/route.ts`: Updated API handlers
+  - `src/app/profile/page.tsx`: Added exclusion preferences UI
+  - `src/app/search/page.tsx`: Integrated filtering logic
+  - `src/utils/jobUtils.ts`: Added filterExcludedJobs utility function

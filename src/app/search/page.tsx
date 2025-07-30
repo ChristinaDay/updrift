@@ -736,9 +736,48 @@ function SearchPage() {
       datePosted: filters.datePosted !== 'all' ? filters.datePosted : undefined,
       experience: filters.experience !== 'all' ? filters.experience : undefined
     })
+    
+    // Apply user's excluded job categories filter
+    if (userPreferences?.excludedJobCategories?.length > 0) {
+      try {
+        // Inline filtering function to avoid webpack issues
+        filtered = filtered.filter(job => {
+          if (!job) return false;
+          
+          const searchText = [
+            job.job_title || '',
+            job.job_description || '',
+            job.employer_name || '',
+            ...(job.job_required_skills || []),
+            ...(job.job_occupational_categories || [])
+          ].join(' ').toLowerCase();
+
+          // Check if any excluded category is found in the job
+          return !userPreferences.excludedJobCategories.some((category: string) => {
+            if (!category || typeof category !== 'string') return false;
+            
+            const categoryLower = category.toLowerCase().trim();
+            if (!categoryLower) return false;
+            
+            try {
+              // Use word boundaries to avoid false positives
+              const regex = new RegExp(`\\b${categoryLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i');
+              return regex.test(searchText);
+            } catch (error) {
+              console.warn('Error in excluded jobs regex:', error);
+              return false;
+            }
+          });
+        });
+      } catch (error) {
+        console.error('Error applying excluded job categories filter:', error)
+        // Continue with unfiltered results if there's an error
+      }
+    }
+    
     filtered = sortJobs(filtered, sortBy)
     setFilteredJobsForPagination(filtered)
-  }, [initialFilteredJobs, filters, sortBy])
+  }, [initialFilteredJobs, filters, sortBy, userPreferences])
   
   const totalPages = Math.ceil(filteredJobsForPagination.length / jobsPerPage)
   

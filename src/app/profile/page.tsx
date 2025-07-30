@@ -30,6 +30,7 @@ interface UserPreferences {
   preferredJobTypes: string[]
   preferredCompanySize: string[]
   preferredSchedule: string[]
+  excludedJobCategories: string[]
 }
 
 const experienceLevels = [
@@ -66,6 +67,24 @@ const scheduleTypes = [
   'On-site'
 ]
 
+const commonExcludedCategories = [
+  'military',
+  'defense',
+  'government contractor',
+  'security clearance',
+  'adult',
+  'gambling',
+  'tobacco',
+  'weapons',
+  'multi-level marketing',
+  'MLM',
+  'commission only',
+  'door-to-door',
+  'cold calling',
+  'life insurance',
+  'travel sales'
+]
+
 export default function ProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -83,10 +102,12 @@ export default function ProfilePage() {
     emailNotifications: true,
     preferredJobTypes: [],
     preferredCompanySize: [],
-    preferredSchedule: []
+    preferredSchedule: [],
+    excludedJobCategories: []
   })
 
   const [newSkill, setNewSkill] = useState('')
+  const [newExcludedCategory, setNewExcludedCategory] = useState('')
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -157,6 +178,35 @@ export default function ProfilePage() {
       ...prev,
       skills: prev.skills.filter(s => s !== skill)
     }))
+  }
+
+  const addExcludedCategory = () => {
+    if (newExcludedCategory.trim() && !preferences.excludedJobCategories.includes(newExcludedCategory.trim().toLowerCase())) {
+      setPreferences(prev => ({
+        ...prev,
+        excludedJobCategories: [...prev.excludedJobCategories, newExcludedCategory.trim().toLowerCase()]
+      }))
+      setNewExcludedCategory('')
+    }
+  }
+
+  const removeExcludedCategory = (category: string) => {
+    setPreferences(prev => ({
+      ...prev,
+      excludedJobCategories: prev.excludedJobCategories.filter(c => c !== category)
+    }))
+  }
+
+  const toggleCommonExcludedCategory = (category: string) => {
+    const categoryLower = category.toLowerCase()
+    if (preferences.excludedJobCategories.includes(categoryLower)) {
+      removeExcludedCategory(categoryLower)
+    } else {
+      setPreferences(prev => ({
+        ...prev,
+        excludedJobCategories: [...prev.excludedJobCategories, categoryLower]
+      }))
+    }
   }
 
   const handleArrayToggle = (array: string[], value: string, key: keyof UserPreferences) => {
@@ -332,6 +382,81 @@ export default function ProfilePage() {
                 </span>
               ))}
             </div>
+          </div>
+
+          {/* Excluded Job Categories */}
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <svg className="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636" />
+              </svg>
+              <h3 className="text-lg font-semibold text-card-foreground">Excluded Job Categories</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Filter out jobs that contain these keywords or categories. Jobs matching these terms will not appear in your search results.
+            </p>
+            
+            {/* Common exclusions */}
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-card-foreground mb-3">Common exclusions:</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {commonExcludedCategories.map(category => (
+                  <label key={category} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={preferences.excludedJobCategories.includes(category.toLowerCase())}
+                      onChange={() => toggleCommonExcludedCategory(category)}
+                      className="h-4 w-4 text-red-600 focus:ring-red-500 border-border rounded"
+                    />
+                    <span className="text-sm text-foreground capitalize">{category}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom exclusion input */}
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-card-foreground mb-3">Add custom exclusion:</h4>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={newExcludedCategory}
+                  onChange={(e) => setNewExcludedCategory(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addExcludedCategory()}
+                  className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 bg-background text-foreground"
+                  placeholder="Enter keyword or category to exclude (e.g., military, sales)"
+                />
+                <button
+                  onClick={addExcludedCategory}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            {/* Currently excluded categories */}
+            {preferences.excludedJobCategories.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-card-foreground mb-3">Currently excluded:</h4>
+                <div className="flex flex-wrap gap-2">
+                  {preferences.excludedJobCategories.map(category => (
+                    <span
+                      key={category}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800"
+                    >
+                      {category}
+                      <button
+                        onClick={() => removeExcludedCategory(category)}
+                        className="ml-2 text-red-600 hover:text-red-800"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Job Type Preferences */}

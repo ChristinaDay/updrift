@@ -57,6 +57,7 @@ model User {
   experienceLevel    String?
   jobAlerts          Boolean   @default(true)
   emailNotifications Boolean   @default(true)
+  excludedJobCategories String? // JSON string of excluded job categories/keywords
 
   // Relations
   accounts    Account[]

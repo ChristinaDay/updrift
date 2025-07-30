@@ -23,6 +23,7 @@ const getPreferencesHandler = async (request: NextRequest) => {
         experienceLevel: true,
         jobAlerts: true,
         emailNotifications: true,
+        excludedJobCategories: true,
       }
     })
 
@@ -30,10 +31,11 @@ const getPreferencesHandler = async (request: NextRequest) => {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Parse skills from JSON string
+    // Parse JSON strings
     const preferences = {
       ...user,
       skills: user.skills ? JSON.parse(user.skills) : [],
+      excludedJobCategories: user.excludedJobCategories ? JSON.parse(user.excludedJobCategories) : [],
       // Add new preferences with defaults
       preferredJobTypes: [], // Will be added to database schema later
       preferredCompanySize: [],
@@ -84,6 +86,7 @@ const updatePreferencesHandler = async (request: NextRequest) => {
         experienceLevel: preferences.experienceLevel || null,
         jobAlerts: preferences.jobAlerts !== undefined ? preferences.jobAlerts : true,
         emailNotifications: preferences.emailNotifications !== undefined ? preferences.emailNotifications : true,
+        excludedJobCategories: JSON.stringify(preferences.excludedJobCategories || []),
       },
       select: {
         id: true,
@@ -95,6 +98,7 @@ const updatePreferencesHandler = async (request: NextRequest) => {
         experienceLevel: true,
         jobAlerts: true,
         emailNotifications: true,
+        excludedJobCategories: true,
         updatedAt: true,
       }
     })
@@ -105,6 +109,7 @@ const updatePreferencesHandler = async (request: NextRequest) => {
       user: {
         ...updatedUser,
         skills: updatedUser.skills ? JSON.parse(updatedUser.skills) : [],
+        excludedJobCategories: updatedUser.excludedJobCategories ? JSON.parse(updatedUser.excludedJobCategories) : [],
       }
     })
 

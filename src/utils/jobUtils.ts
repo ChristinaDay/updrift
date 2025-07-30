@@ -579,4 +579,47 @@ export function formatJobLocationForSearch(job: Job): string {
   
   // Final fallback to country
   return job.job_country || '';
+}
+
+/**
+ * Filter jobs based on user's excluded categories
+ */
+export function filterExcludedJobs(jobs: Job[], excludedCategories: string[]): Job[] {
+  if (!jobs || !Array.isArray(jobs)) {
+    return [];
+  }
+  
+  if (!excludedCategories || excludedCategories.length === 0) {
+    return jobs;
+  }
+
+  return jobs.filter(job => {
+    if (!job) return false;
+    
+    const searchText = [
+      job.job_title || '',
+      job.job_description || '',
+      job.employer_name || '',
+      ...(job.job_required_skills || []),
+      ...(job.job_occupational_categories || [])
+    ].join(' ').toLowerCase();
+
+    // Check if any excluded category is found in the job
+    return !excludedCategories.some(category => {
+      if (!category || typeof category !== 'string') return false;
+      
+      const categoryLower = category.toLowerCase().trim();
+      if (!categoryLower) return false;
+      
+      try {
+        // Use word boundaries to avoid false positives
+        // e.g., "military" should match "military contractor" but not "paramilitary"
+        const regex = new RegExp(`\\b${categoryLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i');
+        return regex.test(searchText);
+      } catch (error) {
+        console.warn('Error in filterExcludedJobs regex:', error);
+        return false;
+      }
+    });
+  });
 } 
