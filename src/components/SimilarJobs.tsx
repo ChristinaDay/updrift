@@ -35,33 +35,39 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
         const jobTitle = currentJob.job_title
         const location = currentJob.job_city || currentJob.job_country || ''
         
+        console.log('🔍 SimilarJobs - Original job title:', jobTitle);
+        
         // Create search query based on job title keywords
         const titleWords = jobTitle.toLowerCase().split(' ').filter(word => 
           word.length > 2 && !['the', 'and', 'or', 'for', 'with', 'in', 'at', 'to', 'of', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being'].includes(word)
         )
+        
+        console.log('🔍 SimilarJobs - Extracted keywords:', titleWords);
         
         // Use first 2-3 meaningful words from title, or fallback to full title if too short
         const searchQuery = titleWords.length >= 2 
           ? titleWords.slice(0, 3).join(' ')
           : jobTitle.toLowerCase().split(' ').slice(0, 2).join(' ')
         
+        console.log('🔍 SimilarJobs - Generated search query:', searchQuery);
+        
         if (!searchQuery || searchQuery.trim().length < 2) {
           setLoading(false)
           return
         }
 
-        // Try multiple search strategies for broader results (not location-focused)
+        // Try multiple search strategies for more relevant results
         const searchStrategies = [
-          // Strategy 1: Use job title keywords without location (broader search)
-          { query: searchQuery, location: '' },
-          // Strategy 2: Use just the first meaningful word (very broad)
-          { query: titleWords[0] || searchQuery, location: '' },
-          // Strategy 3: Use extracted keywords with location as fallback
-          { query: searchQuery, location },
-          // Strategy 4: Use job title with common job terms
-          { query: `${searchQuery} job`, location: '' },
-          // Strategy 5: Use just the main job category
-          { query: titleWords[0] || searchQuery, location: '' }
+          // Strategy 1: Use the full job title (most specific)
+          { query: jobTitle, location: '' },
+          // Strategy 2: Use job title keywords with more specific terms
+          { query: `${searchQuery} marketing`, location: '' },
+          // Strategy 3: Use job title keywords with industry terms
+          { query: `${searchQuery} product marketing`, location: '' },
+          // Strategy 4: Use job title keywords with seniority level
+          { query: `${searchQuery} senior`, location: '' },
+          // Strategy 5: Use job title keywords with management terms
+          { query: `${searchQuery} manager`, location: '' }
         ]
 
         let allJobs: Job[] = []
@@ -71,55 +77,85 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           if (allJobs.length >= maxJobs * 2) break // Stop if we have enough candidates
           
           try {
-            console.log('🔍 SimilarJobs - Current job ID:', currentJob.job_id);
-            const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1&excludeJobId=${encodeURIComponent(currentJob.job_id)}`)
-            const data = await response.json()
+                    console.log('🔍 SimilarJobs - Current job ID:', currentJob.job_id);
+        console.log('🔍 SimilarJobs - Trying strategy:', strategy);
+        const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1&excludeJobId=${encodeURIComponent(currentJob.job_id)}`)
+        const data = await response.json()
 
-            if (data.status === 'success' && data.data) {
-              const newJobs = data.data.filter((job: Job) => 
-                !allJobs.some(existingJob => existingJob.job_id === job.job_id)
-              )
-              
-              allJobs = [...allJobs, ...newJobs]
-            }
+        console.log('🔍 SimilarJobs - API response:', { status: data.status, dataLength: data.data?.length || 0 });
+
+        if (data.status === 'success' && data.data) {
+          const newJobs = data.data.filter((job: Job) => 
+            !allJobs.some(existingJob => existingJob.job_id === job.job_id)
+          )
+          
+          console.log('🔍 SimilarJobs - New jobs found:', newJobs.length);
+          allJobs = [...allJobs, ...newJobs]
+        }
           } catch (err) {
             console.error('Error with search strategy:', err)
           }
         }
 
-        // Sort by title similarity (simple word overlap)
-        const sortedJobs = allJobs.sort((a, b) => {
-          const currentWords = new Set(currentJob.job_title.toLowerCase().split(' '))
-          const aWords = new Set(a.job_title.toLowerCase().split(' '))
-          const bWords = new Set(b.job_title.toLowerCase().split(' '))
-          
-          const aOverlap = [...currentWords].filter(word => aWords.has(word)).length
-          const bOverlap = [...currentWords].filter(word => bWords.has(word)).length
-          
-          // Also consider company similarity
-          const aCompanyMatch = a.employer_name.toLowerCase() === currentJob.employer_name.toLowerCase() ? 2 : 0
-          const bCompanyMatch = b.employer_name.toLowerCase() === currentJob.employer_name.toLowerCase() ? 2 : 0
-          
-          // Consider job requirements similarity
-          const aSkills = a.job_required_skills || []
-          const bSkills = b.job_required_skills || []
-          const currentSkills = currentJob.job_required_skills || []
-          
-          const aSkillOverlap = aSkills.filter(skill => currentSkills.includes(skill)).length
-          const bSkillOverlap = bSkills.filter(skill => currentSkills.includes(skill)).length
-          
-          // Calculate total similarity scores
-          const aScore = aOverlap + aCompanyMatch + aSkillOverlap
-          const bScore = bOverlap + bCompanyMatch + bSkillOverlap
-          
-          return bScore - aScore
-        })
+                  // Sort by title similarity with stricter criteria
+          const sortedJobs = allJobs.sort((a, b) => {
+            const currentWords = new Set(currentJob.job_title.toLowerCase().split(' '))
+            const aWords = new Set(a.job_title.toLowerCase().split(' '))
+            const bWords = new Set(b.job_title.toLowerCase().split(' '))
+            
+            const aOverlap = Array.from(currentWords).filter(word => aWords.has(word)).length
+            const bOverlap = Array.from(currentWords).filter(word => bWords.has(word)).length
+            
+            // Also consider company similarity
+            const aCompanyMatch = a.employer_name.toLowerCase() === currentJob.employer_name.toLowerCase() ? 5 : 0
+            const bCompanyMatch = b.employer_name.toLowerCase() === currentJob.employer_name.toLowerCase() ? 5 : 0
+            
+            // Consider job requirements similarity
+            const aSkills = a.job_required_skills || []
+            const bSkills = b.job_required_skills || []
+            const currentSkills = currentJob.job_required_skills || []
+            
+            const aSkillOverlap = aSkills.filter(skill => currentSkills.includes(skill)).length
+            const bSkillOverlap = bSkills.filter(skill => currentSkills.includes(skill)).length
+            
+            // Check for key industry terms
+            const currentTitle = currentJob.job_title.toLowerCase()
+            const aTitle = a.job_title.toLowerCase()
+            const bTitle = b.job_title.toLowerCase()
+            
+            const aIndustryMatch = (currentTitle.includes('marketing') && aTitle.includes('marketing')) ? 3 : 0
+            const bIndustryMatch = (currentTitle.includes('marketing') && bTitle.includes('marketing')) ? 3 : 0
+            
+            const aSeniorityMatch = (currentTitle.includes('senior') && aTitle.includes('senior')) ? 2 : 0
+            const bSeniorityMatch = (currentTitle.includes('senior') && bTitle.includes('senior')) ? 2 : 0
+            
+            // Calculate total similarity scores
+            const aScore = aOverlap + aCompanyMatch + aSkillOverlap + aIndustryMatch + aSeniorityMatch
+            const bScore = bOverlap + bCompanyMatch + bSkillOverlap + bIndustryMatch + bSeniorityMatch
+            
+            return bScore - aScore
+          })
 
         if (sortedJobs.length === 0) {
           setError('No similar jobs found')
         } else {
           const finalJobs = sortedJobs.slice(0, maxJobs)
           setSimilarJobs(finalJobs)
+          
+          // Store similar jobs in database for job detail pages
+          const storeSimilarJobs = async () => {
+            for (const job of finalJobs) {
+              try {
+                await fetch('/api/jobs/store', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ job })
+                })
+              } catch (err) {
+                console.error('Error storing similar job:', job.job_id, err)
+              }
+            }
+          }
           
           // Validate logos for the jobs we're showing
           const validateLogos = async () => {
@@ -142,7 +178,8 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
             setValidLogos(validLogosSet)
           }
           
-          validateLogos()
+          // Run both operations in parallel
+          Promise.all([storeSimilarJobs(), validateLogos()])
         }
       } catch (err) {
         console.error('Error fetching similar jobs:', err)
@@ -190,6 +227,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
   }
 
   if (error || similarJobs.length === 0) {
+    console.log('SimilarJobs: No jobs to display', { error, similarJobsLength: similarJobs.length });
     return null // Don't show anything if no similar jobs found
   }
 

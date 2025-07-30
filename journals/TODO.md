@@ -108,6 +108,7 @@ Create internal job detail pages (`/jobs/[jobId]`) to keep users in the UpDrift 
 - [x] Improved search strategies for finding jobs in same area
 - [x] Added better error handling and debugging
 - [x] Fixed job ID filtering issue where same job appeared in similar jobs
+- [x] Fixed job card links by storing similar jobs in database before displaying
 
 #### Planned Enhancements
 - [ ] Add "Jobs from Same Company" row

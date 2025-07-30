@@ -55,12 +55,12 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
         const searchStrategies = [
           // Strategy 1: Use job title keywords + exact location (city + state)
           { query: searchQuery, location: `${currentJob.job_city}, ${currentJob.job_state}` },
-          // Strategy 2: Use broader job title + exact location
-          { query: titleWords[0] || searchQuery, location: `${currentJob.job_city}, ${currentJob.job_state}` },
-          // Strategy 3: Use just the exact location
-          { query: '', location: `${currentJob.job_city}, ${currentJob.job_state}` },
-          // Strategy 4: Use job category + exact location
-          { query: `${titleWords[0]} ${currentJob.job_city}, ${currentJob.job_state}`, location: '' }
+          // Strategy 2: Use full job title + exact location
+          { query: jobTitle, location: `${currentJob.job_city}, ${currentJob.job_state}` },
+          // Strategy 3: Use job title with industry terms + location
+          { query: `${searchQuery} marketing ${currentJob.job_city}`, location: '' },
+          // Strategy 4: Use job title with seniority + location
+          { query: `${searchQuery} senior ${currentJob.job_city}`, location: '' }
         ]
 
         let allJobs: Job[] = []
@@ -131,6 +131,21 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
             const finalJobs = filteredJobs.slice(0, maxJobs)
             setSameRegionJobs(finalJobs)
             
+            // Store same region jobs in database for job detail pages
+            const storeSameRegionJobs = async () => {
+              for (const job of finalJobs) {
+                try {
+                  await fetch('/api/jobs/store', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ job })
+                  })
+                } catch (err) {
+                  console.error('Error storing same region job:', job.job_id, err)
+                }
+              }
+            }
+            
             // Validate logos for the jobs we're showing
             const validateLogos = async () => {
               const validLogosSet = new Set<string>()
@@ -152,7 +167,8 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
               setValidLogos(validLogosSet)
             }
             
-            validateLogos()
+            // Run both operations in parallel
+            Promise.all([storeSameRegionJobs(), validateLogos()])
           }
         }
       } catch (err) {
@@ -201,6 +217,7 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
   }
 
   if (error || sameRegionJobs.length === 0) {
+    console.log('SameRegionJobs: No jobs to display', { error, sameRegionJobsLength: sameRegionJobs.length });
     return null // Don't show anything if no same region jobs found
   }
 
