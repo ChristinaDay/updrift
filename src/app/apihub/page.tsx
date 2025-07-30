@@ -298,9 +298,9 @@ export default function APIhubPage() {
   const getConfigStatusText = (status: string) => {
     switch (status) {
       case 'configured':
-        return 'Configured';
+        return 'API Key Present';
       case 'missing-key':
-        return 'Missing API Key';
+        return 'API Key Missing';
       case 'not-configured':
         return 'Not Configured';
       default:
@@ -457,6 +457,17 @@ export default function APIhubPage() {
                   <span className={`text-sm font-medium ${getConfigStatusColor(api.configStatus)}`}>
                     {getConfigStatusText(api.configStatus)}
                   </span>
+                  {/* Show more detailed status info */}
+                  {api.configStatus === 'configured' && api.status === 'error' && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Key present but API failing
+                    </div>
+                  )}
+                  {api.configStatus === 'missing-key' && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Check environment variables
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -622,7 +633,7 @@ export default function APIhubPage() {
               )}
 
               {/* Features */}
-              <div>
+              <div className="mb-4">
                 <h4 className="text-sm font-medium text-foreground mb-2">Features</h4>
                 <div className="flex flex-wrap gap-1">
                   {api.features.map((feature, index) => (
@@ -635,6 +646,18 @@ export default function APIhubPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Debug Info - Show actual test response */}
+              {testData.apis?.[api.id] && (
+                <div className="p-3 bg-muted/30 rounded text-xs">
+                  <h5 className="font-medium text-foreground mb-1">Debug Info:</h5>
+                  <div className="space-y-1 text-muted-foreground">
+                    <div>Status: {testData.apis[api.id].status}</div>
+                    <div>Configured: {testData.apis[api.id].configured ? 'true' : 'false'}</div>
+                    <div>Message: {testData.apis[api.id].message}</div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
