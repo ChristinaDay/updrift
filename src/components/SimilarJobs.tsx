@@ -49,6 +49,8 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           return
         }
 
+        console.log('🔍 Similar Jobs Debug:', { searchQuery, location, titleWords })
+        
         // Try multiple search strategies for better results
         const searchStrategies = [
           // Strategy 1: Use extracted keywords with location
@@ -66,21 +68,27 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           if (allJobs.length >= maxJobs * 2) break // Stop if we have enough candidates
           
           try {
+            console.log('🔍 Trying strategy:', strategy)
             const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1`)
             const data = await response.json()
 
-            if (data.status === 'success' && data.jobs) {
-              const newJobs = data.jobs.filter((job: Job) => 
+            console.log('🔍 Strategy result:', { status: data.status, jobsCount: data.data?.length || 0 })
+
+            if (data.status === 'success' && data.data) {
+              const newJobs = data.data.filter((job: Job) => 
                 job.job_id !== currentJob.job_id && 
                 !allJobs.some(existingJob => existingJob.job_id === job.job_id)
               )
               allJobs = [...allJobs, ...newJobs]
+              console.log('🔍 Added jobs:', newJobs.length, 'Total:', allJobs.length)
             }
           } catch (err) {
             console.error('Error with search strategy:', err)
           }
         }
 
+        console.log('🔍 Total jobs found:', allJobs.length)
+        
         // Sort by relevance (jobs with same location first, then by title similarity)
         const sortedJobs = allJobs.sort((a, b) => {
           // Prioritize jobs in the same location
@@ -100,6 +108,9 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           
           return bOverlap - aOverlap
         })
+
+        console.log('🔍 Final sorted jobs:', sortedJobs.length)
+        console.log('🔍 Error state:', sortedJobs.length === 0 ? 'No similar jobs found' : 'Jobs found')
 
         if (sortedJobs.length === 0) {
           setError('No similar jobs found')
