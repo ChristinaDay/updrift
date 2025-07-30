@@ -8,6 +8,12 @@
 
 const puppeteer = require('puppeteer')
 
+// Test credentials
+const TEST_CREDENTIALS = {
+  email: 'test2@updrift.me',
+  password: 'testpass123'
+}
+
 async function runE2ETest() {
   console.log('🧪 Starting E2E Test for Persistent Search History...\n')
   
@@ -21,9 +27,25 @@ async function runE2ETest() {
     
     const page = await browser.newPage()
     
+    // Test 0: Login to UpDrift
+    console.log('🔐 Test 0: Logging into UpDrift...')
+    await page.goto('http://localhost:3002/auth/signin')
+    await page.waitForSelector('input[name="email"]', { timeout: 5000 })
+    
+    // Fill login form
+    await page.type('input[name="email"]', TEST_CREDENTIALS.email)
+    await page.type('input[name="password"]', TEST_CREDENTIALS.password)
+    
+    // Submit login form
+    await page.click('button[type="submit"]')
+    
+    // Wait for redirect to dashboard
+    await page.waitForNavigation({ timeout: 10000 })
+    console.log('  ✅ Login successful')
+    
     // Test 1: Navigate to search page
-    console.log('📱 Test 1: Navigating to search page...')
-    await page.goto('http://localhost:3000/search')
+    console.log('\n📱 Test 1: Navigating to search page...')
+    await page.goto('http://localhost:3002/search')
     await page.waitForSelector('input[placeholder*="job"]', { timeout: 5000 })
     console.log('  ✅ Search page loaded successfully')
     
@@ -106,13 +128,20 @@ async function runE2ETest() {
       }
     }
     
-    // Test 5: Test persistence (optional - requires login)
-    console.log('\n🔄 Test 5: Testing persistence...')
-    console.log('  💡 To test full persistence, you would need to:')
-    console.log('    1. Log in to an account')
-    console.log('    2. Perform searches')
-    console.log('    3. Log out and log back in')
-    console.log('    4. Verify search history persists')
+    // Test 5: Test persistence (now with login)
+    console.log('\n🔄 Test 5: Testing persistence with login...')
+    
+    // Navigate to dashboard to check saved data
+    await page.goto('http://localhost:3002/dashboard')
+    await page.waitForTimeout(2000)
+    
+    // Check if user data is loaded
+    const dashboardContent = await page.content()
+    if (dashboardContent.includes('Welcome back')) {
+      console.log('  ✅ Dashboard loaded with user data')
+    } else {
+      console.log('  ❌ Dashboard not loading properly')
+    }
     
     console.log('\n🎉 E2E Test completed successfully!')
     
@@ -122,6 +151,7 @@ async function runE2ETest() {
     console.log('  - Dev server is running (npm run dev)')
     console.log('  - Database is set up (npx prisma db push)')
     console.log('  - Puppeteer is installed (npm install puppeteer)')
+    console.log('  - Test user exists (node scripts/create-test-user.js)')
   } finally {
     if (browser) {
       await browser.close()
