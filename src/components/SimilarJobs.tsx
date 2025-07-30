@@ -210,22 +210,20 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                 <Card className="h-full hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-start space-x-3">
-                      {/* Company Logo */}
-                      <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                        {generatedLogoUrl && validLogos.has(job.job_id) ? (
+                      {/* Company Logo - Only show if we have a valid logo */}
+                      {generatedLogoUrl && validLogos.has(job.job_id) && (
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
                           <img 
                             src={generatedLogoUrl} 
                             alt={job.employer_name}
                             className="w-8 h-8 object-contain"
                             onError={(e) => {
-                              // If image fails to load, hide it and show icon instead
-                              e.currentTarget.style.display = 'none'
-                              e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                              // If image fails to load, hide the entire container
+                              e.currentTarget.parentElement?.style.display = 'none'
                             }}
                           />
-                        ) : null}
-                        <BuildingOfficeIcon className={`w-6 h-6 text-muted-foreground ${generatedLogoUrl && validLogos.has(job.job_id) ? 'hidden' : ''}`} />
-                      </div>
+                        </div>
+                      )}
 
                       {/* Job Info */}
                       <div className="flex-1 min-w-0">
