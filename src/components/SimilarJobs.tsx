@@ -60,9 +60,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
         const searchStrategies = [
           // Strategy 1: Same search query (anywhere)
           { query: searchQuery, location: '' },
-          // Strategy 2: Full job title (anywhere)
-          { query: jobTitle, location: '' },
-          // Strategy 3: Broader search (anywhere)
+          // Strategy 2: Broader search (anywhere)
           { query: titleWords[0] || searchQuery, location: '' }
         ]
 
