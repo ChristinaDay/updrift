@@ -136,20 +136,24 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
         <CardHeader>
           <CardTitle>Similar Jobs</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {Array.from({ length: maxJobs }).map((_, index) => (
-              <div key={index} className="flex items-start space-x-3">
-                <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
+              <CardContent className="p-4">
+        <div className="space-y-3">
+          {Array.from({ length: maxJobs }).map((_, index) => (
+            <div key={index} className="flex items-start space-x-3">
+              <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
+              <div className="flex-1 space-y-2 pr-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+                <div className="flex justify-between">
                   <Skeleton className="h-3 w-1/3" />
+                  <Skeleton className="h-3 w-1/4" />
                 </div>
+                <Skeleton className="h-3 w-1/4" />
               </div>
-            ))}
-          </div>
-        </CardContent>
+            </div>
+          ))}
+        </div>
+      </CardContent>
       </Card>
     )
   }
@@ -163,8 +167,8 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
       <CardHeader>
         <CardTitle>Similar Jobs</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="p-4">
+        <div className="space-y-3">
           {similarJobs.map((job) => {
             const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
             
@@ -189,7 +193,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                   </div>
 
                   {/* Job Info */}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 pr-2">
                     <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
                       {job.job_title}
                     </h4>
@@ -198,23 +202,23 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                     </p>
                     
                     {/* Job Details */}
-                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <MapPinIcon className="w-3 h-3" />
+                    <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1 flex-1 min-w-0">
+                        <MapPinIcon className="w-3 h-3 flex-shrink-0" />
                         <span className="truncate">{formatJobLocation(job)}</span>
                       </div>
                       
                       {job.job_min_salary && job.job_max_salary && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 flex-shrink-0 ml-2">
                           <CurrencyDollarIcon className="w-3 h-3" />
-                          <span>{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
+                          <span className="text-xs">{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
                         </div>
                       )}
                     </div>
 
                     {/* Posted Date */}
-                    <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                      <ClockIcon className="w-3 h-3" />
+                    <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                      <ClockIcon className="w-3 h-3 flex-shrink-0" />
                       <span>{formatJobPostedDate(job.job_posted_at_timestamp.toString())}</span>
                     </div>
                   </div>
@@ -234,7 +238,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           
           {/* View All Similar Jobs Button */}
           {similarJobs.length > 0 && (
-            <div className="pt-2">
+            <div className="pt-3 border-t border-border/50">
               <Link
                 href={`/search?query=${encodeURIComponent(currentJob.job_title)}&location=${encodeURIComponent(currentJob.job_city || currentJob.job_country || '')}`}
                 className="block"
