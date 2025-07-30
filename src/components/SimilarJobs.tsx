@@ -228,8 +228,8 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                         </div>
                       )}
 
-                      {/* Job Info */}
-                      <div className="flex-1 min-w-0">
+                      {/* Job Info - Takes full width when no logo */}
+                      <div className={`${generatedLogoUrl && validLogos.has(job.job_id) ? 'flex-1 min-w-0' : 'w-full'}`}>
                         <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
                           {job.job_title}
                         </h4>
