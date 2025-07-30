@@ -19,8 +19,9 @@ const searchHandler = async (request: NextRequest) => {
       const date_posted = searchParams.get('date_posted');
       const page = parseInt(searchParams.get('page') || '1');
       const num_pages = parseInt(searchParams.get('num_pages') || '1');
+      const excludeJobId = searchParams.get('excludeJobId') || ''; // New parameter to exclude current job
 
-      console.log('🔍 Job search request:', { query, location, radius, remote_jobs_only, page });
+      console.log('�� Job search request:', { query, location, radius, remote_jobs_only, page });
 
       // Use the new Adzuna API implementation
       console.log('🔍 Calling searchJobs function...');
@@ -35,6 +36,7 @@ const searchHandler = async (request: NextRequest) => {
         date_posted: date_posted || undefined,
         page,
         num_pages,
+        excludeJobId, // Pass the excludeJobId parameter
       });
       console.log('🔍 searchJobs function completed');
 

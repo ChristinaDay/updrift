@@ -63,6 +63,7 @@ export interface JobSearchParams {
   date_posted?: string;
   page?: number;
   num_pages?: number;
+  excludeJobId?: string; // Job ID to exclude from search results
 }
 
 export interface JobSearchResponse {

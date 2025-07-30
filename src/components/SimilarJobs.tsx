@@ -50,8 +50,6 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           return
         }
 
-        console.log('🔍 Similar Jobs Debug:', { searchQuery, location, titleWords })
-        
         // Try multiple search strategies for broader results (not location-focused)
         const searchStrategies = [
           // Strategy 1: Use job title keywords without location (broader search)
@@ -73,27 +71,21 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           if (allJobs.length >= maxJobs * 2) break // Stop if we have enough candidates
           
           try {
-            console.log('🔍 Trying strategy:', strategy)
-            const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1`)
+            const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1&excludeJobId=${encodeURIComponent(currentJob.job_id)}`)
             const data = await response.json()
-
-            console.log('🔍 Strategy result:', { status: data.status, jobsCount: data.data?.length || 0 })
 
             if (data.status === 'success' && data.data) {
               const newJobs = data.data.filter((job: Job) => 
-                job.job_id !== currentJob.job_id && 
                 !allJobs.some(existingJob => existingJob.job_id === job.job_id)
               )
+              
               allJobs = [...allJobs, ...newJobs]
-              console.log('🔍 Added jobs:', newJobs.length, 'Total:', allJobs.length)
             }
           } catch (err) {
             console.error('Error with search strategy:', err)
           }
         }
 
-        console.log('🔍 Total jobs found:', allJobs.length)
-        
         // Sort by title similarity (simple word overlap)
         const sortedJobs = allJobs.sort((a, b) => {
           const currentWords = new Set(currentJob.job_title.toLowerCase().split(' '))
@@ -121,9 +113,6 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           
           return bScore - aScore
         })
-
-        console.log('🔍 Final sorted jobs:', sortedJobs.length)
-        console.log('🔍 Error state:', sortedJobs.length === 0 ? 'No similar jobs found' : 'Jobs found')
 
         if (sortedJobs.length === 0) {
           setError('No similar jobs found')

@@ -70,12 +70,11 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
           if (allJobs.length >= maxJobs * 3) break // Stop if we have enough candidates
           
           try {
-            const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1`)
+            const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1&excludeJobId=${encodeURIComponent(currentJob.job_id)}`)
             const data = await response.json()
 
             if (data.status === 'success' && data.data) {
               const newJobs = data.data.filter((job: Job) => 
-                job.job_id !== currentJob.job_id && 
                 !allJobs.some(existingJob => existingJob.job_id === job.job_id)
               )
               allJobs = [...allJobs, ...newJobs]

@@ -71,24 +71,31 @@ export async function searchJobs(params: JobSearchParams): Promise<JobSearchResp
   // Aggregate jobs from all providers
   const result = await searchAllProviders(params);
   
+  // Filter out the excluded job if specified
+  let filteredJobs = result.jobs;
+  if (params.excludeJobId) {
+    filteredJobs = result.jobs.filter(job => job.job_id !== params.excludeJobId);
+    console.log('🔍 Filtered out job ID:', params.excludeJobId, 'Jobs before:', result.jobs.length, 'Jobs after:', filteredJobs.length);
+  }
+  
   console.log('🔍 searchJobs - Final result:', {
     status: 'success',
-    jobsCount: result.jobs.length,
+    jobsCount: filteredJobs.length,
     totalCount: result.totalCount,
-    firstJob: result.jobs[0]?.job_title || 'No jobs'
+    firstJob: filteredJobs[0]?.job_title || 'No jobs'
   });
   
   return {
     status: 'success',
     request_id: 'multi-' + Date.now(),
     parameters: params,
-    data: result.jobs,
-    original_data: result.jobs,
+    data: filteredJobs,
+    original_data: filteredJobs,
     total_count: result.totalCount, // Use aggregated total count
     num_pages: 1, // For now, pagination is not aggregated
     client_filtered: false,
-    original_count: result.jobs.length,
-    filtered_count: result.jobs.length
+    original_count: filteredJobs.length,
+    filtered_count: filteredJobs.length
   };
 }
 
