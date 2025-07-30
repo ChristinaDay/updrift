@@ -209,33 +209,39 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
               >
                 <Card className="h-full hover:shadow-md transition-shadow relative">
                   <CardContent className="p-4">
-                    {/* Job Info Container - Always takes full width */}
+                    {/* Job Info Container */}
                     <div className="w-full">
-                      <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                        {job.job_title}
-                      </h4>
-                      <p className="text-xs text-muted-foreground mt-1 truncate">
-                        {job.employer_name}
-                      </p>
-                      
-                      {/* Location */}
-                      <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                        <MapPinIcon className="w-3 h-3 flex-shrink-0" />
-                        <span className="truncate">{formatJobLocation(job)}</span>
+                      {/* Title and Company - Flexible to scoot over when logo appears */}
+                      <div className={`${generatedLogoUrl && validLogos.has(job.job_id) ? 'ml-16' : ''}`}>
+                        <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                          {job.job_title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-1 truncate">
+                          {job.employer_name}
+                        </p>
                       </div>
-
-                      {/* Salary - Only show if available */}
-                      {job.job_min_salary && job.job_max_salary && (
-                        <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                          <CurrencyDollarIcon className="w-3 h-3 flex-shrink-0" />
-                          <span>{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
+                      
+                      {/* Data Points - Always take full width */}
+                      <div className="w-full">
+                        {/* Location */}
+                        <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                          <MapPinIcon className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{formatJobLocation(job)}</span>
                         </div>
-                      )}
 
-                      {/* Posted Date */}
-                      <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                        <ClockIcon className="w-3 h-3 flex-shrink-0" />
-                        <span>{formatJobPostedDate(job.job_posted_at_timestamp.toString())}</span>
+                        {/* Salary - Only show if available */}
+                        {job.job_min_salary && job.job_max_salary && (
+                          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                            <CurrencyDollarIcon className="w-3 h-3 flex-shrink-0" />
+                            <span>{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
+                          </div>
+                        )}
+
+                        {/* Posted Date */}
+                        <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                          <ClockIcon className="w-3 h-3 flex-shrink-0" />
+                          <span>{formatJobPostedDate(job.job_posted_at_timestamp.toString())}</span>
+                        </div>
                       </div>
                     </div>
 
