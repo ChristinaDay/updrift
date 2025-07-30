@@ -522,41 +522,92 @@ export default function Home() {
 
   const fetchHeroJobs = async () => {
     try {
-      // Fetch a larger batch to have more options
-      const response = await fetch(`/api/jobs/search?query=software engineer&location=Remote&num_pages=1`);
-      const data = await response.json();
+      // Define diverse job queries to represent different industries
+      const jobQueries = [
+        'software engineer', // Tech
+        'graphic designer',   // Design
+        'welder',           // Fabrication/Manufacturing
+        'artist',           // Creative/Art
+        'marketing manager', // Business/Marketing
+        'nurse',            // Healthcare
+        'teacher',          // Education
+        'chef'              // Hospitality/Food
+      ];
       
-      if (data.status === 'success' && data.data) {
-        const jobsWithWorkingLogos: Job[] = [];
-        
-        // Test each job's logo and only include those with working logos
-        for (const job of data.data) {
-          const logoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website);
-          if (logoUrl) {
-            const hasWorkingLogo = await testLogoUrl(logoUrl);
-            if (hasWorkingLogo) {
-              // Store job data for internal job detail pages
-              try {
-                await fetch('/api/jobs/store', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ job })
-                });
-              } catch (error) {
-                console.error('Error storing hero job:', error);
+      const allJobs: Job[] = [];
+      
+      // Fetch jobs from different industries
+      for (const query of jobQueries) {
+        try {
+          const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(query)}&location=Remote&num_pages=1`);
+          const data = await response.json();
+          
+          if (data.status === 'success' && data.data) {
+            // Test each job's logo and only include those with working logos
+            for (const job of data.data) {
+              const logoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website);
+              if (logoUrl) {
+                const hasWorkingLogo = await testLogoUrl(logoUrl);
+                if (hasWorkingLogo) {
+                  // Store job data for internal job detail pages
+                  try {
+                    await fetch('/api/jobs/store', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ job })
+                    });
+                  } catch (error) {
+                    console.error('Error storing hero job:', error);
+                  }
+                  
+                  allJobs.push(job);
+                  break; // Take one job from each industry
+                }
               }
-              
-              jobsWithWorkingLogos.push(job);
-              if (jobsWithWorkingLogos.length >= 4) break; // Stop once we have 4
             }
           }
+        } catch (error) {
+          console.error(`Error fetching ${query} jobs:`, error);
         }
-        
-        console.log('Hero jobs with working logos:', jobsWithWorkingLogos.map((job: Job) => job.employer_name));
-        setHeroJobs(jobsWithWorkingLogos);
-      } else {
-        setHeroJobs([]);
       }
+      
+      // If we don't have enough diverse jobs, fill with software engineering jobs
+      if (allJobs.length < 4) {
+        try {
+          const response = await fetch(`/api/jobs/search?query=software engineer&location=Remote&num_pages=1`);
+          const data = await response.json();
+          
+          if (data.status === 'success' && data.data) {
+            for (const job of data.data) {
+              if (allJobs.length >= 4) break;
+              
+              const logoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website);
+              if (logoUrl) {
+                const hasWorkingLogo = await testLogoUrl(logoUrl);
+                if (hasWorkingLogo) {
+                  // Store job data for internal job detail pages
+                  try {
+                    await fetch('/api/jobs/store', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ job })
+                    });
+                  } catch (error) {
+                    console.error('Error storing hero job:', error);
+                  }
+                  
+                  allJobs.push(job);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching fallback software engineer jobs:', error);
+        }
+      }
+      
+      console.log('Diverse hero jobs:', allJobs.map((job: Job) => `${job.job_title} at ${job.employer_name}`));
+      setHeroJobs(allJobs.slice(0, 4)); // Ensure we only show 4 jobs
     } catch (error) {
       console.error('Error fetching hero jobs:', error);
       setHeroJobs([]);
