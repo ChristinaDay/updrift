@@ -11,7 +11,7 @@ import {
   ClockIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline'
-import { formatSalaryRange, formatJobLocation, formatJobPostedDate, getCompanyLogoUrl, validateLogoUrl } from '@/utils/jobUtils'
+import { formatSalaryRange, formatJobLocation, formatJobPostedDate, getCompanyLogoUrl, validateLogoUrl, formatJobLocationForSearch } from '@/utils/jobUtils'
 import Link from 'next/link'
 
 interface SameRegionJobsProps {
@@ -245,7 +245,7 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
                     {/* Job Info Container */}
                     <div className="w-full">
                       {/* Title and Company - Flexible to scoot over when logo appears */}
-                      <div className={`${generatedLogoUrl && validLogos.has(job.job_id) ? 'ml-12 sm:ml-16' : ''}`}>
+                      <div className={`${generatedLogoUrl && validLogos.has(job.job_id) ? 'ml-14 sm:ml-16' : ''}`}>
                         <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
                           {job.job_title}
                         </h4>
@@ -306,7 +306,7 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
         {sameRegionJobs.length > 0 && (
           <div className="pt-3 border-t border-border/50 mt-4">
             <Link
-              href={`/search?query=${encodeURIComponent(currentJob.job_title)}&location=${encodeURIComponent(currentJob.job_city || currentJob.job_state || currentJob.job_country || '')}`}
+              href={`/search?query=${encodeURIComponent(currentJob.job_title)}&location=${encodeURIComponent(formatJobLocationForSearch(currentJob))}`}
               className="block"
             >
               <Button 
@@ -314,7 +314,7 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
                 size="sm"
                 className="w-full"
               >
-                View All Jobs in {currentJob.job_city || currentJob.job_state || currentJob.job_country}
+                View All Jobs in {formatJobLocationForSearch(currentJob) || currentJob.job_country}
               </Button>
             </Link>
           </div>

@@ -89,6 +89,7 @@ interface JobCardProps {
   className?: string
   applicationStatus?: 'APPLIED' | 'VIEWED' | 'INTERVIEWING' | 'REJECTED' | 'HIRED'
   onUpdateApplicationStatus?: (jobId: string, status: string) => void
+  onNavigate?: () => void // Callback for when user navigates to job detail
 }
 
 export default function JobCard({ 
@@ -99,7 +100,8 @@ export default function JobCard({
   showMatchScore = true,
   className = '',
   applicationStatus,
-  onUpdateApplicationStatus
+  onUpdateApplicationStatus,
+  onNavigate
   }: JobCardProps) {
   
 
@@ -146,6 +148,11 @@ export default function JobCard({
         await new Promise(resolve => setTimeout(resolve, 100))
       } catch (error) {
         console.error('❌ Error storing job data:', error)
+      }
+      
+      // Call navigation callback to store search context
+      if (onNavigate) {
+        onNavigate()
       }
       
       // Create composite job ID for internal routing

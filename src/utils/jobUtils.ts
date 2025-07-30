@@ -553,4 +553,30 @@ export function capitalizeLocation(location: string): string {
         .join(' ')
     )
     .join(', ');
+}
+
+/**
+ * Format job location for search URLs - includes both city and state when available
+ */
+export function formatJobLocationForSearch(job: Job): string {
+  if (job.job_is_remote) {
+    return ''; // Don't add location restriction for remote jobs
+  }
+  
+  const parts = [];
+  if (job.job_city) parts.push(job.job_city);
+  if (job.job_state) parts.push(job.job_state);
+  
+  // If we have both city and state, use both
+  if (parts.length >= 2) {
+    return parts.join(', ');
+  }
+  
+  // Fallback to whatever we have
+  if (parts.length === 1) {
+    return parts[0];
+  }
+  
+  // Final fallback to country
+  return job.job_country || '';
 } 

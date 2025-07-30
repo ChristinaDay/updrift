@@ -524,22 +524,22 @@ export default function Home() {
   const fetchHeroJobs = async () => {
     setHeroJobsLoading(true);
     try {
-      // Define diverse job queries to represent different industries
+      // Define diverse job queries with varied locations to represent different industries and work styles
       const jobQueries = [
-        'software engineer', // Tech
-        'graphic designer',   // Design
-        'welder',           // Fabrication/Manufacturing
-        'artist',           // Creative/Art
-        'marketing manager', // Business/Marketing
-        'nurse',            // Healthcare
-        'teacher',          // Education
-        'chef'              // Hospitality/Food
+        { query: 'software engineer', location: 'San Francisco, CA' }, // Tech hub
+        { query: 'graphic designer', location: 'New York, NY' },       // Creative hub
+        { query: 'welder', location: 'Houston, TX' },                  // Industrial hub
+        { query: 'artist', location: 'Remote' },                       // Creative/flexible
+        { query: 'marketing manager', location: 'Chicago, IL' },       // Business hub
+        { query: 'nurse', location: 'Remote' },                        // Healthcare/telehealth
+        { query: 'teacher', location: 'Austin, TX' },                  // Education
+        { query: 'chef', location: 'Los Angeles, CA' }                 // Hospitality hub
       ];
       
       // Fetch all industry queries in parallel for much faster loading
-      const fetchPromises = jobQueries.map(async (query) => {
+      const fetchPromises = jobQueries.map(async ({ query, location }) => {
         try {
-          const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(query)}&location=Remote&num_pages=1`);
+          const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&num_pages=1`);
           const data = await response.json();
           
           if (data.status === 'success' && data.data && data.data.length > 0) {
@@ -585,10 +585,15 @@ export default function Home() {
       const results = await Promise.all(fetchPromises);
       const allJobs = results.filter(job => job !== null);
       
-      // If we don't have enough diverse jobs, fill with software engineering jobs
+      // If we don't have enough diverse jobs, fill with software engineering jobs from different locations
       if (allJobs.length < 4) {
-        try {
-          const response = await fetch(`/api/jobs/search?query=software engineer&location=Remote&num_pages=1`);
+        const fallbackLocations = ['Seattle, WA', 'Boston, MA', 'Remote', 'Denver, CO'];
+        
+        for (const fallbackLocation of fallbackLocations) {
+          if (allJobs.length >= 4) break;
+          
+          try {
+            const response = await fetch(`/api/jobs/search?query=software engineer&location=${encodeURIComponent(fallbackLocation)}&num_pages=1`);
           const data = await response.json();
           
           if (data.status === 'success' && data.data) {
@@ -623,8 +628,9 @@ export default function Home() {
               }
             }
           }
-        } catch (error) {
-          console.error('Error fetching fallback software engineer jobs:', error);
+          } catch (error) {
+            console.error(`Error fetching fallback software engineer jobs from ${fallbackLocation}:`, error);
+          }
         }
       }
       

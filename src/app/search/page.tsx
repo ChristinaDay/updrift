@@ -169,6 +169,13 @@ function SearchPage() {
     }
   };
 
+  // Store current search URL for back navigation
+  const storeCurrentSearchUrl = () => {
+    if (typeof window !== 'undefined') {
+      const currentUrl = `${window.location.pathname}${window.location.search}`;
+      sessionStorage.setItem('lastSearchUrl', currentUrl);
+    }
+  };
 
   // Get search parameters from URL
   useEffect(() => {
@@ -1355,6 +1362,7 @@ function SearchPage() {
                       onUpdateApplicationStatus={handleUpdateApplicationStatus}
                       showMatchScore={true}
                       className={viewMode === 'list' ? 'lg:flex lg:space-x-6' : ''}
+                      onNavigate={storeCurrentSearchUrl}
                     />
                   ))}
                   

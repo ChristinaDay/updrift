@@ -12,7 +12,7 @@ import {
   ClockIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline'
-import { formatSalaryRange, formatJobLocation, formatJobPostedDate, getCompanyLogoUrl, validateLogoUrl } from '@/utils/jobUtils'
+import { formatSalaryRange, formatJobLocation, formatJobPostedDate, getCompanyLogoUrl, validateLogoUrl, formatJobLocationForSearch } from '@/utils/jobUtils'
 import Link from 'next/link'
 
 interface SimilarJobsProps {
@@ -261,7 +261,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                     {/* Job Info Container */}
                     <div className="w-full">
                       {/* Title and Company - Flexible to scoot over when logo appears */}
-                      <div className={`${generatedLogoUrl && validLogos.has(job.job_id) ? 'ml-12 sm:ml-16' : ''}`}>
+                      <div className={`${generatedLogoUrl && validLogos.has(job.job_id) ? 'ml-14 sm:ml-16' : ''}`}>
                         <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
                           {job.job_title}
                         </h4>
@@ -322,7 +322,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
         {similarJobs.length > 0 && (
           <div className="pt-3 border-t border-border/50 mt-4">
             <Link
-              href={`/search?query=${encodeURIComponent(currentJob.job_title)}&location=${encodeURIComponent(currentJob.job_city || currentJob.job_country || '')}`}
+              href={`/search?query=${encodeURIComponent(currentJob.job_title)}&location=${encodeURIComponent(formatJobLocationForSearch(currentJob))}`}
               className="block"
             >
               <Button 

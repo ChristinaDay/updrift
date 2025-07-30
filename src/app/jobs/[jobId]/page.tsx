@@ -49,8 +49,33 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
   const [isSaved, setIsSaved] = useState(false)
   const [applicationStatus, setApplicationStatus] = useState<string | null>(null)
   const [application, setApplication] = useState<any>(null)
+  const [previousSearchUrl, setPreviousSearchUrl] = useState<string>('/search')
 
   useEffect(() => {
+    // Check if user came from a search page and store the search URL
+    const checkPreviousSearch = () => {
+      // First, check sessionStorage for stored search params
+      const storedSearch = sessionStorage.getItem('lastSearchUrl')
+      if (storedSearch) {
+        setPreviousSearchUrl(storedSearch)
+        return
+      }
+
+      // Fallback: check document.referrer
+      if (typeof window !== 'undefined' && document.referrer) {
+        const referrer = new URL(document.referrer)
+        if (referrer.pathname === '/search' && referrer.search) {
+          setPreviousSearchUrl(`/search${referrer.search}`)
+          return
+        }
+      }
+
+      // Default fallback
+      setPreviousSearchUrl('/search')
+    }
+
+    checkPreviousSearch()
+
     const fetchJobDetail = async () => {
       try {
         setLoading(true)
@@ -153,7 +178,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-2xl font-bold mb-4">Job Not Found</h1>
             <p className="text-muted-foreground mb-6">{error || 'The job you are looking for could not be found.'}</p>
-            <Button onClick={() => router.push('/search')}>Back to Search</Button>
+            <Button onClick={() => router.push(previousSearchUrl)}>Back to Search</Button>
           </div>
         </div>
       </div>
@@ -171,7 +196,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
           <nav className="mb-6">
             <Button 
               variant="outline" 
-              onClick={() => router.push('/search')}
+              onClick={() => router.push(previousSearchUrl)}
               className="bg-background text-foreground border-border hover:bg-muted hover:text-foreground"
             >
               ← Back to Search
