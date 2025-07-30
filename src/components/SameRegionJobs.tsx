@@ -37,30 +37,33 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
           return
         }
 
-        // Extract keywords from job title
+        // Use the same search that brought the user to this job
+        // Extract the most relevant keywords from the job title
         const titleWords = jobTitle.toLowerCase().split(' ').filter(word => 
           word.length > 2 && !['the', 'and', 'or', 'for', 'with', 'in', 'at', 'to', 'of', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being'].includes(word)
         )
         
+        // Use the first 2-3 meaningful words as the search query
         const searchQuery = titleWords.length >= 2 
           ? titleWords.slice(0, 3).join(' ')
           : jobTitle.toLowerCase().split(' ').slice(0, 2).join(' ')
+        
+        console.log('🔍 SameRegionJobs - Using search query:', searchQuery);
+        console.log('🔍 SameRegionJobs - Location:', `${currentJob.job_city}, ${currentJob.job_state}`);
 
         if (!searchQuery) {
           setLoading(false)
           return
         }
 
-        // Try multiple search strategies to find jobs in the same area
+        // Use the same search query but in the same location
         const searchStrategies = [
-          // Strategy 1: Use job title keywords + exact location (city + state)
+          // Strategy 1: Same search query + same location
           { query: searchQuery, location: `${currentJob.job_city}, ${currentJob.job_state}` },
-          // Strategy 2: Use full job title + exact location
+          // Strategy 2: Full job title + same location
           { query: jobTitle, location: `${currentJob.job_city}, ${currentJob.job_state}` },
-          // Strategy 3: Use job title with industry terms + location
-          { query: `${searchQuery} marketing ${currentJob.job_city}`, location: '' },
-          // Strategy 4: Use job title with seniority + location
-          { query: `${searchQuery} senior ${currentJob.job_city}`, location: '' }
+          // Strategy 3: Broader search in same location
+          { query: titleWords[0] || searchQuery, location: `${currentJob.job_city}, ${currentJob.job_state}` }
         ]
 
         let allJobs: Job[] = []

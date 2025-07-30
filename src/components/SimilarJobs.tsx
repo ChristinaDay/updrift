@@ -31,7 +31,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
       try {
         setLoading(true)
         
-        // Extract key terms from current job for similar search
+        // Use the same search that brought the user to this job
         const jobTitle = currentJob.job_title
         const location = currentJob.job_city || currentJob.job_country || ''
         
@@ -56,18 +56,14 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           return
         }
 
-        // Try multiple search strategies for more relevant results
+        // Use the same search query but without location restriction (anywhere)
         const searchStrategies = [
-          // Strategy 1: Use the full job title (most specific)
+          // Strategy 1: Same search query (anywhere)
+          { query: searchQuery, location: '' },
+          // Strategy 2: Full job title (anywhere)
           { query: jobTitle, location: '' },
-          // Strategy 2: Use job title keywords with more specific terms
-          { query: `${searchQuery} marketing`, location: '' },
-          // Strategy 3: Use job title keywords with industry terms
-          { query: `${searchQuery} product marketing`, location: '' },
-          // Strategy 4: Use job title keywords with seniority level
-          { query: `${searchQuery} senior`, location: '' },
-          // Strategy 5: Use job title keywords with management terms
-          { query: `${searchQuery} manager`, location: '' }
+          // Strategy 3: Broader search (anywhere)
+          { query: titleWords[0] || searchQuery, location: '' }
         ]
 
         let allJobs: Job[] = []
