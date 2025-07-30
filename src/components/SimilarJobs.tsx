@@ -44,7 +44,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           ? titleWords.slice(0, 3).join(' ')
           : jobTitle.toLowerCase().split(' ').slice(0, 2).join(' ')
         
-        if (!searchQuery) {
+        if (!searchQuery || searchQuery.trim().length < 2) {
           setLoading(false)
           return
         }
@@ -101,7 +101,11 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           return bOverlap - aOverlap
         })
 
-        setSimilarJobs(sortedJobs.slice(0, maxJobs))
+        if (sortedJobs.length === 0) {
+          setError('No similar jobs found')
+        } else {
+          setSimilarJobs(sortedJobs.slice(0, maxJobs))
+        }
       } catch (err) {
         console.error('Error fetching similar jobs:', err)
         setError('Failed to load similar jobs')
