@@ -524,7 +524,7 @@ export default function SavedJobsPage() {
                             <div className="flex items-center space-x-3 mb-2">
                               <h3 className="text-lg font-semibold text-foreground">
                                 <Link 
-                                  href={`/jobs/${savedJob.jobData.job_id}`}
+                                  href={`/jobs/${savedJob.jobData.job_publisher?.toLowerCase() || 'unknown'}-${savedJob.jobData.job_id}`}
                                   className="hover:text-primary hover:underline transition-colors cursor-pointer"
                                 >
                                   {savedJob.jobData.job_title}
@@ -781,7 +781,7 @@ export default function SavedJobsPage() {
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="text-lg font-semibold text-foreground">
                               <Link 
-                                href={`/jobs/${application.jobId}`}
+                                href={`/jobs/${application.jobData.job_publisher?.toLowerCase() || 'unknown'}-${application.jobId}`}
                                 className="hover:text-primary hover:underline transition-colors cursor-pointer"
                               >
                                 {application.jobData.job_title}

@@ -40,12 +40,12 @@ const getJobDetail = async (request: NextRequest, { params }: { params: Promise<
         );
       }
 
-      // For now, return error since we need to implement provider-specific fetching
-      // This will be enhanced in Phase 2
+      // For now, return a more helpful error message
+      // In the future, this could fetch from the original provider
       return NextResponse.json(
         { 
           status: 'error', 
-          message: 'Job not found in database and provider fetching not yet implemented',
+          message: 'Job not found in database. The job may have expired or been removed.',
           jobId,
           provider: parsed.provider,
           originalId: parsed.originalId
