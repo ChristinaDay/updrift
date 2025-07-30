@@ -151,7 +151,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-2xl font-bold mb-4">Job Not Found</h1>
             <p className="text-muted-foreground mb-6">{error || 'The job you are looking for could not be found.'}</p>
-            <Button onClick={() => router.back()}>Go Back</Button>
+            <Button onClick={() => router.push('/search')}>Back to Search</Button>
           </div>
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function JobDetailPage({ params }: JobDetailPageProps) {
           <nav className="mb-6">
             <Button 
               variant="outline" 
-              onClick={() => router.back()}
+              onClick={() => router.push('/search')}
               className="bg-background text-foreground border-border hover:bg-muted hover:text-foreground"
             >
               ← Back to Search
