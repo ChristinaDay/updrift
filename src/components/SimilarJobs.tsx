@@ -207,57 +207,55 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                 href={`/jobs/${job.job_publisher.toLowerCase()}-${job.job_id}`}
                 className="block group"
               >
-                <Card className="h-full hover:shadow-md transition-shadow">
+                <Card className="h-full hover:shadow-md transition-shadow relative">
                   <CardContent className="p-4">
-                    <div className={`${generatedLogoUrl && validLogos.has(job.job_id) ? 'flex items-start space-x-3' : ''}`}>
-                      {/* Company Logo - Only show if we have a valid logo */}
-                      {generatedLogoUrl && validLogos.has(job.job_id) && (
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <img 
-                            src={generatedLogoUrl} 
-                            alt={job.employer_name}
-                            className="w-8 h-8 object-contain"
-                            onError={(e) => {
-                              // If image fails to load, hide the entire container
-                              const parentElement = e.currentTarget.parentElement
-                              if (parentElement) {
-                                parentElement.style.display = 'none'
-                              }
-                            }}
-                          />
+                    {/* Job Info Container - Always takes full width */}
+                    <div className="w-full">
+                      <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                        {job.job_title}
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-1 truncate">
+                        {job.employer_name}
+                      </p>
+                      
+                      {/* Location */}
+                      <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                        <MapPinIcon className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate">{formatJobLocation(job)}</span>
+                      </div>
+
+                      {/* Salary - Only show if available */}
+                      {job.job_min_salary && job.job_max_salary && (
+                        <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                          <CurrencyDollarIcon className="w-3 h-3 flex-shrink-0" />
+                          <span>{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
                         </div>
                       )}
 
-                      {/* Job Info - Takes full width when no logo */}
-                      <div className={`${generatedLogoUrl && validLogos.has(job.job_id) ? 'flex-1 min-w-0' : 'w-full'}`}>
-                        <h4 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                          {job.job_title}
-                        </h4>
-                        <p className="text-xs text-muted-foreground mt-1 truncate">
-                          {job.employer_name}
-                        </p>
-                        
-                        {/* Location */}
-                        <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                          <MapPinIcon className="w-3 h-3 flex-shrink-0" />
-                          <span className="truncate">{formatJobLocation(job)}</span>
-                        </div>
-
-                        {/* Salary - Only show if available */}
-                        {job.job_min_salary && job.job_max_salary && (
-                          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                            <CurrencyDollarIcon className="w-3 h-3 flex-shrink-0" />
-                            <span>{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
-                          </div>
-                        )}
-
-                        {/* Posted Date */}
-                        <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                          <ClockIcon className="w-3 h-3 flex-shrink-0" />
-                          <span>{formatJobPostedDate(job.job_posted_at_timestamp.toString())}</span>
-                        </div>
+                      {/* Posted Date */}
+                      <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                        <ClockIcon className="w-3 h-3 flex-shrink-0" />
+                        <span>{formatJobPostedDate(job.job_posted_at_timestamp.toString())}</span>
                       </div>
                     </div>
+
+                    {/* Company Logo - Positioned absolutely to not affect layout */}
+                    {generatedLogoUrl && validLogos.has(job.job_id) && (
+                      <div className="absolute top-4 left-4 w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
+                        <img 
+                          src={generatedLogoUrl} 
+                          alt={job.employer_name}
+                          className="w-8 h-8 object-contain"
+                          onError={(e) => {
+                            // If image fails to load, hide the entire container
+                            const parentElement = e.currentTarget.parentElement
+                            if (parentElement) {
+                              parentElement.style.display = 'none'
+                            }
+                          }}
+                        />
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </Link>
