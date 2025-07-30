@@ -71,19 +71,27 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           if (allJobs.length >= maxJobs * 2) break // Stop if we have enough candidates
           
           try {
-                    console.log('🔍 SimilarJobs - Current job ID:', currentJob.job_id);
+                    // Create composite job ID for proper exclusion
+        const compositeJobId = `${currentJob.job_publisher.toLowerCase()}-${currentJob.job_id}`;
+        console.log('🔍 SimilarJobs - Current job ID:', currentJob.job_id);
+        console.log('🔍 SimilarJobs - Composite job ID:', compositeJobId);
         console.log('🔍 SimilarJobs - Trying strategy:', strategy);
-        const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1&excludeJobId=${encodeURIComponent(currentJob.job_id)}`)
+        const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1&excludeJobId=${encodeURIComponent(compositeJobId)}`)
         const data = await response.json()
 
         console.log('🔍 SimilarJobs - API response:', { status: data.status, dataLength: data.data?.length || 0 });
 
         if (data.status === 'success' && data.data) {
-          const newJobs = data.data.filter((job: Job) => 
-            !allJobs.some(existingJob => existingJob.job_id === job.job_id)
-          )
+          const newJobs = data.data.filter((job: Job) => {
+            // Don't include if already in allJobs
+            const alreadyExists = allJobs.some(existingJob => existingJob.job_id === job.job_id);
+            // Don't include if it's the current job (double-check)
+            const isCurrentJob = job.job_id === currentJob.job_id && job.job_publisher.toLowerCase() === currentJob.job_publisher.toLowerCase();
+            return !alreadyExists && !isCurrentJob;
+          })
           
           console.log('🔍 SimilarJobs - New jobs found:', newJobs.length);
+          console.log('🔍 SimilarJobs - Filtered out current job:', data.data.length - newJobs.length - allJobs.filter(existing => data.data.some((job: Job) => job.job_id === existing.job_id)).length);
           allJobs = [...allJobs, ...newJobs]
         }
           } catch (err) {
@@ -130,10 +138,17 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
             return bScore - aScore
           })
 
-        if (sortedJobs.length === 0) {
+        // Final filter to absolutely ensure current job is not included
+        const filteredSortedJobs = sortedJobs.filter(job => 
+          !(job.job_id === currentJob.job_id && job.job_publisher.toLowerCase() === currentJob.job_publisher.toLowerCase())
+        );
+
+        if (filteredSortedJobs.length === 0) {
           setError('No similar jobs found')
         } else {
-          const finalJobs = sortedJobs.slice(0, maxJobs)
+          const finalJobs = filteredSortedJobs.slice(0, maxJobs)
+          console.log('🔍 SimilarJobs - Final jobs after all filtering:', finalJobs.length);
+          console.log('🔍 SimilarJobs - First 3 job IDs:', finalJobs.slice(0, 3).map(job => `${job.job_publisher.toLowerCase()}-${job.job_id}`));
           setSimilarJobs(finalJobs)
           
           // Store similar jobs in database for job detail pages
