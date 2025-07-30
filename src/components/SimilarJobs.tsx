@@ -54,12 +54,16 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
         
         // Try multiple search strategies for broader results (not location-focused)
         const searchStrategies = [
-          // Strategy 1: Use just the main keywords without location (broader search)
+          // Strategy 1: Use job title keywords without location (broader search)
           { query: searchQuery, location: '' },
           // Strategy 2: Use just the first meaningful word (very broad)
           { query: titleWords[0] || searchQuery, location: '' },
           // Strategy 3: Use extracted keywords with location as fallback
-          { query: searchQuery, location }
+          { query: searchQuery, location },
+          // Strategy 4: Use job title with common job terms
+          { query: `${searchQuery} job`, location: '' },
+          // Strategy 5: Use just the main job category
+          { query: titleWords[0] || searchQuery, location: '' }
         ]
 
         let allJobs: Job[] = []
@@ -99,7 +103,23 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
           const aOverlap = [...currentWords].filter(word => aWords.has(word)).length
           const bOverlap = [...currentWords].filter(word => bWords.has(word)).length
           
-          return bOverlap - aOverlap
+          // Also consider company similarity
+          const aCompanyMatch = a.employer_name.toLowerCase() === currentJob.employer_name.toLowerCase() ? 2 : 0
+          const bCompanyMatch = b.employer_name.toLowerCase() === currentJob.employer_name.toLowerCase() ? 2 : 0
+          
+          // Consider job requirements similarity
+          const aSkills = a.job_required_skills || []
+          const bSkills = b.job_required_skills || []
+          const currentSkills = currentJob.job_required_skills || []
+          
+          const aSkillOverlap = aSkills.filter(skill => currentSkills.includes(skill)).length
+          const bSkillOverlap = bSkills.filter(skill => currentSkills.includes(skill)).length
+          
+          // Calculate total similarity scores
+          const aScore = aOverlap + aCompanyMatch + aSkillOverlap
+          const bScore = bOverlap + bCompanyMatch + bSkillOverlap
+          
+          return bScore - aScore
         })
 
         console.log('🔍 Final sorted jobs:', sortedJobs.length)
@@ -153,10 +173,10 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
         <CardHeader>
           <CardTitle>Similar Jobs</CardTitle>
         </CardHeader>
-              <CardContent className="p-4">
-          <div className="flex flex-wrap gap-4">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array.from({ length: maxJobs }).map((_, index) => (
-              <Card key={index} className="w-80 h-full">
+              <Card key={index} className="h-full">
                 <CardContent className="p-4">
                   <div className="flex items-start space-x-3">
                     <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
@@ -189,7 +209,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
         <CardTitle>Similar Jobs (Anywhere)</CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {similarJobs.map((job) => {
             const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
             
@@ -199,7 +219,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                 href={`/jobs/${job.job_publisher.toLowerCase()}-${job.job_id}`}
                 className="block group"
               >
-                <Card className="w-80 h-full hover:shadow-md transition-shadow relative">
+                <Card className="h-full hover:shadow-md transition-shadow relative">
                   <CardContent className="p-4">
                     {/* Job Info Container */}
                     <div className="w-full">

@@ -37,8 +37,6 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
           return
         }
 
-        console.log('🌍 Same Region Jobs Debug:', { jobTitle, location })
-
         // Extract keywords from job title
         const titleWords = jobTitle.toLowerCase().split(' ').filter(word => 
           word.length > 2 && !['the', 'and', 'or', 'for', 'with', 'in', 'at', 'to', 'of', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being'].includes(word)
@@ -55,14 +53,14 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
 
         // Try multiple search strategies to find jobs in the same area
         const searchStrategies = [
-          // Strategy 1: Use job title keywords + exact location
-          { query: searchQuery, location },
-          // Strategy 2: Use broader job title + location
-          { query: titleWords[0] || searchQuery, location },
-          // Strategy 3: Use just location to find any jobs in the area
-          { query: '', location },
-          // Strategy 4: Use common job terms + location
-          { query: 'job', location }
+          // Strategy 1: Use job title keywords + exact location (city + state)
+          { query: searchQuery, location: `${currentJob.job_city}, ${currentJob.job_state}` },
+          // Strategy 2: Use broader job title + exact location
+          { query: titleWords[0] || searchQuery, location: `${currentJob.job_city}, ${currentJob.job_state}` },
+          // Strategy 3: Use just the exact location
+          { query: '', location: `${currentJob.job_city}, ${currentJob.job_state}` },
+          // Strategy 4: Use job category + exact location
+          { query: `${titleWords[0]} ${currentJob.job_city}, ${currentJob.job_state}`, location: '' }
         ]
 
         let allJobs: Job[] = []
@@ -72,11 +70,8 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
           if (allJobs.length >= maxJobs * 3) break // Stop if we have enough candidates
           
           try {
-            console.log('🌍 Trying strategy:', strategy)
             const response = await fetch(`/api/jobs/search?query=${encodeURIComponent(strategy.query)}&location=${encodeURIComponent(strategy.location)}&num_pages=1`)
             const data = await response.json()
-
-            console.log('🌍 Strategy result:', { status: data.status, jobsCount: data.data?.length || 0 })
 
             if (data.status === 'success' && data.data) {
               const newJobs = data.data.filter((job: Job) => 
@@ -84,15 +79,12 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
                 !allJobs.some(existingJob => existingJob.job_id === job.job_id)
               )
               allJobs = [...allJobs, ...newJobs]
-              console.log('🌍 Added jobs:', newJobs.length, 'Total:', allJobs.length)
             }
           } catch (err) {
             console.error('Error with search strategy:', err)
           }
         }
 
-        console.log('🌍 Total jobs found:', allJobs.length)
-        
         if (allJobs.length === 0) {
           setError('No jobs found in the same region')
         } else {
@@ -133,20 +125,7 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
             return cityMatch || stateMatch || countryMatch;
           });
 
-          console.log('🌍 Same Region filtered jobs:', filteredJobs.length);
-          console.log('🌍 Current job location:', { 
-            city: currentJob.job_city, 
-            state: currentJob.job_state, 
-            country: currentJob.job_country 
-          });
-          console.log('🌍 Sample filtered job location:', filteredJobs[0] ? {
-            city: filteredJobs[0].job_city,
-            state: filteredJobs[0].job_state,
-            country: filteredJobs[0].job_country
-          } : 'No jobs found');
-          
           if (filteredJobs.length === 0) {
-            console.log('🌍 No jobs matched location criteria');
             setError('No jobs found in the same region')
           } else {
             const finalJobs = filteredJobs.slice(0, maxJobs)
@@ -196,9 +175,9 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
           <CardTitle>Jobs in {currentJob.job_city || currentJob.job_state || currentJob.job_country}</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="flex flex-wrap gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array.from({ length: maxJobs }).map((_, index) => (
-              <Card key={index} className="w-80 h-full">
+              <Card key={index} className="h-full">
                 <CardContent className="p-4">
                   <div className="flex items-start space-x-3">
                     <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
@@ -231,7 +210,7 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
         <CardTitle>Jobs in {currentJob.job_city || currentJob.job_state || currentJob.job_country}</CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {sameRegionJobs.map((job) => {
             const generatedLogoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
             
@@ -241,7 +220,7 @@ export default function SameRegionJobs({ currentJob, maxJobs = 4 }: SameRegionJo
                 href={`/jobs/${job.job_publisher.toLowerCase()}-${job.job_id}`}
                 className="block group"
               >
-                <Card className="w-80 h-full hover:shadow-md transition-shadow relative">
+                <Card className="h-full hover:shadow-md transition-shadow relative">
                   <CardContent className="p-4">
                     {/* Job Info Container */}
                     <div className="w-full">
