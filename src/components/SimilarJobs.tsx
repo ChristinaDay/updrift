@@ -237,20 +237,19 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                           {job.employer_name}
                         </p>
                         
-                        {/* Job Details */}
-                        <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1 flex-1 min-w-0">
-                            <MapPinIcon className="w-3 h-3 flex-shrink-0" />
-                            <span className="truncate">{formatJobLocation(job)}</span>
-                          </div>
-                          
-                          {job.job_min_salary && job.job_max_salary && (
-                            <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                              <CurrencyDollarIcon className="w-3 h-3" />
-                              <span className="text-xs">{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
-                            </div>
-                          )}
+                        {/* Location */}
+                        <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                          <MapPinIcon className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{formatJobLocation(job)}</span>
                         </div>
+
+                        {/* Salary - Only show if available */}
+                        {job.job_min_salary && job.job_max_salary && (
+                          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                            <CurrencyDollarIcon className="w-3 h-3 flex-shrink-0" />
+                            <span>{formatSalaryRange(job.job_min_salary, job.job_max_salary, job.job_salary_currency)}</span>
+                          </div>
+                        )}
 
                         {/* Posted Date */}
                         <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
