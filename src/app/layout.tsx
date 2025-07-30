@@ -46,9 +46,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <ThemeProvider>
-        <ThemedBody>{children}</ThemedBody>
-      </ThemeProvider>
+      <SessionWrapper>
+        <ThemeProvider>
+          <ThemedBody>{children}</ThemedBody>
+        </ThemeProvider>
+      </SessionWrapper>
     </html>
   )
 } 

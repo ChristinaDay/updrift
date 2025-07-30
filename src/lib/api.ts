@@ -538,7 +538,7 @@ export function getMockJobs(): Job[] {
     {
       job_id: 'mock-1',
       employer_name: 'TechCorp Inc.',
-      employer_logo: 'https://logo.clearbit.com/techcorp.com',
+      employer_logo: '/api/logo/techcorp.com',
       employer_website: 'https://techcorp.com',
       job_title: 'Senior Software Engineer',
       job_description: 'We are looking for a passionate Senior Software Engineer to join our growing team. You will be responsible for designing, developing, and maintaining high-quality software solutions.',
@@ -579,7 +579,7 @@ export function getMockJobs(): Job[] {
     {
       job_id: 'mock-2',
       employer_name: 'DataFlow Solutions',
-      employer_logo: 'https://logo.clearbit.com/dataflow.com',
+      employer_logo: '/api/logo/dataflow.com',
       employer_website: 'https://dataflow.com',
       job_title: 'Product Manager',
       job_description: 'Join our product team to drive innovation and deliver exceptional user experiences. You will work closely with engineering, design, and business teams.',

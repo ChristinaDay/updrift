@@ -17,7 +17,10 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
+        console.log('🔐 NextAuth authorize called with:', { email: credentials?.email })
+        
         if (!credentials?.email || !credentials?.password) {
+          console.log('❌ Missing credentials')
           throw new Error('Email and password required')
         }
 
@@ -25,16 +28,22 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email }
         })
 
+        console.log('🔍 User lookup result:', user ? 'User found' : 'User not found')
+
         if (!user || !user.password) {
+          console.log('❌ User not found or no password')
           throw new Error('Invalid credentials')
         }
 
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+        console.log('🔐 Password validation:', isPasswordValid ? 'Valid' : 'Invalid')
 
         if (!isPasswordValid) {
+          console.log('❌ Invalid password')
           throw new Error('Invalid credentials')
         }
 
+        console.log('✅ Authentication successful for:', user.email)
         return {
           id: user.id,
           email: user.email,
@@ -67,6 +76,7 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
+      console.log('🔄 JWT callback:', { userId: user?.id, tokenId: token?.id })
       if (user) {
         token.id = user.id
       }
@@ -74,10 +84,28 @@ export const authOptions: NextAuthOptions = {
     },
     
     async session({ session, token }) {
+      console.log('🔄 Session callback:', { 
+        sessionUserId: session?.user?.id, 
+        tokenId: token?.id,
+        sessionUser: session?.user?.email,
+        tokenEmail: token?.email
+      })
       if (token) {
         session.user.id = token.id as string
+        console.log('✅ Session callback: Set user.id to', token.id)
+      } else {
+        console.log('❌ Session callback: No token provided')
       }
       return session
+    },
+
+    async redirect({ url, baseUrl }) {
+      console.log('🔄 Redirect callback:', { url, baseUrl })
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url
+      return `${baseUrl}/dashboard`
     },
   },
 

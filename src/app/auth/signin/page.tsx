@@ -21,19 +21,35 @@ export default function SignInPage() {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
 
+    console.log('🔐 Attempting sign in with:', { email, password: '***' })
+
     try {
       const result = await signIn('credentials', {
         email,
         password,
+        callbackUrl: '/dashboard',
         redirect: false,
       })
 
+      console.log('🔐 Sign in result:', result)
+
       if (result?.error) {
+        console.error('❌ Sign in error:', result.error)
         setError('Invalid credentials')
+      } else if (result?.ok) {
+        console.log('✅ Sign in successful, redirecting...')
+        // Use NextAuth's built-in redirect instead of manual redirect
+        await signIn('credentials', {
+          email,
+          password,
+          callbackUrl: '/dashboard',
+        })
       } else {
-        router.push('/dashboard')
+        console.log('⚠️ Sign in result unclear:', result)
+        setError('Sign in failed. Please try again.')
       }
     } catch (err) {
+      console.error('💥 Sign in exception:', err)
       setError('An error occurred. Please try again.')
     } finally {
       setIsLoading(false)

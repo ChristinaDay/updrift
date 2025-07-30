@@ -24,11 +24,24 @@ export default function Dashboard() {
   })
   const [isLoading, setIsLoading] = useState(true)
 
+  // Debug session state
+  console.log('🔍 Dashboard session state:', { 
+    status, 
+    hasSession: !!session, 
+    sessionUser: session?.user?.email,
+    sessionUserId: session?.user?.id 
+  })
+
   useEffect(() => {
+    console.log('🔄 Dashboard useEffect - status changed:', status)
     if (status === 'unauthenticated') {
+      console.log('❌ User unauthenticated, redirecting to signin')
       router.push('/auth/signin')
+    } else if (status === 'authenticated' && session) {
+      console.log('✅ User authenticated, loading dashboard data')
+      loadDashboardData()
     }
-  }, [status, router])
+  }, [status, session, router])
 
   useEffect(() => {
     if (session?.user) {
@@ -76,6 +89,16 @@ export default function Dashboard() {
   }
 
   if (status === 'loading') {
+    console.log('⏳ Dashboard loading...')
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated') {
+    console.log('❌ Dashboard: User unauthenticated, showing loading...')
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -84,8 +107,15 @@ export default function Dashboard() {
   }
 
   if (!session) {
-    return null
+    console.log('❌ Dashboard: No session found, returning null')
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
   }
+
+  console.log('✅ Dashboard: Session found, rendering dashboard')
 
   return (
     <div className="min-h-screen bg-background">

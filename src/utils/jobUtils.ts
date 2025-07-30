@@ -330,7 +330,7 @@ export async function validateLogoUrl(url: string): Promise<boolean> {
 }
 
 /**
- * Generate company logo URL using Clearbit API
+ * Generate company logo URL using our proxy API to avoid CORS issues
  * Tries website first, then falls back to company name-based domain guessing
  * Returns null if no valid logo is found
  */
@@ -338,7 +338,7 @@ export function getCompanyLogoUrl(companyName: string, website?: string): string
   // First try: use provided website
   const domain = getCompanyDomain(website);
   if (domain) {
-    return `https://logo.clearbit.com/${domain}`;
+    return `/api/logo/${domain}`;
   }
 
   // Second try: generate domain from company name
@@ -349,7 +349,7 @@ export function getCompanyLogoUrl(companyName: string, website?: string): string
     
     // Only try if we have a reasonable company name
     if (cleanName.length >= 3) {
-      return `https://logo.clearbit.com/${cleanName}.com`;
+      return `/api/logo/${cleanName}.com`;
     }
   }
 
