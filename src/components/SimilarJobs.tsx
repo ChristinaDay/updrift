@@ -12,7 +12,7 @@ import {
   ClockIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline'
-import { formatSalaryRange, formatJobLocation, formatJobPostedDate, getCompanyLogoUrl } from '@/utils/jobUtils'
+import { formatSalaryRange, formatJobLocation, formatJobPostedDate, getCompanyLogoUrl, validateLogoUrl } from '@/utils/jobUtils'
 import Link from 'next/link'
 
 interface SimilarJobsProps {
@@ -24,6 +24,7 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
   const [similarJobs, setSimilarJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [validLogos, setValidLogos] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     const fetchSimilarJobs = async () => {
@@ -115,7 +116,31 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
         if (sortedJobs.length === 0) {
           setError('No similar jobs found')
         } else {
-          setSimilarJobs(sortedJobs.slice(0, maxJobs))
+          const finalJobs = sortedJobs.slice(0, maxJobs)
+          setSimilarJobs(finalJobs)
+          
+          // Validate logos for the jobs we're showing
+          const validateLogos = async () => {
+            const validLogosSet = new Set<string>()
+            
+            for (const job of finalJobs) {
+              const logoUrl = getCompanyLogoUrl(job.employer_name, job.employer_website)
+              if (logoUrl) {
+                try {
+                  const isValid = await validateLogoUrl(logoUrl)
+                  if (isValid) {
+                    validLogosSet.add(job.job_id)
+                  }
+                } catch (err) {
+                  console.error('Error validating logo for job:', job.job_id, err)
+                }
+              }
+            }
+            
+            setValidLogos(validLogosSet)
+          }
+          
+          validateLogos()
         }
       } catch (err) {
         console.error('Error fetching similar jobs:', err)
@@ -187,15 +212,19 @@ export default function SimilarJobs({ currentJob, maxJobs = 4 }: SimilarJobsProp
                     <div className="flex items-start space-x-3">
                       {/* Company Logo */}
                       <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                        {generatedLogoUrl ? (
+                        {generatedLogoUrl && validLogos.has(job.job_id) ? (
                           <img 
                             src={generatedLogoUrl} 
                             alt={job.employer_name}
                             className="w-8 h-8 object-contain"
+                            onError={(e) => {
+                              // If image fails to load, hide it and show icon instead
+                              e.currentTarget.style.display = 'none'
+                              e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                            }}
                           />
-                        ) : (
-                          <BuildingOfficeIcon className="w-6 h-6 text-muted-foreground" />
-                        )}
+                        ) : null}
+                        <BuildingOfficeIcon className={`w-6 h-6 text-muted-foreground ${generatedLogoUrl && validLogos.has(job.job_id) ? 'hidden' : ''}`} />
                       </div>
 
                       {/* Job Info */}

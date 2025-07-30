@@ -86,8 +86,22 @@ export function getCompanyDomain(website?: string, email?: string): string | nul
 }
 
 /**
+ * Validate if a logo URL actually returns an image
+ */
+export async function validateLogoUrl(url: string): Promise<boolean> {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    const contentType = response.headers.get('content-type');
+    return response.ok && contentType ? contentType.startsWith('image/') : false;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Generate company logo URL using Clearbit API
  * Tries website first, then falls back to company name-based domain guessing
+ * Returns null if no valid logo is found
  */
 export function getCompanyLogoUrl(companyName: string, website?: string): string | null {
   // First try: use provided website
@@ -102,19 +116,10 @@ export function getCompanyLogoUrl(companyName: string, website?: string): string
       .replace(/[^a-z0-9]/g, '') // Remove special characters
       .replace(/\s+/g, ''); // Remove spaces
     
-    // Try common domain patterns
-    const possibleDomains = [
-      `${cleanName}.com`,
-      `${cleanName}.org`,
-      `${cleanName}.net`,
-      `${cleanName}.io`,
-      `${cleanName}.co`,
-      `${cleanName}.tech`,
-      `${cleanName}.ai`
-    ];
-
-    // For now, let's try the most common pattern
-    return `https://logo.clearbit.com/${cleanName}.com`;
+    // Only try if we have a reasonable company name
+    if (cleanName.length >= 3) {
+      return `https://logo.clearbit.com/${cleanName}.com`;
+    }
   }
 
   return null;
