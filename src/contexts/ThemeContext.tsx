@@ -17,13 +17,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const darkTheme = themes.find(t => t.name === 'cyber');
   const [currentTheme, setCurrentTheme] = useState<Theme>(darkTheme!);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Load saved mode from localStorage
-    const savedMode = localStorage.getItem('updrift-mode') || 'dark';
-    const theme = savedMode === 'dark' ? darkTheme : lightTheme;
-    setCurrentTheme(theme!);
-    applyTheme(theme!.name);
+    setIsMounted(true);
+    
+    // Only access localStorage after component mounts on client
+    if (typeof window !== 'undefined') {
+      const savedMode = localStorage.getItem('updrift-mode') || 'dark';
+      const theme = savedMode === 'dark' ? darkTheme : lightTheme;
+      setCurrentTheme(theme!);
+      applyTheme(theme!.name);
+    } else {
+      // Server-side: use default dark theme
+      applyTheme(darkTheme!.name);
+    }
+    
     setIsLoading(false);
   }, []);
 
@@ -32,10 +41,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     let theme: Theme | undefined;
     if (themeName === 'dark') {
       theme = darkTheme;
-      localStorage.setItem('updrift-mode', 'dark');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('updrift-mode', 'dark');
+      }
     } else {
       theme = lightTheme;
-      localStorage.setItem('updrift-mode', 'light');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('updrift-mode', 'light');
+      }
     }
     if (!theme) return;
     setCurrentTheme(theme);
