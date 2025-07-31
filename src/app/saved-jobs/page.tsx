@@ -1,6 +1,6 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useAuthSession } from '@/hooks/useAuthSession'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -59,7 +59,7 @@ interface ApplicationStats {
 }
 
 export default function SavedJobsPage() {
-  const { data: session, status } = useSession()
+  const { data: session, status } = useAuthSession()
   const router = useRouter()
   const [savedJobs, setSavedJobs] = useState<SavedJob[]>([])
   const [filteredJobs, setFilteredJobs] = useState<SavedJob[]>([])

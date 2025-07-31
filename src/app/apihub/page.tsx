@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuthSession } from '@/hooks/useAuthSession';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -76,7 +76,7 @@ interface APIStatus {
 export default function APIhubPage() {
   console.log('🚀 APIhubPage component loading...');
   
-  const { data: session } = useSession();
+  const { data: session } = useAuthSession();
   const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string>('');

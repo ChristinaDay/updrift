@@ -28,7 +28,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useAuthSession } from '@/hooks/useAuthSession'
 import { Job } from '@/types/job'
 import { filterJobs, sortJobs, capitalizeLocation } from '@/utils/jobUtils'
 import { useSearchJobs } from '@/lib/useSearchJobs'
@@ -60,7 +60,7 @@ type ViewMode = 'grid' | 'list'
 function SearchPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { data: session } = useSession()
+  const { data: session } = useAuthSession()
   const [sortBy, setSortBy] = useState<SortOption>('relevance')
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [showFilters, setShowFilters] = useState(false)

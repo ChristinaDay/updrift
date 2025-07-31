@@ -1,6 +1,6 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useAuthSession } from '@/hooks/useAuthSession'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -86,7 +86,7 @@ const commonExcludedCategories = [
 ]
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession()
+  const { data: session, status } = useAuthSession()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)

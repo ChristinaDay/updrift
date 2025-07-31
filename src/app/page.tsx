@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { signIn, signOut } from 'next-auth/react'
+import { useAuthSession } from '@/hooks/useAuthSession'
 import Link from 'next/link'
 import { MagnifyingGlassIcon, MapPinIcon, BriefcaseIcon, ChartBarIcon, SparklesIcon, RocketLaunchIcon, UserIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button'
@@ -490,7 +491,7 @@ const AnimatedCount: React.FC<{ value: string }> = ({ value }) => {
 
 export default function Home() {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { data: session, status } = useAuthSession()
   const [searchQuery, setSearchQuery] = useState('')
   const [location, setLocation] = useState('')
   const [radius, setRadius] = useState(25) // Default 25 mile radius
