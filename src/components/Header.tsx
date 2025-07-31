@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
+import { useAuthSession } from "@/hooks/useAuthSession";
 import ThemeToggle from "@/components/ThemeToggle";
 import { UserIcon, MagnifyingGlassIcon, BookmarkIcon, ChevronDownIcon, ChartBarIcon, DocumentTextIcon, CogIcon } from "@heroicons/react/24/outline";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -13,7 +14,7 @@ import { Bars3Icon } from "@heroicons/react/24/outline";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export default function Header() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useAuthSession();
   const pathname = usePathname();
 
   return (

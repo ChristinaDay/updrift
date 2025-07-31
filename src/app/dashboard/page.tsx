@@ -1,6 +1,7 @@
 'use client'
 
-import { useSession, signOut } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
+import { useAuthSession } from '@/hooks/useAuthSession'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -11,7 +12,7 @@ import ThemeToggle from '@/components/ThemeToggle'
 import Header from '@/components/Header'
 
 export default function Dashboard() {
-  const { data: session, status } = useSession()
+  const { data: session, status } = useAuthSession()
   const router = useRouter()
   const [savedJobs, setSavedJobs] = useState([])
   const [searchHistory, setSearchHistory] = useState([])
