@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { themes, Theme, applyTheme } from '@/lib/themes';
+import { loadFigmaTokens } from '@/lib/designTokens';
 
 interface ThemeContextType {
   currentTheme: Theme;
@@ -28,6 +29,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const theme = savedMode === 'dark' ? darkTheme : lightTheme;
       setCurrentTheme(theme!);
       applyTheme(theme!.name);
+      
+      // Load Figma design tokens if available (enhances existing theme system)
+      loadFigmaTokens('local').then(tokens => {
+        if (tokens) {
+          console.log('✅ Figma design tokens loaded and applied');
+        }
+      }).catch(error => {
+        // Silently continue without Figma tokens - all existing functionality preserved
+        console.log('ℹ️ No Figma design tokens found, using default theme system');
+      });
     } else {
       // Server-side: use default dark theme
       applyTheme(darkTheme!.name);

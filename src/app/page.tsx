@@ -461,33 +461,6 @@ function RiverParticles({ width = 1920, height = 180, numParticles = 35, numStre
   );
 }
 
-// --- AnimatedCount component (helper, place above Home) ---
-
-const AnimatedCount: React.FC<{ value: string }> = ({ value }) => {
-  const [display, setDisplay] = useState('0');
-  useEffect(() => {
-    let start = 0;
-    const end = parseInt(value.replace(/\D/g, '')) || 0;
-    if (isNaN(end) || end === 0) {
-      setDisplay(value);
-      return;
-    }
-    let current = start;
-    const duration = 1200;
-    const step = Math.ceil(end / (duration / 16));
-    const interval = setInterval(() => {
-      current += step;
-      if (current >= end) {
-        setDisplay(value);
-        clearInterval(interval);
-      } else {
-        setDisplay(current.toLocaleString() + value.replace(/\d/g, ''));
-      }
-    }, 16);
-    return () => clearInterval(interval);
-  }, [value]);
-  return <span>{display}</span>;
-};
 
 export default function Home() {
   const router = useRouter()
@@ -834,12 +807,6 @@ export default function Home() {
     }
   ]
 
-  const stats = [
-    { label: 'Job Listings', value: '2M+', description: 'Fresh opportunities daily' },
-    { label: 'Companies', value: '50K+', description: 'From startups to Fortune 500' },
-    { label: 'Success Rate', value: '85%', description: 'Users find jobs faster' },
-    { label: 'Platforms', value: '50+', description: 'All major job boards' }
-  ]
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -1146,25 +1113,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section - Simplified */}
-      <section className="relative bg-background py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="text-center group"
-              >
-                <div className="text-4xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
-                  <AnimatedCount value={stat.value} />
-                </div>
-                <div className="text-sm font-medium text-muted-foreground mt-2">{stat.label}</div>
-                <div className="text-xs text-muted-foreground/70 mt-1">{stat.description}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Features Section - Modernized */}
       <section className="py-24 bg-muted/30">
