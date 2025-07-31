@@ -18,23 +18,16 @@ function LoadingFallback() {
 
 function SafeSessionProvider({ children }: { children: ReactNode }) {
   const [isClient, setIsClient] = useState(false)
-  const [isReady, setIsReady] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    // Prevent hydration mismatches by ensuring we're fully client-side
+    // Ensure we're client-side to prevent hydration mismatches
     setIsMounted(true)
     setIsClient(true)
-    
-    // Add additional delay to ensure all contexts are ready and prevent hydration issues
-    const timer = setTimeout(() => {
-      setIsReady(true)
-    }, 600)
-    return () => clearTimeout(timer)
   }, [])
 
-  // Always show loading during SSR and initial client mount
-  if (!isMounted || !isClient || !isReady) {
+  // Only prevent rendering during SSR, allow immediate client-side rendering
+  if (!isMounted || !isClient) {
     return <LoadingFallback />
   }
 

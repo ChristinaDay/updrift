@@ -13,10 +13,10 @@ export function useAuthSession() {
     setIsMounted(true)
     setIsClient(true)
     
-    // Allow more time for session to initialize and prevent hydration mismatches
+    // Shorter delay - just enough to prevent hydration mismatch on session access
     const timer = setTimeout(() => {
       setIsReady(true)
-    }, 500)
+    }, 100)
 
     return () => clearTimeout(timer)
   }, [])
