@@ -17,20 +17,6 @@ function LoadingFallback() {
 }
 
 function SafeSessionProvider({ children }: { children: ReactNode }) {
-  const [isClient, setIsClient] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    // Ensure we're client-side to prevent hydration mismatches
-    setIsMounted(true)
-    setIsClient(true)
-  }, [])
-
-  // Only prevent rendering during SSR, allow immediate client-side rendering
-  if (!isMounted || !isClient) {
-    return <LoadingFallback />
-  }
-
   try {
     return (
       <SessionProvider 
