@@ -5,9 +5,28 @@ import { useState, useEffect } from 'react'
 
 export function useAuthSession() {
   const [isReady, setIsReady] = useState(false)
+  const [isClient, setIsClient] = useState(false)
   
+  useEffect(() => {
+    setIsClient(true)
+    // Allow more time for session to initialize
+    const timer = setTimeout(() => {
+      setIsReady(true)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   // Wrap useSession with error handling
   const sessionResult = (() => {
+    if (!isClient || !isReady) {
+      return {
+        data: null,
+        status: 'loading' as const,
+        update: async () => null
+      }
+    }
+
     try {
       return useSession()
     } catch (error) {
@@ -19,23 +38,6 @@ export function useAuthSession() {
       }
     }
   })()
-
-  useEffect(() => {
-    // Allow some time for session to initialize
-    const timer = setTimeout(() => {
-      setIsReady(true)
-    }, 100)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  if (!isReady) {
-    return {
-      data: null,
-      status: 'loading' as const,
-      update: sessionResult.update
-    }
-  }
 
   return sessionResult
 }
