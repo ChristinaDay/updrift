@@ -35,15 +35,10 @@ export default function SignInPage() {
 
       if (result?.error) {
         console.error('❌ Sign in error:', result.error)
-        setError('Invalid credentials')
+        setError('Invalid credentials. Please check your email and password.')
       } else if (result?.ok) {
-        console.log('✅ Sign in successful, redirecting...')
-        // Use NextAuth's built-in redirect instead of manual redirect
-        await signIn('credentials', {
-          email,
-          password,
-          callbackUrl: '/dashboard',
-        })
+        console.log('✅ Sign in successful, redirecting to dashboard...')
+        router.push('/dashboard')
       } else {
         console.log('⚠️ Sign in result unclear:', result)
         setError('Sign in failed. Please try again.')
