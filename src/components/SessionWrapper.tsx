@@ -19,17 +19,22 @@ function LoadingFallback() {
 function SafeSessionProvider({ children }: { children: ReactNode }) {
   const [isClient, setIsClient] = useState(false)
   const [isReady, setIsReady] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
+    // Prevent hydration mismatches by ensuring we're fully client-side
+    setIsMounted(true)
     setIsClient(true)
-    // Add additional delay to ensure all contexts are ready
+    
+    // Add additional delay to ensure all contexts are ready and prevent hydration issues
     const timer = setTimeout(() => {
       setIsReady(true)
-    }, 200)
+    }, 600)
     return () => clearTimeout(timer)
   }, [])
 
-  if (!isClient || !isReady) {
+  // Always show loading during SSR and initial client mount
+  if (!isMounted || !isClient || !isReady) {
     return <LoadingFallback />
   }
 
@@ -46,7 +51,14 @@ function SafeSessionProvider({ children }: { children: ReactNode }) {
     )
   } catch (error) {
     console.error('SessionProvider initialization error:', error)
-    return <div>Authentication system loading...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Authentication system loading...</p>
+        </div>
+      </div>
+    )
   }
 }
 

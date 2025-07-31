@@ -6,38 +6,39 @@ import { useState, useEffect } from 'react'
 export function useAuthSession() {
   const [isReady, setIsReady] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   
   useEffect(() => {
+    // Ensure we're fully mounted on the client
+    setIsMounted(true)
     setIsClient(true)
-    // Allow more time for session to initialize
+    
+    // Allow more time for session to initialize and prevent hydration mismatches
     const timer = setTimeout(() => {
       setIsReady(true)
-    }, 300)
+    }, 500)
 
     return () => clearTimeout(timer)
   }, [])
 
-  // Wrap useSession with error handling
-  const sessionResult = (() => {
-    if (!isClient || !isReady) {
-      return {
-        data: null,
-        status: 'loading' as const,
-        update: async () => null
-      }
+  // Always return loading state during SSR to prevent hydration mismatches
+  if (!isMounted || !isClient || !isReady) {
+    return {
+      data: null,
+      status: 'loading' as const,
+      update: async () => null
     }
+  }
 
-    try {
-      return useSession()
-    } catch (error) {
-      console.error('Session error caught in useAuthSession:', error)
-      return {
-        data: null,
-        status: 'unauthenticated' as const,
-        update: async () => null
-      }
+  // Wrap useSession with error handling - only on client after mount
+  try {
+    return useSession()
+  } catch (error) {
+    console.error('Session error caught in useAuthSession:', error)
+    return {
+      data: null,
+      status: 'unauthenticated' as const,
+      update: async () => null
     }
-  })()
-
-  return sessionResult
+  }
 }
